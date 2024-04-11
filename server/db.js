@@ -1,6 +1,8 @@
+
 const pg = require('pg');
 const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/capstone_eComm_db');
 const uuid = require('uuid');
+const bcrypt = require('bcrypt');
 
 
 const createTables = async()=> {
@@ -51,5 +53,45 @@ const createTables = async()=> {
     await client.query(SQL);
   };
 
+  
+const createUser = async({ firstname, lastname, email, phone, password, is_admin, is_engineer})=> {
+  const SQL = `
+    INSERT INTO users(id, firstname, lastname, email, phone, password, is_admin, is_engineer) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), firstname, lastname, email, phone, await bcrypt.hash(password, 5), is_admin, is_engineer]);
+  return response.rows[0];
+};
 
-module.exports = { client, createTables }
+const createProduct = async({ title, category, price, description, inventory, image })=> {
+  const SQL = `
+    INSERT INTO products(id, title, category, price, description, inventory, image) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), title, category, price, description, inventory, image]);
+  return response.rows[0];
+};
+
+const fetchUsers = async()=> {
+  const SQL = `
+    SELECT * FROM users;
+  `;
+  const response = await client.query(SQL);
+  return response.rows;
+};
+
+//
+const fetchProducts = async()=> {
+  const SQL = `
+    SELECT * FROM products;
+  `;
+  const response = await client.query(SQL);
+  return response.rows;
+};
+
+module.exports = { 
+  client, 
+  createTables,
+  createUser,
+  createProduct,
+  fetchUsers,
+  fetchProducts
+}
