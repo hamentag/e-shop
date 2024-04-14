@@ -48,6 +48,25 @@ const createTables = async()=> {
         updated_at TIMESTAMP DEFAULT now()        
       );
 
+
+      
+      -- check constraint function to validate data before insert or update the cart quantity
+      CREATE OR REPLACE FUNCTION check_cart_quantity_less_than_inventory()
+      RETURNS TRIGGER AS $$
+      BEGIN
+          IF (SELECT inventory FROM products WHERE id = NEW.product_id) < NEW.qty THEN
+              RAISE EXCEPTION 'Oops! It seems you have added more items to your cart than we have in stock.';
+          END IF;
+          RETURN NEW;
+      END;
+      $$ LANGUAGE plpgsql;
+  
+      -- Create trigger to execute check constraint function
+      CREATE TRIGGER check_cart_quantity_trigger
+      BEFORE INSERT OR UPDATE ON cart
+      FOR EACH ROW
+      EXECUTE FUNCTION check_cart_quantity_less_than_inventory();
+
     `;
     
     await client.query(SQL);

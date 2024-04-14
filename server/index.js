@@ -12,6 +12,16 @@ const app = express();
 app.use(express.json());
 const { faker } = require('@faker-js/faker');
 
+
+app.get('/api/products', async(req, res, next)=> {
+    try {
+      res.send(await fetchProducts());
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+
 const init = async()=> {
     const port = process.env.PORT || 3000;
     console.log('connecting to database');
