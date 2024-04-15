@@ -164,6 +164,7 @@ const addToCart = async({ user_id, product_id, qty })=> {
   const SQL = `
     INSERT INTO cart (id, user_id, product_id, qty)
     VALUES ($1, $2, $3, $4)
+    ON CONFLICT ON CONSTRAINT unique_user_id_and_product_id_un DO UPDATE SET qty = cart.qty + 1
     RETURNING *;
   `;
   const response = await client.query(SQL, [uuid.v4(), user_id, product_id, qty]);
@@ -181,6 +182,17 @@ const updateCart = async({ user_id, product_id, qty })=> {
   `;
   const response = await client.query(SQL, [user_id, product_id, qty]);
   return response.rows[0];
+};
+
+//
+const deleteCartProduct = async({ user_id, id })=> {
+  const SQL = `
+    DELETE FROM cart 
+    WHERE user_id = $1 AND product_id = $2
+    RETURNING *;
+    `;
+  await client.query(SQL, [user_id, id]);
+ 
 };
 
 const fetchCart = async(user_id)=> {
@@ -221,5 +233,6 @@ module.exports = {
   findUserWithToken,
   addToCart, 
   updateCart, 
-  fetchCart
+  fetchCart,
+  deleteCartProduct
 }
