@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import Products from './components/Products'
+import SingleProduct from './components/SingleProduct'
 
 
 const Login = ({ login })=> {
@@ -90,6 +91,7 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Products  products={products} />} />
+          <Route path="/:id" element={<SingleProduct />} />
           
         </Routes>
     </>
