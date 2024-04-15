@@ -9,8 +9,7 @@ export default function Products({products}){
     return (
         <ul className='products'>
         {
-          products.map( product => {
-           
+          products.map( product => {           
             return (
               <li key={ product.id }>
                 <div >

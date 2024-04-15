@@ -5,7 +5,8 @@ const {
     createUser,
     createProduct,
     fetchUsers,
-    fetchProducts
+    fetchProducts,
+    fetchSingleProduct,
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -21,6 +22,15 @@ app.get('/api/products', async(req, res, next)=> {
       next(ex);
     }
   });
+
+app.get('/api/products/:id', async(req, res, next)=> {
+try {
+    res.send(await fetchSingleProduct(req.params.id ));
+}
+catch(ex){
+    next(ex);
+}
+});
 
 const init = async()=> {
     const port = process.env.PORT || 3000;
