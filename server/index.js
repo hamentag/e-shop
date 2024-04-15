@@ -6,9 +6,12 @@ const {
     createProduct,
     fetchUsers,
     fetchProducts,
-    fetchSingleProduct,
+    fetchSingleProduct, 
     authenticate, 
-    findUserWithToken
+    findUserWithToken,
+    addToCart, 
+    updateCart, 
+    fetchCart
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -72,6 +75,46 @@ catch(ex){
 }
 });
 
+app.get('/api/users', async(req, res, next)=> {
+    try {
+      res.send(await fetchUsers());
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+
+
+  app.get('/api/users/:id/cart', isLoggedIn, async(req, res, next)=> {
+    console.log("fetching cart .,,,")
+    try {
+      res.send(await fetchCart(req.params.id));
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+  
+
+  app.post('/api/users/:id/cart',  isLoggedIn,async(req, res, next)=> {
+    try {
+      res.status(201).send(await addToCart({ user_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+  
+  app.put('/api/users/:id/cart',  isLoggedIn,async(req, res, next)=> {
+    try {
+      res.send(await updateCart({ user_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+
+
 const init = async()=> {
     const port = process.env.PORT || 3000;
     console.log('connecting to database');
@@ -121,8 +164,10 @@ const init = async()=> {
   
       console.log(await fetchUsers());
       console.log(await fetchProducts());
-      
-  
+
+      await addToCart({ user_id: usersDummyData[0].id, product_id: productsDummyDataFaker[4].id, qty: 2 });
+      await addToCart({ user_id: usersDummyData[0].id, product_id: productsDummyDataFaker[6].id, qty: 1 });
+        
       app.listen(port, ()=> console.log(`listening on port ${port}`));
 
 }
