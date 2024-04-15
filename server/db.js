@@ -5,7 +5,7 @@ const uuid = require('uuid');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT = process.env.JWT || 'shhh';
-
+const TAX_RATE = 6.5;
 
 const createTables = async()=> {
     const SQL = `
@@ -160,6 +160,54 @@ const findUserWithToken = async(token) => {
   return response.rows[0];
 }
 
+const addToCart = async({ user_id, product_id, qty })=> {
+  const SQL = `
+    INSERT INTO cart (id, user_id, product_id, qty)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+  `;
+  const response = await client.query(SQL, [uuid.v4(), user_id, product_id, qty]);
+ 
+  return response.rows[0];
+};
+
+// 
+const updateCart = async({ user_id, product_id, qty })=> {
+  const SQL = `
+    UPDATE cart 
+    SET qty = $3
+    WHERE user_id = $1 AND product_id = $2
+    RETURNING *
+  `;
+  const response = await client.query(SQL, [user_id, product_id, qty]);
+  return response.rows[0];
+};
+
+const fetchCart = async(user_id)=> {
+  const SQL = `
+    WITH cart_products AS (
+      SELECT *
+      FROM cart
+      JOIN products ON cart.product_id = products.id
+      WHERE user_id = $1
+      ORDER BY product_id ASC
+    ),
+    cost_and_subtotal_calculation AS (
+        SELECT SUM(price * qty) AS subtotal
+        FROM cart_products
+    )
+    SELECT *,
+          (ROUND(subtotal * ($2::numeric / 100), 2)) AS tax,
+          (ROUND(subtotal * (1 + ($2::numeric / 100)), 2)) AS total,
+          (price * qty) AS cos_pr,
+          $2 AS tax_rate
+    FROM cart_products, cost_and_subtotal_calculation
+  ;
+`;
+  const response = await client.query(SQL, [ user_id, TAX_RATE]);
+  return response.rows;
+};
+
 
 module.exports = { 
   client, 
@@ -170,5 +218,8 @@ module.exports = {
   fetchProducts,
   fetchSingleProduct, 
   authenticate, 
-  findUserWithToken
+  findUserWithToken,
+  addToCart, 
+  updateCart, 
+  fetchCart
 }

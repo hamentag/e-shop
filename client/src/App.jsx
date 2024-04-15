@@ -4,6 +4,7 @@ import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import Products from './components/Products'
 import SingleProduct from './components/SingleProduct'
+import Cart from './components/Cart';
 
 
 const Login = ({ login })=> {
@@ -56,6 +57,8 @@ function App() {
   
   const [products, setProducts] = useState([]);
   const [auth, setAuth] = useState({});
+  const [cart, setCart] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
  
 
   const navigate = useNavigate();
@@ -82,6 +85,54 @@ function App() {
     fetchProducts();
   }, []);
 
+  console.log(cart)
+  //
+  useEffect(()=> {
+    const fetchCart = async()=> {
+      const response = await fetch(`/api/users/${auth.id}/cart`, {
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      });
+      const json = await response.json();
+      if(response.ok){
+        setCart(json);
+      }
+      else{
+        console.error(json.error)
+      }
+    };       
+    
+    if(auth.id){
+      fetchCart();
+    }
+    else {
+      setCart([]);
+    }
+  }, [auth, cartCount]);
+
+   // Calculate total items in cart
+   useEffect(()=> {
+    setCartCount(
+        cart.reduce((accumulator ,item) => {
+            return accumulator + item.qty;
+      }, 0)
+      )
+  }, [auth, cart]);
+
+
+  const removeFromCart = async(id)=> {
+    const response = await fetch(`${baseURL}/api/users/${auth.id}/cart/${id}`, {
+      method: 'DELETE',
+      headers: {
+        authorization: window.localStorage.getItem('token')
+      }
+    });
+    if(response.ok){
+      setCart(cart.filter(item => item.product_id !== id));
+    }
+   
+  };
 
   const attemptLoginWithToken = async()=> {
     const token = window.localStorage.getItem('token');
@@ -145,13 +196,23 @@ function App() {
     <>
       <div className='nav'>
           <div><Link to={'/'}>Home</Link></div>
+          <div><Link to={'/cart'}>Cart</Link></div>
+
       </div>
 
       {
-        !auth.id && <div>
-           <Login login={login}  />
+        !auth.id && <div className='login-register'>
+          <div  className='login-form'>
+             <Login login={login}  />
+          </div>
+          
           OR
-          <Register register={register} />
+
+          <div  className='login-form'>
+            <Register register={register} />
+          </div>
+
+        
         </div>
       }
          
@@ -174,7 +235,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Products  products={products} />} />
           <Route path="/:id" element={<SingleProduct />} />
-          
+          <Route path="/cart" element={<Cart auth={auth} products={products} cart={cart}
+             removeFromCart={removeFromCart} cartCount={cartCount} setCartCount={setCartCount} />} />
+         
         </Routes>
     </>
   )

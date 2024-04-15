@@ -1,68 +1,102 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*{
+  box-sizing: border-box;
+}
+body{
+  background-color: rgba(236, 236, 236, 0.395);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
+form {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: column;
+}
+form > * {
+  margin: 0.5rem;
+}
+form input, form button{
+  padding: 5px;
+}
+.login-register{
+  display: flex;
+}
+.login-form, .register-form{
+  width: 18rem;
+  margin: 0 auto;
+}
+.login-form button, .register-form button{
+  border: 1.5px solid gray;
+  border-radius: 3px;
+}
+.register-form button{
+  background-color: rgba(182, 198, 227, 0.847);
+}
+.register-form button:hover{
+  background-color: rgba(168, 186, 221, 0.904);
+}
+.login-form button{
+  background-color: rgba(170, 230, 222, 0.9);
+}
+.login-form button:hover{
+  background-color: rgba(139, 210, 201, 0.952); 
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1, h2, h3, h4{
+  margin: 0;
 }
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+p{
+  margin: 0;
+}
+.login-btn{
+  background-color: rgba(114, 211, 179, 0.925);
+  height: fit-content;
+  padding: 4px 10px;
+  border: 1.5px solid gray;
+  border-radius: 3px;
+  margin:5px 0;
+}
+.signUp-link, .login-link{
+  color:blue;
   cursor: pointer;
-  transition: border-color 0.25s;
+  margin-left: 10px;
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.signUp-link:hover, .login-link:hover{
+  color:rgb(194, 88, 27);
+  text-decoration: underline;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+
+.nav{
+  background-color: rgb(218, 218, 218);
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  padding: 0 30px;
+  font-weight: bold;
+  color: navy;
 }
+
+.products{
+  border: 1.5px solid rgba(190, 190, 190, 0.603);
+  margin: 0;
+  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  list-style-type: none;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.products li{
+  flex: 0 0 calc(33%-15px);
+  width: 280px;
+  display: flex;
+  gap: 15px;
+  text-align: center;
+}
+.products h4{
+  background-color: rgba(113, 173, 219, 0.516);
+  border-radius: 5px 5px 0 0;
+  padding: 3px;
+}
+
+ 
