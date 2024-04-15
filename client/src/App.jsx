@@ -55,10 +55,17 @@ const Register = ({ register })=> {
 function App() {
   
   const [products, setProducts] = useState([]);
-
-  const [hasAccount, setHasAccount] = useState(true);
+  const [auth, setAuth] = useState({});
+ 
 
   const navigate = useNavigate();
+
+  useEffect(()=> {
+    const token = window.localStorage.getItem('token');
+    if(token){
+      attemptLoginWithToken();
+    }
+  }, []);
 
   useEffect(()=> {
     const fetchProducts = async()=> {
@@ -69,25 +76,100 @@ function App() {
       
       }
       else{
-        console.error(response.error);
-        setMsg("Oops! unable to fetch product list currently.")            
+        console.error(response.error);        
       }
     };
     fetchProducts();
   }, []);
 
 
+  const attemptLoginWithToken = async()=> {
+    const token = window.localStorage.getItem('token');
+    const response = await fetch('/api/auth/me', {
+      headers: {
+        authorization: token
+      }
+    });
+    const json = await response.json();
+    if(response.ok){
+      setAuth(json);
+    }
+    else {
+      window.localStorage.removeItem('token');
+    }
+  };
+
+  const login = async(credentials)=> {
+    const response = await fetch('/api/auth/login', {    //
+      method: 'POST',
+      body: JSON.stringify(credentials),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    const json = await response.json();
+    if(response.ok){
+      window.localStorage.setItem('token', json.token);
+      attemptLoginWithToken();
+    }
+    else{
+      console.error(json.error)
+    }
+  };
+
+  const register = async(newUserData)=> {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(newUserData),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    const result = await response.json();    
+    if(response.ok){
+      login({ email: newUserData.email, password: newUserData.password });  
+    }
+    else{
+      console.error(result.error);
+    }
+  };
+
+
+  const logout = ()=> {
+    window.localStorage.removeItem('token');
+    setAuth({});
+  }
 
 
   return (
     <>
       <div className='nav'>
           <div><Link to={'/'}>Home</Link></div>
-          </div>
+      </div>
 
-          <Login  />
+      {
+        !auth.id && <div>
+           <Login login={login}  />
           OR
-          <Register  />
+          <Register register={register} />
+        </div>
+      }
+         
+
+      
+        {auth.id? // Display logged in user info
+          <div>
+            <div> id: {auth.id} </div>
+            <div> First Name: {auth.firstname}</div>
+            <div> email: {auth.email}</div>
+        </div>
+        :
+        <div> No user is logged in</div>
+        }
+
+        {
+          auth.id && <button onClick={logout}>Logout </button>
+        }
 
         <Routes>
           <Route path="/" element={<Products  products={products} />} />
