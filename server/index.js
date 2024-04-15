@@ -11,7 +11,8 @@ const {
     findUserWithToken,
     addToCart, 
     updateCart, 
-    fetchCart
+    fetchCart,
+    deleteCartProduct
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -108,6 +109,16 @@ app.get('/api/users', async(req, res, next)=> {
   app.put('/api/users/:id/cart',  isLoggedIn,async(req, res, next)=> {
     try {
       res.send(await updateCart({ user_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+
+  app.delete('/api/users/:user_id/cart/:id', isLoggedIn, async(req, res, next)=> {
+    try {
+      await deleteCartProduct({user_id: req.params.user_id, id: req.params.id });
+      res.sendStatus(204);
     }
     catch(ex){
       next(ex);

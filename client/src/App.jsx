@@ -120,9 +120,29 @@ function App() {
       )
   }, [auth, cart]);
 
+  const addToCart = async(product_id, qty)=> {
+    const response = await fetch(`/api/users/${auth.id}/cart`, {
+      method: 'POST',
+      body: JSON.stringify({ product_id, qty}),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: window.localStorage.getItem('token')
+      }
+    });
+    const json = await response.json();
+    if(response.ok){
+      console.log(json)
+      setCart([...cart, json]);
+    }
+    else {
+      console.error(json.error);
+    }
+    return json
+  };
+
 
   const removeFromCart = async(id)=> {
-    const response = await fetch(`${baseURL}/api/users/${auth.id}/cart/${id}`, {
+    const response = await fetch(`/api/users/${auth.id}/cart/${id}`, {
       method: 'DELETE',
       headers: {
         authorization: window.localStorage.getItem('token')
@@ -233,7 +253,7 @@ function App() {
         }
 
         <Routes>
-          <Route path="/" element={<Products  products={products} />} />
+          <Route path="/" element={<Products auth={auth} products={products} addToCart={addToCart} />} />
           <Route path="/:id" element={<SingleProduct />} />
           <Route path="/cart" element={<Cart auth={auth} products={products} cart={cart}
              removeFromCart={removeFromCart} cartCount={cartCount} setCartCount={setCartCount} />} />
