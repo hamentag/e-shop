@@ -1,11 +1,15 @@
 
-import { useState, useEffect } from 'react'
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+const baseURL = ''
+import { useState, useEffect, useRef } from 'react'
+import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
 import Products from './components/Products'
-import SingleProduct from './components/SingleProduct'
+import SingleProduct from './components/SingleProduct';
 import Cart from './components/Cart';
-
+import Account from './components/Account';
+import Checkout from './components/Checkout';
+import Users from './components/Users';
+import AddNewProduct from './components/AddNewProduct';
 
 const Login = ({ login })=> {
   const [email, setEmail] = useState('');
@@ -51,49 +55,108 @@ const Register = ({ register })=> {
   );
 }
 
-
+const DialogBox = ({msg, setMsg}) => {
+  return(
+    <>
+        <div className="dialog-box">
+            <div className="dialog-box-main">
+                <p>{msg.txt}</p>
+                <div>{msg.more}</div>                
+            </div>
+            <button onClick={()=>{setMsg(null)}} style={{fontSize:'18px'}}> &times; </button>
+        </div>
+        <div className="overlay" onClick={()=>{setMsg(null)}}></div>
+    </>
+)
+}
 
 function App() {
-  
-  const [products, setProducts] = useState([]);
   const [auth, setAuth] = useState({});
+  const [guest, setGuest] = useState({});
+  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
- 
+  const [productCount, setProductCount] = useState(0);
+   
+  const [refreshCart, setRefreshCart] = useState(false);
+  const [refreshProductList, setRefreshProductList] = useState(false);
+
+  const [msg, setMsg] = useState(null);
+  const [hasAccount, setHasAccount] = useState(true);
+
+  const [isScrolledLoginRegElem, setIsScrolledLoginRegElem] = useState(false);
+  const loginRegRef = useRef(null);
+  const headerRef = useRef(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(()=> {
     const token = window.localStorage.getItem('token');
     if(token){
       attemptLoginWithToken();
     }
+    else {
+      const foundGuest = window.localStorage.getItem('guest');
+      if(foundGuest){
+        checkFoundGuest();
+      }
+      else{
+        createGuest();
+      }
+    }
   }, []);
 
   useEffect(()=> {
     const fetchProducts = async()=> {
-      const response = await fetch('/api/products'); 
+      const response = await fetch(`${baseURL}/api/products`); 
       const json = await response.json();
       if(response.ok){
         setProducts(json);
-      
       }
       else{
-        console.error(response.error);        
+        console.error(response.error);
+        setMsg("Oops! unable to fetch product list currently.")            
       }
     };
     fetchProducts();
-  }, []);
+  }, [refreshProductList]);
 
-  console.log(cart)
-  //
+
   useEffect(()=> {
     const fetchCart = async()=> {
-      const response = await fetch(`/api/users/${auth.id}/cart`, {
+      const response = await fetch(`${baseURL}/api/users/${auth.id}/cart`, {
         headers: {
           authorization: window.localStorage.getItem('token')
         }
       });
+      const json = await response.json();
+      if(response.ok){
+
+        if(guest.id){
+          // from guest too logged in user
+          cart.forEach(async(element) => {
+             const guestCartItem = json.find(item => item.product_id === element.product_id);
+             if(!guestCartItem){
+              // add to cart
+              await addToCart(element.product_id, element.qty);
+             }
+             else{
+              const newQty = element.qty > guestCartItem.qty? element.qty : guestCartItem.qty;
+              // update cart... to be defined
+             }
+             setGuest({})
+          });
+        }
+      
+        setCart(json);
+      }
+      else{
+        console.error(json.error)
+      }
+    };   
+    
+    const fetchGuestCart = async()=> {
+      const response = await fetch(`${baseURL}/api/guests/${guest.id}/cart`); 
       const json = await response.json();
       if(response.ok){
         setCart(json);
@@ -101,62 +164,195 @@ function App() {
       else{
         console.error(json.error)
       }
-    };       
+    }
     
     if(auth.id){
       fetchCart();
     }
-    else {
-      setCart([]);
+    else if(guest.id){
+      fetchGuestCart();
     }
-  }, [auth, cartCount]);
+  }, [auth, guest, refreshCart]);
+  
 
-   // Calculate total items in cart
-   useEffect(()=> {
-    setCartCount(
-        cart.reduce((accumulator ,item) => {
-            return accumulator + item.qty;
-      }, 0)
-      )
-  }, [auth, cart]);
+  // Display log in button when Login or Register form is scrolled past (compared to
+  // the bottom of the header)
+  useEffect(()=> {
+    const handleScroll = () => {
+     if(loginRegRef.current){
+      const loginRegBtmPosition = loginRegRef.current.getBoundingClientRect().bottom;
+      const headerBtmPosition = headerRef.current.getBoundingClientRect().bottom;
+      setIsScrolledLoginRegElem(loginRegBtmPosition < headerBtmPosition);
+     }
+    };
 
-  const addToCart = async(product_id, qty)=> {
-    const response = await fetch(`/api/users/${auth.id}/cart`, {
+    // Add event listener to track scroll position
+    window.addEventListener('scroll', handleScroll);
+
+    // Clean up by removing event listener when component unmounts
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+
+
+  // add to guest cart
+  const addToGuestCart = async(product_id, qty)=> {
+    if(true){
+      const response = await fetch(`${baseURL}/api/guests/${guest.id}/guest_cart`, {
+        method: 'POST',
+        body: JSON.stringify({ product_id, qty}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });    
+      const json = await response.json();
+      if(response.ok){
+        setCart([...cart, json]);
+        setRefreshCart(prevState => !prevState); // fetch updated cart
+      }
+      else {
+        console.error(json.error);
+        setMsg({
+          txt: json.error,
+          more: <button onClick={()=>{setMsg(null)}}>OK</button>
+        })
+      }
+    }
+  };
+
+  // add guest
+  const createGuest = async() => {
+    const response = await fetch(`${baseURL}/api/guests/join`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    const result = await response.json();
+    if(response.ok){
+      setGuest(result);
+      window.localStorage.setItem('guest', JSON.stringify(result));          
+    }
+    else{
+      console.error(result.error)
+    }
+  }
+
+
+  // add to cart
+  const addToCart = async(product_id, qty)=> {
+    if(auth.id){
+      const response = await fetch(`${baseURL}/api/users/${auth.id}/cart`, {
+        method: 'POST',
+        body: JSON.stringify({ product_id, qty}),
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: window.localStorage.getItem('token')
+        }
+      });
+      const json = await response.json();
+      if(response.ok){
+        setCart([...cart, json]);
+        setRefreshCart(prevState => !prevState); // fetch updated cart
+      }
+      else {
+        console.error(json.error);
+        setMsg({
+          txt: json.error,
+          more: <button onClick={()=>{setMsg(null)}}>OK</button>
+        })
+      }      
+    }
+    else{   // not logged in
+      await addToGuestCart(product_id, qty);      
+    }
+  };
+
+    // update cart
+ const updateCart = async(product_id, qty)=> {
+  let responseAPI;
+  if(auth.id){
+    responseAPI = await fetch(`/api/users/${auth.id}/cart`, {
+      method: 'PUT',
       body: JSON.stringify({ product_id, qty}),
       headers: {
         'Content-Type': 'application/json',
         authorization: window.localStorage.getItem('token')
       }
     });
-    const json = await response.json();
-    if(response.ok){
-      console.log(json)
-      setCart([...cart, json]);
-    }
-    else {
-      console.error(json.error);
-    }
-    return json
-  };
 
-
-  const removeFromCart = async(id)=> {
-    const response = await fetch(`/api/users/${auth.id}/cart/${id}`, {
-      method: 'DELETE',
+  }
+  else if(guest.id){
+    responseAPI = await fetch(`/api/guests/${guest.id}/cart`, {
+      method: 'PUT',
+      body: JSON.stringify({ product_id, qty}),
       headers: {
-        authorization: window.localStorage.getItem('token')
+        'Content-Type': 'application/json'
       }
     });
-    if(response.ok){
+
+  }
+  const json = await responseAPI.json();                                                 
+  if(responseAPI.ok){
+      for(let element of cart){
+        if(element.product_id === product_id ){
+          element.qty = json.qty;
+          break;
+        }
+      }
+      setRefreshCart(prevState => !prevState); // fetch updated cart
+  }
+  else{
+    console.error(json.error)
+    alert(json.error)
+  }
+  
+};
+      
+  const removeFromCart = async(id)=> {
+    let responseAPI;
+    if(auth.id){
+      responseAPI = await fetch(`${baseURL}/api/users/${auth.id}/cart/${id}`, {
+        method: 'DELETE',
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      });
+    }  
+    else if(guest.id){
+      responseAPI = await fetch(`${baseURL}/api/guests/${guest.id}/cart/${id}`, {
+        method: 'DELETE'
+      });      
+    }
+    
+
+    if(responseAPI.ok){
       setCart(cart.filter(item => item.product_id !== id));
     }
    
   };
 
+  const checkFoundGuest = async()=> {
+    //
+    const foundGuest = JSON.parse(window.localStorage.getItem('guest'));
+    try{
+      const response = await fetch(`${baseURL}/api/guests/${foundGuest.id}`);
+      const json = await response.json();
+
+      setGuest(json);
+
+    } catch (error){
+      // invalid guest key.  
+      window.localStorage.removeItem('guest');
+      createGuest();
+    }  
+  }
+
   const attemptLoginWithToken = async()=> {
     const token = window.localStorage.getItem('token');
-    const response = await fetch('/api/auth/me', {
+    const response = await fetch(`${baseURL}/api/auth/me`, {
       headers: {
         authorization: token
       }
@@ -171,7 +367,7 @@ function App() {
   };
 
   const login = async(credentials)=> {
-    const response = await fetch('/api/auth/login', {    //
+    const response = await fetch(`${baseURL}/api/auth/login`, {
       method: 'POST',
       body: JSON.stringify(credentials),
       headers: {
@@ -185,11 +381,14 @@ function App() {
     }
     else{
       console.error(json.error)
+      setMsg({
+        txt: "Incorrect email or password. Please try again."
+      })
     }
   };
 
   const register = async(newUserData)=> {
-    const response = await fetch('/api/auth/register', {
+    const response = await fetch(`${baseURL}/api/auth/register`, {
       method: 'POST',
       body: JSON.stringify(newUserData),
       headers: {
@@ -198,67 +397,156 @@ function App() {
     });
     const result = await response.json();    
     if(response.ok){
-      login({ email: newUserData.email, password: newUserData.password });  
+      setMsg({
+        txt: "Success! Your account has been created.",
+        more: <button onClick={()=>{navigate('/account'); setMsg(null)}}>See Account</button>
+      });
+      login({ email: newUserData.email, password: newUserData.password });  // login by default when user success. creates account
     }
     else{
       console.error(result.error);
+      setMsg({
+        txt: "Account creation failed with provided information."
+      });
     }
   };
 
+  const createProduct = async(newProductData)=> {
+    const response = await fetch(`${baseURL}/api/users/${auth.id}/products`, {
+      method: 'POST',
+      body: JSON.stringify(newProductData),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: window.localStorage.getItem('token')
+      }
+    });
+    const json = await response.json();
+    if(response.ok){
+      setMsg({txt: "Product has been added."});
+      setRefreshProductList(prevState => !prevState); 
+    }
+    else{
+      console.error(json.error)
+    }
+  }
+
+  const deleteProduct = async(id) =>{
+    const response = await fetch(`${baseURL}/api/products/${id}`, {
+      method: 'DELETE',
+      headers: {
+        authorization: window.localStorage.getItem('token')
+      }
+    });
+    if(response.ok){
+      //setProductCount((n)=> n -1);
+      setCart(cart.filter(item => item.product_id !== id));
+
+      setRefreshProductList(prevState => !prevState); // Refresh product list
+      setRefreshCart(prevState => !prevState); // fetch updated cart
+      
+    }
+    else{
+      await response.json().then((json)=>{
+        console.error(json.error)
+        setMsg({
+          txt: json.error,
+          more: <button onClick={()=>{setMsg(null)}}>OK</button>
+        })  
+      })         
+    }
+  }
 
   const logout = ()=> {
     window.localStorage.removeItem('token');
     setAuth({});
+    createGuest();
   }
-
+  
 
   return (
     <>
-      <div className='nav'>
+      <div className='header' ref={headerRef}>
+        <div className='header-top'>
+          <h1><Link to={'/'}>E-Shop</Link></h1>
+          {
+            auth.id?
+              <div>
+                <div className='logout'> <Link to={'/account'}>{auth.firstname} </Link>
+                  <button onClick={logout}>Logout </button>
+                </div>
+              </div>
+            :  
+              <>
+                { isScrolledLoginRegElem &&
+                  <button className='login-btn' onClick={()=>{
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                          setHasAccount(true);
+                        }
+                      }>Log In
+                  </button>  
+                }
+              </>
+          }
+        </div>
+        <div className='nav'>
           <div><Link to={'/'}>Home</Link></div>
-          <div><Link to={'/cart'}>Cart</Link></div>
-
+          {auth.id && <div>
+            <Link to={'/account'}>Account</Link>
+          </div>
+          }
+          {auth.is_admin && <>
+            <Link to={'/users'}>Show Users</Link>
+            <Link to={'/new_product'}>Add Product</Link>
+          </>}
+          <div className='cart'>
+            <h4><Link to={'/cart'}>Cart<sup>({cart.length===0? 0 : cart[0].cart_count })</sup></Link></h4>
+          </div>
+        </div>
       </div>
-
-      {
-        !auth.id && <div className='login-register'>
-          <div  className='login-form'>
-             <Login login={login}  />
-          </div>
-          
-          OR
-
-          <div  className='login-form'>
-            <Register register={register} />
-          </div>
-
-        
-        </div>
-      }
-         
-
-      
-        {auth.id? // Display logged in user info
-          <div>
-            <div> id: {auth.id} </div>
-            <div> First Name: {auth.firstname}</div>
-            <div> email: {auth.email}</div>
-        </div>
-        :
-        <div> No user is logged in</div>
-        }
-
+      <div className='main'>
         {
-          auth.id && <button onClick={logout}>Logout </button>
+          !auth.id && <div ref={loginRegRef} className={location.pathname === '/cart'? 'loginReg-in-cart-comp' : ''}>
+            {hasAccount ?
+              <div className='login-form'>
+                <Login login={login} />
+                Don't have an account? 
+                <span onClick={() => { setHasAccount(false)}} className='signUp-link'>Sign Up</span>
+              </div>
+              :
+              <div className='register-form'>
+                <h4>Create account</h4>
+                <Register register={register} />
+                Already have an account? 
+                <span onClick={() => { setHasAccount(true) }} className='login-link'>Log In</span>
+              </div>
+            }
+          </div>
         }
+
+        {msg && <DialogBox msg={msg} setMsg={setMsg} />}
 
         <Routes>
-          <Route path="/" element={<Products auth={auth} products={products} addToCart={addToCart} />} />
-          <Route path="/:id" element={<SingleProduct />} />
-          <Route path="/cart" element={<Cart auth={auth} products={products} cart={cart}
-             removeFromCart={removeFromCart} cartCount={cartCount} setCartCount={setCartCount} />} />
-         
+          <Route path="/" element={<Products auth={auth} cart={cart} setMsg={setMsg}
+            addToCart={addToCart} removeFromCart={removeFromCart} products={products} 
+            deleteProduct={deleteProduct} />}
+          />
+          <Route path="/:id" element={<SingleProduct auth={auth} cart={cart} addToCart={addToCart} 
+            deleteProduct={deleteProduct} setMsg={setMsg} />}
+          />
+          <Route path="/cart" element={<Cart auth={auth} products={products} cart={cart} updateCart={updateCart}
+            setMsg={setMsg} removeFromCart={removeFromCart} />}
+          />
+          <Route path="/account" element={<Account auth={auth} />}
+          />
+          <Route path="/checkout" element={<Checkout auth={auth} cart={cart} setMsg={setMsg} />}
+          />
+          <Route path="/users" element={<Users auth={auth} />}
+          />
+          <Route path="/new_product" element={<AddNewProduct auth={auth} createProduct={createProduct} />}
+          />
+
         </Routes>
+      </div>
     </>
   )
 }
