@@ -1,8 +1,10 @@
+// const baseURL = 'https://sim-ecom.onrender.com'
+const baseURL = ''
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
-export default function SingleProduct({}){
+export default function SingleProduct({auth, cart, addToCart, deleteProduct, setMsg}){
 
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -11,7 +13,7 @@ export default function SingleProduct({}){
     
     useEffect(()=> {
         const fetchSingleProduct = async()=> {
-          const response = await fetch(`/api/products/${id}`);
+          const response = await fetch(`${baseURL}/api/products/${id}`);
           const json = await response.json();
           if(response.ok){
             setProduct(json);
@@ -26,13 +28,13 @@ export default function SingleProduct({}){
 
       return(
         <>{ !error &&
-            <div> 
+            <div className="product-details"> 
                 {product &&
                     <>
                         <h3>Product Details "{product.title}"</h3>
-                        <div>
+                        <div className="product-details-main">
                             <div>
-                                <img src={product.image} alt="image" style={{width: '320px' , height:'185px'}}/>
+                                <img src={product.image} alt="product image" style={{width: '360px' , height:'225px'}}/>
                                 <table>
                                     <tbody>
                                         <tr>
@@ -48,19 +50,41 @@ export default function SingleProduct({}){
                                             <td>${product.price}</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">Description</th>
-                                            <td>{product.description}</td>
+                                            <th scope="row">Dimensions</th>
+                                            <td>{product.dimensions}</td>
                                         </tr>
                                         <tr>
+                                            <th scope="row">characteristics</th>
+                                            <td>{product.characteristics}</td>
+                                        </tr>
+                                        {
+                                            auth.is_admin && 
+                                            <tr>
                                             <th scope="row">Inventory</th>
                                             <td>{product.inventory}</td>
                                         </tr>
-                                    
+                                        }
                                     </tbody>
                                 </table>
                                 
                             </div>
-                            
+                            <div>
+                            {
+                                auth.id && <button onClick={()=> { 
+                                    addToCart(product.id,1) 
+
+                                }}>Add to cart</button>  
+                            }
+                            {
+                            auth.is_admin && 
+                                <button onClick={()=>{
+                                    setMsg({ txt: `Are you sure you want to delete "${product.title}" from the product list?`, 
+                                                more: <button onClick={() => { deleteProduct(product.id); navigate('/'); setMsg(null) }}>Yes</button>
+                                    });
+                                    }} className="delete-btn">Delete
+                                </button>
+                            }
+                            </div>
                         </div>
                         
                     </>
