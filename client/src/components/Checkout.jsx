@@ -1,21 +1,44 @@
 
 import {useState} from 'react'
 import { useNavigate } from 'react-router-dom';
-export default function Checkout({auth, cart, setMsg}){
+export default function Checkout({auth, cart, createOrder, setMsg}){
     const [nameOnCard, setNameOnCard ] = useState('');
     const [cardNumber, setCardNumber] = useState('');
     const [expirationDate, setExpirationDate] = useState('');
     const [cvc, setCvc] = useState('');
 
+    const [confirmedOrder, setConfirmedOrder] = useState(false);
+
+
     const navigate = useNavigate();
 
-    const submitToPlaceOrder = ev => {
+    const Confirmation = ()=> {
+
+        return(
+            <div>
+                <h1>Thank you for your order, {auth.firstname}</h1>
+            </div>
+        )
+    } 
+
+    const submitToPlaceOrder = async(ev) => {
         ev.preventDefault();
-        // place order
+        /**
+         * Logic to check payment information should be written here
+         */
+        createOrder();
+        setConfirmedOrder(true);
       }
         
     return(
-        <div>
+        <>{
+            confirmedOrder?
+            <div>
+                <Confirmation  />
+                <button onClick={()=>{navigate('/orders')}}>See orders</button>
+            </div>
+            :
+            <div>
             {cart.length !== 0 ?
                 <div>
                     <h3>Oreder Details</h3>
@@ -76,16 +99,29 @@ export default function Checkout({auth, cart, setMsg}){
                             </tbody>
                         </table>
                     </div>
-                    <div>
-                        <h4>Payment Information</h4>
-                        <form onSubmit={ submitToPlaceOrder } className='payment-form'>
-                            <input value={ nameOnCard} placeholder='NAME ON CARD' onChange={ ev=> setNameOnCard(ev.target.value)}/>
-                            <input value={ cardNumber} placeholder='CARD NUMBER' onChange={ ev=> setCardNumber(ev.target.value)}/>
-                            <input value={ expirationDate }  placeholder='MM/YY' onChange={ ev=> setExpirationDate(ev.target.value)}/>
-                            <input value={ cvc} placeholder='CVC' onChange={ ev=> setCvc(ev.target.value)}/>
-                            <button disabled={ !(nameOnCard && cardNumber && expirationDate && cvc) }>Place Order</button>
-                        </form> 
-                    </div>
+                    {
+                        auth.id?
+                        <div>
+                            <h4>Payment Information</h4>
+                            <form onSubmit={ submitToPlaceOrder } className='payment-form'>
+                                <input value={ nameOnCard} placeholder='NAME ON CARD' onChange={ ev=> setNameOnCard(ev.target.value)}/>
+                                <input value={ cardNumber} placeholder='CARD NUMBER' onChange={ ev=> setCardNumber(ev.target.value)}/>
+                                <input value={ expirationDate }  placeholder='MM/YY' onChange={ ev=> setExpirationDate(ev.target.value)}/>
+                                <input value={ cvc} placeholder='CVC' onChange={ ev=> setCvc(ev.target.value)}/>
+                                <button disabled={ (nameOnCard && cardNumber && expirationDate && cvc) }>Place Order</button>
+                            </form> 
+                        </div>
+                        :
+                        <div>
+                            <p>Please log in or register to place your order.</p>
+                            <button className='login-btn' onClick={()=>{
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                         
+                        }
+                      }>Log In
+                  </button>  
+                        </div>
+                    }
                 </div>
                 :
                 <div>
@@ -95,5 +131,7 @@ export default function Checkout({auth, cart, setMsg}){
             }
 
         </div>
+        }
+        </>
     )
 }

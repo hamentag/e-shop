@@ -285,8 +285,34 @@ td{
   border-radius: 3px;
   width: 75%;
 }
+.orders-container{
+  padding: 0;
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.orderbatch{
+  border: 1.5px solid gray;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: white;
+}
+.order-batch-container{
+  overflow-x: auto;  
+  white-space: nowrap;  
+}
 
-.cart-item-top{
+.order-batch-container{
+  display: flex;
+
+}
+.order{
+  min-width: 220px;
+  flex: 0 0 auto;
+}
+.cart-item-top, .order-item-top{
   display: flex;
   justify-content: space-between;
   padding-right: 1rem;

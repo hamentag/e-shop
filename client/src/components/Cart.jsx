@@ -22,22 +22,20 @@ export default function Cart({auth, products, cart, updateCart, setMsg, removeFr
                     </div>
                     <ul className={auth.id? "cart-list-logged-in" : "cart-list-logged-out"}>
                         {cart.map(item => {
-                            const myProduct = products.find(product => product.id === item.product_id);
-
                             return <li key={item.id} className="cart-item">
                                 <div className="cart-item-top">
-                                    <h4>{myProduct.title}</h4>
-                                    <div>${myProduct.price}/ea</div>
+                                    <h4>{item.title}</h4>
+                                    <div>${item.price}/ea</div>
                                 </div>
                                 <div>
                                     <div className="cart-item-info">
                                         <img src={item.image} alt="product image" style={{ width: '65px', height: '55px' }} />
                                         <div>
-                                            <p>{myProduct.characteristics}.</p>
-                                            <div>{myProduct.dimensions}</div>
-                                            <div>{myProduct.inventory > 0 ?
-                                                myProduct.inventory <= 5 ?
-                                                    <div style={{ color: "red" }}>Only {myProduct.inventory} left</div>
+                                            <p>{item.characteristics}.</p>
+                                            <div>{item.dimensions}</div>
+                                            <div>{item.inventory > 0 ?
+                                                item.inventory <= 5 ?
+                                                    <div style={{ color: "red" }}>Only {item.inventory} left</div>
                                                     : <div>In Stock</div>
                                                 : <p>Out of Stock</p>}
                                             </div>
@@ -49,26 +47,26 @@ export default function Cart({auth, products, cart, updateCart, setMsg, removeFr
                                                 item.qty === 1 ?
                                                     <button onClick={() => {
                                                         setMsg({
-                                                            txt: `Are you sure you want to delete "${myProduct.title}" from your cart?`,
+                                                            txt: `Are you sure you want to delete "${item.title}" from your cart?`,
                                                             more: <button onClick={() => { removeFromCart(item.product_id); setMsg(null) }}>Yes</button>
                                                         });
                                                     }} className="delete-btn">Remove
                                                     </button>
                                                     :
-                                                    <button onClick={async () => {
-                                                        updateCart(myProduct.id, item.qty - 1)
+                                                    <button onClick={async () => {                
+                                                        updateCart(item.id, item.qty - 1)
                                                     }}>-
                                                     </button>
                                             }
 
                                             <div className="qty"> {item.qty}</div>
                                             <button onClick={async () => {
-                                                 updateCart(myProduct.id, item.qty + 1)
+                                                 updateCart(item.id, item.qty + 1)
                                             }}>+</button>
                                         </div>
                                         <button onClick={() => {
                                             setMsg({
-                                                txt: `Are you sure you want to delete "${myProduct.title}" from your cart?`,
+                                                txt: `Are you sure you want to delete "${item.title}" from your cart?`,
                                                 more: <button onClick={() => { removeFromCart(item.product_id); setMsg(null) }}>Yes</button>
                                             });
                                         }} className="delete-btn">Delete

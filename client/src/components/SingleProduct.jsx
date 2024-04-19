@@ -1,4 +1,4 @@
-// const baseURL = 'https://sim-ecom.onrender.com'
+// 
 const baseURL = ''
 
 import { useState, useEffect } from "react";
