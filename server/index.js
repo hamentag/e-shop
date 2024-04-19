@@ -22,6 +22,8 @@ const {
     addToGuestCart,
     updateGuestCart,
     deleteGuestCartProduct,
+    createOrder,
+    fetchOrders,
   } = require('./db');
   const express = require('express');
   const app = express();
@@ -89,7 +91,17 @@ app.use(
     }
   });
 
+  // fetchOrders
+  app.get('/api/users/:id/orders', isLoggedIn, async(req,res,next)=> {
+    try{
+      res.send(await fetchOrders(req.params.id))
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
 
+  // fetchCart
   app.get('/api/users/:id/cart', isLoggedIn, async(req, res, next)=> {
     try {
       res.send(await fetchCart(req.params.id));
@@ -102,6 +114,16 @@ app.use(
   app.post('/api/users/:id/cart',  isLoggedIn,async(req, res, next)=> {
     try {
       res.status(201).send(await addToCart({ user_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+  
+  // createOrder
+  app.post('/api/users/:id/orders',  isLoggedIn,async(req, res, next)=> {
+    try {
+      res.status(201).send(await createOrder({ user_id: req.params.id}));
     }
     catch(ex){
       next(ex);

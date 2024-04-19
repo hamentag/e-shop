@@ -10,6 +10,7 @@ import Account from './components/Account';
 import Checkout from './components/Checkout';
 import Users from './components/Users';
 import AddNewProduct from './components/AddNewProduct';
+import Orders from './components/Orders'
 
 const Login = ({ login })=> {
   const [email, setEmail] = useState('');
@@ -75,10 +76,11 @@ function App() {
   const [guest, setGuest] = useState({});
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
-  const [productCount, setProductCount] = useState(0);
+  const [orders, setOrders] = useState([]);
    
   const [refreshCart, setRefreshCart] = useState(false);
   const [refreshProductList, setRefreshProductList] = useState(false);
+  const [refreshOrders, setRefreshOrders] = useState(false);
 
   const [msg, setMsg] = useState(null);
   const [hasAccount, setHasAccount] = useState(true);
@@ -133,7 +135,7 @@ function App() {
       if(response.ok){
 
         if(guest.id){
-          // from guest too logged in user
+          // from guest too logged in user  (from client side)
           cart.forEach(async(element) => {
              const guestCartItem = json.find(item => item.product_id === element.product_id);
              if(!guestCartItem){
@@ -173,7 +175,31 @@ function App() {
       fetchGuestCart();
     }
   }, [auth, guest, refreshCart]);
-  
+
+
+  useEffect(()=> {    
+    const fetchOrders = async()=> {     
+      const response = await fetch(`${baseURL}/api/users/${auth.id}/orders`, {
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      });
+      const json = await response.json();
+      if(response.ok){
+        setOrders(json)
+      }
+      else{
+        console.error(json.error)
+      }
+    };
+
+    if(auth.id){
+      fetchOrders();
+    }
+  }, [auth, refreshOrders]);
+
+
+
 
   // Display log in button when Login or Register form is scrolled past (compared to
   // the bottom of the header)
@@ -255,7 +281,7 @@ function App() {
       const json = await response.json();
       if(response.ok){
         setCart([...cart, json]);
-        setRefreshCart(prevState => !prevState); // fetch updated cart
+        setRefreshCart(prevState => !prevState); // fetch cart
       }
       else {
         console.error(json.error);
@@ -307,9 +333,28 @@ function App() {
   else{
     console.error(json.error)
     alert(json.error)
-  }
-  
+  }  
 };
+
+// Create Order 
+const createOrder = async()=> {
+  if(auth.id){
+    const response = await fetch(`${baseURL}/api/users/${auth.id}/orders`, {
+      method: 'POST',
+      
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: window.localStorage.getItem('token')
+      }
+    });
+    const json = await response.json();
+    if(response.ok){      
+      setOrders([...orders, ...json]);
+      setRefreshOrders(prevState => !prevState);
+      setRefreshCart(prevState => !prevState);
+    }
+  }
+}
       
   const removeFromCart = async(id)=> {
     let responseAPI;
@@ -326,12 +371,11 @@ function App() {
         method: 'DELETE'
       });      
     }
-    
 
     if(responseAPI.ok){
       setCart(cart.filter(item => item.product_id !== id));
+      setRefreshCart(prevState => !prevState); // fetch updated cart
     }
-   
   };
 
   const checkFoundGuest = async()=> {
@@ -461,7 +505,7 @@ function App() {
     setAuth({});
     createGuest();
   }
-  
+
 
   return (
     <>
@@ -490,9 +534,11 @@ function App() {
         </div>
         <div className='nav'>
           <div><Link to={'/'}>Home</Link></div>
-          {auth.id && <div>
-            <Link to={'/account'}>Account</Link>
-          </div>
+          {auth.id && <>
+            <div>  <Link to={'/account'}>Account</Link> </div>
+            <div><Link to={'/orders'}>Order History</Link></div>
+          </>
+          
           }
           {auth.is_admin && <>
             <Link to={'/users'}>Show Users</Link>
@@ -538,11 +584,13 @@ function App() {
           />
           <Route path="/account" element={<Account auth={auth} />}
           />
-          <Route path="/checkout" element={<Checkout auth={auth} cart={cart} setMsg={setMsg} />}
+          <Route path="/checkout" element={<Checkout auth={auth} cart={cart} createOrder={createOrder} setMsg={setMsg} />}
           />
           <Route path="/users" element={<Users auth={auth} />}
           />
           <Route path="/new_product" element={<AddNewProduct auth={auth} createProduct={createProduct} />}
+          />
+          <Route path="/orders" element={<Orders auth={auth} orders={orders}/>}
           />
 
         </Routes>

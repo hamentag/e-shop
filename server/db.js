@@ -16,6 +16,10 @@ const createTables = async()=> {
     DROP TABLE IF EXISTS orders CASCADE;
     DROP TABLE IF EXISTS guests cascade;
     DROP TABLE IF EXISTS guest_cart cascade;
+    
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
 
     CREATE TABLE users(
       id UUID PRIMARY KEY,
@@ -50,6 +54,7 @@ const createTables = async()=> {
       user_id UUID REFERENCES users(id) NOT NULL,
       product_id UUID REFERENCES products(id) ON DELETE CASCADE NOT NULL,
       qty INTEGER,
+      order_batch UUID,
       created_at TIMESTAMP DEFAULT now(),
       updated_at TIMESTAMP DEFAULT now()        
     );
@@ -82,10 +87,27 @@ const createTables = async()=> {
     FOR EACH ROW
     EXECUTE FUNCTION check_cart_quantity_less_than_inventory();
 
+
+    
+    -- Clear cart when order is created
+    CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        DELETE FROM cart WHERE user_id = NEW.user_id AND product_id = NEW.product_id;
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    -- Create trigger to clear cart when order is created
+    CREATE TRIGGER clear_cart_trigger
+    AFTER INSERT ON orders
+    FOR EACH ROW
+    EXECUTE FUNCTION clear_cart_when_place_order();
   `;
   
   await client.query(SQL);
 };
+
 
 const createUser = async({ firstname, lastname, email, phone, password, is_admin, is_engineer})=> {
   const SQL = `
@@ -102,6 +124,19 @@ const createProduct = async({ title, category, price, dimensions, characteristic
   const response = await client.query(SQL, [uuid.v4(), title, category, price, dimensions, characteristics, inventory, image]);
   return response.rows[0];
 };
+
+//  createOrder  
+const createOrder = async({ user_id})=> {
+  let SQL = `
+    INSERT INTO orders (id, user_id, product_id, qty, order_batch )
+    SELECT uuid_generate_v4(), $1, product_id, qty, $2
+    FROM cart
+        WHERE user_id = $1
+    RETURNING *;
+  `;
+  const response = await client.query(SQL, [ user_id, uuid.v4()]);
+  return response.rows;
+}
 
 // Add new item to cart 
 const addToCart = async({ user_id, product_id, qty })=> {
@@ -234,7 +269,7 @@ const fetchCart = async(user_id)=> {
     SELECT *,
           (ROUND(subtotal * ($2::numeric / 100), 2)) AS tax,
           (ROUND(subtotal * (1 + ($2::numeric / 100)), 2)) AS total,
-          (price * qty) AS cos_pr,
+          (price * qty) AS cost_per_product,
           $2 AS tax_rate
     FROM cart_products, cost_and_subtotal_calculation
   ;
@@ -242,6 +277,55 @@ const fetchCart = async(user_id)=> {
   const response = await client.query(SQL, [ user_id, TAX_RATE]);
   return response.rows;
 };
+
+
+
+// fetchOrders
+const fetchOrders = async(user_id)=> {
+  let SQL = `
+    SELECT DISTINCT order_batch 
+    FROM orders
+    WHERE user_id = $1;
+  `;
+  const response = await client.query(SQL, [user_id]);
+  const orderBatches = response.rows;
+  
+  SQL = `
+    WITH order_products AS (
+      SELECT *
+      FROM orders
+      JOIN products ON orders.product_id = products.id
+      WHERE user_id = $1 AND order_batch = $3
+      ORDER BY created_at DESC
+    ),
+    items_count_and_subtotal_calculation AS (
+        SELECT SUM(price * qty) AS subtotal, SUM(qty) AS items_count
+        FROM order_products
+    )
+    SELECT *,
+          (ROUND(subtotal * ($2::numeric / 100), 2)) AS tax,
+          (ROUND(subtotal * (1 + ($2::numeric / 100)), 2)) AS total,
+          (price * qty) AS cost_per_product,
+          $2 AS tax_rate
+    FROM order_products, items_count_and_subtotal_calculation
+    ;
+  `;
+
+  const detailedOrderBatchs = await Promise.all(orderBatches.map(async(el)=> {
+    const detailedOrderBatch = await client.query(SQL, [ user_id, TAX_RATE, el.order_batch]);
+    return detailedOrderBatch.rows;
+  }))
+
+  // sorting order batches
+  detailedOrderBatchs.sort((a, b) => {
+    const keyA = a[0].created_at;
+    const keyB = b[0].created_at;
+    return keyB - keyA; // descending order
+});
+
+  return detailedOrderBatchs;
+};
+
 
 //
 const fetchSingleProduct = async(id) =>{
@@ -289,7 +373,7 @@ const fetchGuestCart = async(guest_id)=> {
     SELECT *,
           (ROUND(subtotal * ($2::numeric / 100), 2)) AS tax,
           (ROUND(subtotal * (1 + ($2::numeric / 100)), 2)) AS total,
-          (price * qty) AS cos_pr,
+          (price * qty) AS cost_per_product,
           $2 AS tax_rate
     FROM guest_cart_products, cost_and_subtotal_calculation
   ;
@@ -325,7 +409,6 @@ const updateGuestCart = async({ guest_id, product_id, qty })=> {
 };
 
 
-
 module.exports = {
   client,
   createTables,
@@ -347,4 +430,6 @@ module.exports = {
   addToGuestCart,
   updateGuestCart,
   deleteGuestCartProduct,
+  createOrder,
+  fetchOrders,
   };
