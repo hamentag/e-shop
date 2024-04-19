@@ -1,5 +1,6 @@
 
-const baseURL = ''
+const baseURL = 'https://hs-ecommerce-srv.onrender.com'
+
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -573,13 +574,13 @@ const createOrder = async()=> {
 
         <Routes>
           <Route path="/" element={<Products auth={auth} cart={cart} setMsg={setMsg}
-            addToCart={addToCart} removeFromCart={removeFromCart} products={products} 
+            addToCart={addToCart} products={products} 
             deleteProduct={deleteProduct} />}
           />
           <Route path="/:id" element={<SingleProduct auth={auth} cart={cart} addToCart={addToCart} 
             deleteProduct={deleteProduct} setMsg={setMsg} />}
           />
-          <Route path="/cart" element={<Cart auth={auth} products={products} cart={cart} updateCart={updateCart}
+          <Route path="/cart" element={<Cart auth={auth} cart={cart} updateCart={updateCart}
             setMsg={setMsg} removeFromCart={removeFromCart} />}
           />
           <Route path="/account" element={<Account auth={auth} />}

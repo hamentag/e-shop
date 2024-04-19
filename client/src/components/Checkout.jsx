@@ -1,14 +1,13 @@
 
 import {useState} from 'react'
 import { useNavigate } from 'react-router-dom';
-export default function Checkout({auth, cart, createOrder, setMsg}){
+export default function Checkout({auth, cart, createOrder}){
     const [nameOnCard, setNameOnCard ] = useState('');
     const [cardNumber, setCardNumber] = useState('');
     const [expirationDate, setExpirationDate] = useState('');
     const [cvc, setCvc] = useState('');
 
     const [confirmedOrder, setConfirmedOrder] = useState(false);
-
 
     const navigate = useNavigate();
 

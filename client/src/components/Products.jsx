@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
 
-import { useParams, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function Products({auth, cart, setMsg, addToCart, removeFromCart, products, deleteProduct}){
+export default function Products({auth, cart, setMsg, addToCart, products, deleteProduct}){
     
     const navigate = useNavigate();
     

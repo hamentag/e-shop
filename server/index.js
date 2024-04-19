@@ -37,7 +37,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets'))
 const cors = require('cors')
 app.use(
   cors({
-    origin: '*',
+    origin: ['https://hs-ecommerce.onrender.com', 'http://localhost:3000/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 
     credentials: true

@@ -1,10 +1,8 @@
 
-const baseURL = ''
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function Cart({auth, products, cart, updateCart, setMsg, removeFromCart}){
+export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
 
     const navigate = useNavigate();
 
