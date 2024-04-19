@@ -1,10 +1,9 @@
-// 
-const baseURL = ''
+const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
 
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-export default function SingleProduct({auth, cart, addToCart, deleteProduct, setMsg}){
+export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
 
     const { id } = useParams();
     const [product, setProduct] = useState(null);
