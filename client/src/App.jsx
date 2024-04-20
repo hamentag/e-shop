@@ -327,6 +327,7 @@ function App() {
   else if(guest.id){
     const responseAPI = await fetch(`${baseURL}/api/guests/${guest.id}/cart`, {
       method: 'PUT',
+
       body: JSON.stringify({ product_id, qty}),
       headers: {
         'Content-Type': 'application/json'
