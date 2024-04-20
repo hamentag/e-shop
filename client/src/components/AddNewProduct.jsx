@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export default function AddNewProduct({auth, createProduct}){
     const [title, setTitle ] = useState('');

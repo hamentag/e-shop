@@ -1,6 +1,7 @@
 
 const baseURL = 'https://hs-ecommerce-srv.onrender.com'
 
+
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -299,9 +300,8 @@ function App() {
 
     // update cart
  const updateCart = async(product_id, qty)=> {
-  let responseAPI;
   if(auth.id){
-    responseAPI = await fetch(`/api/users/${auth.id}/cart`, {
+    const responseAPI = await fetch(`/api/users/${auth.id}/cart`, {
       method: 'PUT',
       body: JSON.stringify({ product_id, qty}),
       headers: {
@@ -309,20 +309,8 @@ function App() {
         authorization: window.localStorage.getItem('token')
       }
     });
-
-  }
-  else if(guest.id){
-    responseAPI = await fetch(`/api/guests/${guest.id}/cart`, {
-      method: 'PUT',
-      body: JSON.stringify({ product_id, qty}),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-  }
-  const json = await responseAPI.json();                                                 
-  if(responseAPI.ok){
+    const json = await responseAPI.json();
+    if(responseAPI.ok){
       for(let element of cart){
         if(element.product_id === product_id ){
           element.qty = json.qty;
@@ -330,11 +318,35 @@ function App() {
         }
       }
       setRefreshCart(prevState => !prevState); // fetch updated cart
-  }
-  else{
+    }
+    else{
     console.error(json.error)
     alert(json.error)
-  }  
+    }  
+  }
+  else if(guest.id){
+    const responseAPI = await fetch(`/api/guests/${guest.id}/cart`, {
+      method: 'PUT',
+      body: JSON.stringify({ product_id, qty}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    const json = await responseAPI.json();
+    if(responseAPI.ok){
+      for(let element of cart){
+        if(element.product_id === product_id ){
+          element.qty = json.qty;
+          break;
+        }
+      }
+      setRefreshCart(prevState => !prevState); // fetch updated cart
+    }
+    else{
+      console.error(json.error)
+      alert(json.error)
+    }  
+  }                                              
 };
 
 // Create Order 

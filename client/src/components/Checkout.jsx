@@ -40,7 +40,7 @@ export default function Checkout({auth, cart, createOrder}){
             <div>
             {cart.length !== 0 ?
                 <div>
-                    <h3>Oreder Details</h3>
+                    <h3>Order Details</h3>
                     <div className='order-details'>
                         <table className='order-items'>
                             <tbody>
@@ -107,7 +107,7 @@ export default function Checkout({auth, cart, createOrder}){
                                 <input value={ cardNumber} placeholder='CARD NUMBER' onChange={ ev=> setCardNumber(ev.target.value)}/>
                                 <input value={ expirationDate }  placeholder='MM/YY' onChange={ ev=> setExpirationDate(ev.target.value)}/>
                                 <input value={ cvc} placeholder='CVC' onChange={ ev=> setCvc(ev.target.value)}/>
-                                <button disabled={ (nameOnCard && cardNumber && expirationDate && cvc) }>Place Order</button>
+                                <button disabled={ !(nameOnCard && cardNumber && expirationDate && cvc) }>Place Order</button>
                             </form> 
                         </div>
                         :

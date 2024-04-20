@@ -1,6 +1,5 @@
 
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
 
