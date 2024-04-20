@@ -37,7 +37,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets'))
 const cors = require('cors')
 app.use(
   cors({
-    origin: ['https://hs-ecommerce.onrender.com', 'http://localhost:3000/'],
+    origin: '*', // ['https://hs-ecommerce.onrender.com', 'http://localhost:3000/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 
     credentials: true
@@ -222,7 +222,7 @@ app.use(
     });
 
     // updateGuestCart
-    app.patch('/api/guests/:id/cart',async(req, res, next)=> {
+    app.put('/api/guests/:id/cart',async(req, res, next)=> {
       try {
         res.send(await updateGuestCart({ guest_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
       }
