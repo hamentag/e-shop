@@ -11,7 +11,7 @@ export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
             {cart.length !== 0 ?
                 <div>
                     <div className="cart-header">
-                        <h3>Shooping Cart</h3>
+                        <h3>Shopping Cart</h3>
                         <div>
                             <div>Subtotal ({cart[0].cart_count} items): ${cart[0].subtotal}</div>
                             <button onClick={() => { navigate('/checkout') }}>Proceed to checkout</button>

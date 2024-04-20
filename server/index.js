@@ -222,7 +222,7 @@ app.use(
     });
 
     // updateGuestCart
-    app.put('/api/guests/:id/cart',async(req, res, next)=> {
+    app.patch('/api/guests/:id/cart',async(req, res, next)=> {
       try {
         res.send(await updateGuestCart({ guest_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
       }
