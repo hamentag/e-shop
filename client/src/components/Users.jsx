@@ -1,5 +1,5 @@
-// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
-const baseURL = ''
+const baseURL = 'https://hs-ecommerce-srv.onrender.com'
+
 import { useState, useEffect } from 'react'
 
 export default function Users({auth}){

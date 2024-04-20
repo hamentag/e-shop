@@ -1,6 +1,6 @@
 
-// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
-const baseURL = ''
+const baseURL = 'https://hs-ecommerce-srv.onrender.com'
+
 
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
@@ -79,7 +79,8 @@ function App() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
-   
+
+  const [isLoading, setIsLoading] = useState(true)   
   const [refreshCart, setRefreshCart] = useState(false);
   const [refreshProductList, setRefreshProductList] = useState(false);
   const [refreshOrders, setRefreshOrders] = useState(false);
@@ -116,6 +117,7 @@ function App() {
       const json = await response.json();
       if(response.ok){
         setProducts(json);
+        setIsLoading(false)
       }
       else{
         console.error(response.error);
@@ -518,6 +520,10 @@ const createOrder = async()=> {
     window.localStorage.removeItem('token');
     setAuth({});
     createGuest();
+  }
+
+  if (isLoading) {
+    return <section className="loading">Loading..</section>
   }
 
 
