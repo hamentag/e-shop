@@ -87,8 +87,6 @@ const createTables = async()=> {
     FOR EACH ROW
     EXECUTE FUNCTION check_cart_quantity_less_than_inventory();
 
-
-    
     -- Clear cart when order is created
     CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
     RETURNS TRIGGER AS $$
@@ -104,11 +102,10 @@ const createTables = async()=> {
     FOR EACH ROW
     EXECUTE FUNCTION clear_cart_when_place_order();
   `;
-  
   await client.query(SQL);
 };
 
-
+// create new user
 const createUser = async({ firstname, lastname, email, phone, password, is_admin, is_engineer})=> {
   const SQL = `
     INSERT INTO users(id, firstname, lastname, email, phone, password, is_admin, is_engineer) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
@@ -117,6 +114,7 @@ const createUser = async({ firstname, lastname, email, phone, password, is_admin
   return response.rows[0];
 };
 
+// create new product
 const createProduct = async({ title, category, price, dimensions, characteristics, inventory, image })=> {
   const SQL = `
     INSERT INTO products(id, title, category, price, dimensions, characteristics, inventory, image) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
@@ -243,7 +241,7 @@ const fetchUsers = async()=> {
   return response.rows;
 };
 
-//
+// fetch all products
 const fetchProducts = async()=> {
   const SQL = `
     SELECT * FROM products;

@@ -76,7 +76,7 @@ export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
                     </ul>
                 </div>
                 :
-                <div>
+                <div className="empty-cart">
                      <p>Your cart is empty.</p>
                     <button onClick={()=>{navigate('/')}}>Shop Now</button>
                 </div>

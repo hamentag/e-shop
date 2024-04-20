@@ -123,7 +123,7 @@ export default function Checkout({auth, cart, createOrder}){
                     }
                 </div>
                 :
-                <div>
+                <div className="empty-cart">
                     <p>Your cart is empty.</p>
                     <button onClick={()=>{navigate('/')}}>Shop Now</button>
                 </div>

@@ -19,6 +19,10 @@ a {
   color: inherit;
   text-decoration: none;
 }
+.loading {
+  background-color: rgb(6, 39, 123);
+  color: white;
+}
 
 .header{
   background-color: white;
@@ -400,8 +404,22 @@ hr{
   font-weight: bold;
 }
 
- 
- 
+.empty-order-history, .empty-cart{
+  width: 25rem;
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.empty-order-history button, .empty-cart button{
+  font-size: 16px;
+  padding: 3px;
+  width: 70%;
+  margin: 0 auto;
+
+}
+
  .new-product {
   width: 25rem;
   margin: 10px auto;

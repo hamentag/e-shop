@@ -37,7 +37,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets'))
 const cors = require('cors')
 app.use(
   cors({
-    origin: '*', // ['https://hs-ecommerce.onrender.com', 'http://localhost:3000/'],
+    origin: ['https://hs-ecommerce.onrender.com', 'http://localhost:3000/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 
     credentials: true
@@ -111,6 +111,7 @@ app.use(
     }
   });
 
+  // Add product to cart
   app.post('/api/users/:id/cart',  isLoggedIn,async(req, res, next)=> {
     try {
       res.status(201).send(await addToCart({ user_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
@@ -222,7 +223,7 @@ app.use(
     });
 
     // updateGuestCart
-    app.patch('/api/guests/:id/cart',async(req, res, next)=> {
+    app.put('/api/guests/:id/cart',async(req, res, next)=> {
       try {
         res.send(await updateGuestCart({ guest_id: req.params.id, product_id: req.body.product_id, qty: req.body.qty}));
       }
@@ -303,7 +304,7 @@ app.use(
       createUser({firstname: 'Adam', lastname: 'Am', 
                   email:'adam@com', phone: '6151328764', password: 'adam_pw', 
                   is_admin: false, is_engineer: true}),
-      createUser({firstname: 'Yasir', lastname: 'Atg', 
+      createUser({firstname: 'Yasir', lastname: 'Amentag', 
                   email:'yasir@com', phone: '6291382734', password: 'yasir_pw', 
                   is_admin: true, is_engineer: false}),
      ]);
