@@ -1,6 +1,6 @@
 
-const baseURL = 'https://hs-ecommerce-srv.onrender.com'
-
+// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
+const baseURL = ''
 
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
@@ -301,7 +301,7 @@ function App() {
     // update cart
  const updateCart = async(product_id, qty)=> {
   if(auth.id){
-    const responseAPI = await fetch(`/api/users/${auth.id}/cart`, {
+    const responseAPI = await fetch(`${baseURL}/api/users/${auth.id}/cart`, {
       method: 'PUT',
       body: JSON.stringify({ product_id, qty}),
       headers: {
@@ -325,8 +325,9 @@ function App() {
     }  
   }
   else if(guest.id){
-    const responseAPI = await fetch(`/api/guests/${guest.id}/cart`, {
-      method: 'PATCH',
+    const responseAPI = await fetch(`${baseURL}/api/guests/${guest.id}/cart`, {
+      method: 'PUT',
+
       body: JSON.stringify({ product_id, qty}),
       headers: {
         'Content-Type': 'application/json'
