@@ -124,6 +124,7 @@ const createTriggers = async()=> {
   // Check constraint function to validate data before insert or update the cart quantity
   SQL = `
     CREATE OR REPLACE FUNCTION check_cart_quantity_less_than_inventory()
+
     RETURNS TRIGGER AS $$
     BEGIN
         IF (SELECT inventory FROM products WHERE id = NEW.product_id) < NEW.qty THEN
