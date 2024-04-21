@@ -321,7 +321,11 @@ function App() {
     }
     else{
     console.error(json.error)
-    alert(json.error)
+    // alert(json.error)
+    setMsg({
+      txt: json.error,
+      more: <button onClick={()=>{setMsg(null)}}>OK</button>
+    })  
     }  
   }
   else if(guest.id){
@@ -345,7 +349,11 @@ function App() {
     }
     else{
       console.error(json.error)
-      alert(json.error)
+      // alert(json.error)
+      setMsg({
+        txt: json.error,
+        more: <button onClick={()=>{setMsg(null)}}>OK</button>
+      })  
     }  
   }                                              
 };
@@ -618,3 +626,4 @@ const createOrder = async()=> {
 }
 
 export default App
+

@@ -1,3 +1,4 @@
+
 const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
 
 import { useState, useEffect } from "react";
@@ -69,10 +70,13 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
                             </div>
                             <div>
                             {
-                                auth.id && <button onClick={()=> { 
-                                    addToCart(product.id,1) 
-
-                                }}>Add to cart</button>  
+                                product.inventory === 0 && <div style={{color: 'brown'}}>Out of Stock</div>
+                            }
+                            {
+                                auth.id && <button 
+                                    onClick={()=> { addToCart(product.id,1)  }}
+                                    disabled={ product.inventory === 0 }
+                                >Add to cart</button>  
                             }
                             {
                             auth.is_admin && 
@@ -93,3 +97,4 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
         </>
       )
 }
+
