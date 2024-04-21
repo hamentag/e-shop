@@ -50,16 +50,22 @@ export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
                                                     }} className="delete-btn">Remove
                                                     </button>
                                                     :
-                                                    <button onClick={async () => {                
+                                                    <button 
+                                                        onClick={async () => {                
                                                         updateCart(item.id, item.qty - 1)
-                                                    }}>-
+                                                        }} 
+                                                        disabled={ item.inventory === 0 }
+                                                    >-
                                                     </button>
                                             }
 
                                             <div className="qty"> {item.qty}</div>
-                                            <button onClick={async () => {
-                                                 updateCart(item.id, item.qty + 1)
-                                            }}>+</button>
+                                            <button 
+                                                onClick={async () => {
+                                                    updateCart(item.id, item.qty + 1)
+                                                }}
+                                                disabled={ item.inventory === 0 }
+                                            >+</button>
                                         </div>
                                         <button onClick={() => {
                                             setMsg({
@@ -76,7 +82,7 @@ export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
                     </ul>
                 </div>
                 :
-                <div>
+                <div className="empty-cart">
                      <p>Your cart is empty.</p>
                     <button onClick={()=>{navigate('/')}}>Shop Now</button>
                 </div>
@@ -84,3 +90,4 @@ export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
         </>
     )
 }
+

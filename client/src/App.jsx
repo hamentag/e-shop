@@ -1,7 +1,6 @@
 
 const baseURL = 'https://hs-ecommerce-srv.onrender.com'
 
-
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -79,7 +78,8 @@ function App() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
-   
+
+  const [isLoading, setIsLoading] = useState(true)   
   const [refreshCart, setRefreshCart] = useState(false);
   const [refreshProductList, setRefreshProductList] = useState(false);
   const [refreshOrders, setRefreshOrders] = useState(false);
@@ -116,6 +116,7 @@ function App() {
       const json = await response.json();
       if(response.ok){
         setProducts(json);
+        setIsLoading(false)
       }
       else{
         console.error(response.error);
@@ -301,7 +302,7 @@ function App() {
     // update cart
  const updateCart = async(product_id, qty)=> {
   if(auth.id){
-    const responseAPI = await fetch(`/api/users/${auth.id}/cart`, {
+    const responseAPI = await fetch(`${baseURL}/api/users/${auth.id}/cart`, {
       method: 'PUT',
       body: JSON.stringify({ product_id, qty}),
       headers: {
@@ -321,12 +322,17 @@ function App() {
     }
     else{
     console.error(json.error)
-    alert(json.error)
+    // alert(json.error)
+    setMsg({
+      txt: json.error,
+      more: <button onClick={()=>{setMsg(null)}}>OK</button>
+    })  
     }  
   }
   else if(guest.id){
-    const responseAPI = await fetch(`/api/guests/${guest.id}/cart`, {
+    const responseAPI = await fetch(`${baseURL}/api/guests/${guest.id}/cart`, {
       method: 'PUT',
+
       body: JSON.stringify({ product_id, qty}),
       headers: {
         'Content-Type': 'application/json'
@@ -344,7 +350,11 @@ function App() {
     }
     else{
       console.error(json.error)
-      alert(json.error)
+      // alert(json.error)
+      setMsg({
+        txt: json.error,
+        more: <button onClick={()=>{setMsg(null)}}>OK</button>
+      })  
     }  
   }                                              
 };
@@ -519,6 +529,10 @@ const createOrder = async()=> {
     createGuest();
   }
 
+  if (isLoading) {
+    return <section className="loading">Loading..</section>
+  }
+
 
   return (
     <>
@@ -613,3 +627,4 @@ const createOrder = async()=> {
 }
 
 export default App
+
