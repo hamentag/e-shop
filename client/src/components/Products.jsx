@@ -40,3 +40,4 @@ export default function Products({auth, cart, setMsg, addToCart, products, delet
       </ul>        
     )
 }
+

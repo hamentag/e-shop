@@ -1,3 +1,4 @@
+
 const pg = require('pg');
 const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/eCommerce_site_db');
 const uuid = require('uuid');
@@ -70,9 +71,10 @@ const createTables = async()=> {
   await client.query(SQL);
 };
 
+// create Triggers
 const createTriggers = async()=> {
+  // Reduce inventory when order is created
   let SQL = `
-    -- Reduce inventory when order is created
     CREATE OR REPLACE FUNCTION reduce_inventory_when_place_order()
     RETURNS TRIGGER AS $$
     BEGIN
@@ -91,17 +93,21 @@ const createTriggers = async()=> {
   `;
   await client.query(SQL);
 
+  // -- Update cart ceiling quantity when order is created
   SQL = `
-    -- Update cart ceiling quantity when order is created
     CREATE OR REPLACE FUNCTION update_cart_qty_ceiling()  
     RETURNS TRIGGER AS $$
     DECLARE
-      qty_i RECORD;
+      matched_row RECORD;
     BEGIN 
-      FOR qty_i IN SELECT * FROM cart WHERE NEW.id = cart.product_id AND NEW.inventory < cart.qty LOOP
-      qty_i.qty := NEW.inventory;
-      -- Update the cart table with the new quantity
-      UPDATE cart SET qty = qty_i.qty WHERE id = qty_i.id;
+      FOR matched_row IN SELECT * FROM cart WHERE NEW.id = cart.product_id AND NEW.inventory < cart.qty LOOP
+        matched_row.qty := NEW.inventory;
+        IF matched_row.qty = 0 THEN
+          DELETE FROM cart WHERE id = matched_row.id;
+        ELSE
+          -- Update the cart table with the new quantity
+          UPDATE cart SET qty = matched_row.qty WHERE id = matched_row.id;
+        END IF;
       END LOOP;
       RETURN NEW;
     END;
@@ -118,6 +124,7 @@ const createTriggers = async()=> {
   // Check constraint function to validate data before insert or update the cart quantity
   SQL = `
     CREATE OR REPLACE FUNCTION check_cart_quantity_less_than_inventory()
+
     RETURNS TRIGGER AS $$
     BEGIN
         IF (SELECT inventory FROM products WHERE id = NEW.product_id) < NEW.qty THEN
@@ -488,3 +495,4 @@ module.exports = {
   createOrder,
   fetchOrders,
   };
+

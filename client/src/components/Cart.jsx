@@ -90,3 +90,4 @@ export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
         </>
     )
 }
+

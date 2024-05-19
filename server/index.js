@@ -299,7 +299,7 @@ app.use(
     
     //
     const numUsers = 10;
-    const numProducts = 50; 
+    const numProducts = 300; 
     const usersDummyDataFaker = await Promise.all(Array.from({length: numUsers}, createRandUser));
     const productsDummyDataFaker = await Promise.all(Array.from({length: numProducts}, createRandProduct));
 
@@ -321,7 +321,6 @@ app.use(
     const testCart2 = await addToCart({ user_id: usersDummyData[0].id, product_id: productsDummyDataFaker[6].id, qty: 1 });
     console.log("Adam's cart:",testCart);
     console.log("fetchCart: ", await fetchCart(usersDummyData[0].id));
-
 
     app.listen(port, ()=> console.log(`listening on port ${port}`));
   };

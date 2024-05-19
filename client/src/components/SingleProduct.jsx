@@ -1,5 +1,5 @@
-// const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
-const baseURL = ''
+const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -96,3 +96,4 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
         </>
       )
 }
+
