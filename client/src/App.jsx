@@ -1,5 +1,5 @@
-const baseURL = 'https://hs-ecommerce-srv.onrender.com'
-
+// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
+const baseURL = ''
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -321,7 +321,11 @@ function App() {
     }
     else{
     console.error(json.error)
-    alert(json.error)
+    // alert(json.error)
+    setMsg({
+      txt: json.error,
+      more: <button onClick={()=>{setMsg(null)}}>OK</button>
+    })  
     }  
   }
   else if(guest.id){
@@ -345,7 +349,11 @@ function App() {
     }
     else{
       console.error(json.error)
-      alert(json.error)
+      // alert(json.error)
+      setMsg({
+        txt: json.error,
+        more: <button onClick={()=>{setMsg(null)}}>OK</button>
+      })  
     }  
   }                                              
 };

@@ -4,6 +4,7 @@ const { faker } = require('@faker-js/faker');
 const {
     client,
     createTables,
+    createTriggers,
     createUser, 
     createProduct,
     deleteProduct,
@@ -267,6 +268,9 @@ app.use(
   
     await createTables();
     console.log('tables created');
+
+    await createTriggers();
+    console.log('triggers created');
 
     //
     const createRandUser = () => {

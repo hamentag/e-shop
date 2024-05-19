@@ -19,8 +19,6 @@ const createTables = async()=> {
     
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-
-
     CREATE TABLE users(
       id UUID PRIMARY KEY,
       firstname VARCHAR(40) NOT NULL,
@@ -68,9 +66,57 @@ const createTables = async()=> {
       qty INTEGER,
       CONSTRAINT unique_guest_id_and_product_id UNIQUE (guest_id, product_id)
     );
-    
+  `;
+  await client.query(SQL);
+};
 
-    -- check constraint function to validate data before insert or update the cart quantity
+const createTriggers = async()=> {
+  let SQL = `
+    -- Reduce inventory when order is created
+    CREATE OR REPLACE FUNCTION reduce_inventory_when_place_order()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        UPDATE products
+        SET inventory = inventory - NEW.qty
+        WHERE id = NEW.product_id;        
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    -- Create trigger to clear cart when order is created
+    CREATE TRIGGER reduce_inventory_trigger
+    BEFORE INSERT ON orders
+    FOR EACH ROW
+    EXECUTE FUNCTION reduce_inventory_when_place_order();
+  `;
+  await client.query(SQL);
+
+  SQL = `
+    -- Update cart ceiling quantity when order is created
+    CREATE OR REPLACE FUNCTION update_cart_qty_ceiling()  
+    RETURNS TRIGGER AS $$
+    DECLARE
+      qty_i RECORD;
+    BEGIN 
+      FOR qty_i IN SELECT * FROM cart WHERE NEW.id = cart.product_id AND NEW.inventory < cart.qty LOOP
+      qty_i.qty := NEW.inventory;
+      -- Update the cart table with the new quantity
+      UPDATE cart SET qty = qty_i.qty WHERE id = qty_i.id;
+      END LOOP;
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    -- Create trigger to clear cart when order is created
+    CREATE TRIGGER qty_ceiling_trigger
+    BEFORE INSERT OR UPDATE ON products
+    FOR EACH ROW
+    EXECUTE FUNCTION update_cart_qty_ceiling();
+  `;
+  await client.query(SQL);
+
+  // Check constraint function to validate data before insert or update the cart quantity
+  SQL = `
     CREATE OR REPLACE FUNCTION check_cart_quantity_less_than_inventory()
     RETURNS TRIGGER AS $$
     BEGIN
@@ -81,29 +127,39 @@ const createTables = async()=> {
     END;
     $$ LANGUAGE plpgsql;
 
-    -- Create trigger to execute check constraint function
+    -- Create trigger to execute check constraint function (case logged in user cart)
     CREATE TRIGGER check_cart_quantity_trigger
     BEFORE INSERT OR UPDATE ON cart
     FOR EACH ROW
     EXECUTE FUNCTION check_cart_quantity_less_than_inventory();
 
-    -- Clear cart when order is created
-    CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
-    RETURNS TRIGGER AS $$
-    BEGIN
-        DELETE FROM cart WHERE user_id = NEW.user_id AND product_id = NEW.product_id;
-        RETURN NEW;
-    END;
-    $$ LANGUAGE plpgsql;
-
-    -- Create trigger to clear cart when order is created
-    CREATE TRIGGER clear_cart_trigger
-    AFTER INSERT ON orders
+    -- Create trigger to execute check constraint function (case guest cart)
+    CREATE TRIGGER check_cart_quantity_trigger
+    BEFORE INSERT OR UPDATE ON guest_cart
     FOR EACH ROW
-    EXECUTE FUNCTION clear_cart_when_place_order();
+    EXECUTE FUNCTION check_cart_quantity_less_than_inventory();
+  `;
+  await client.query(SQL);
+
+  //  Clear cart when order is created
+  SQL = `
+  CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
+  RETURNS TRIGGER AS $$
+  BEGIN
+      DELETE FROM cart WHERE user_id = NEW.user_id AND product_id = NEW.product_id;
+      RETURN NEW;
+  END;
+  $$ LANGUAGE plpgsql;
+
+  -- Create trigger to clear cart when order is created
+  CREATE TRIGGER clear_cart_trigger
+  AFTER INSERT ON orders
+  FOR EACH ROW
+  EXECUTE FUNCTION clear_cart_when_place_order();
   `;
   await client.query(SQL);
 };
+
 
 // create new user
 const createUser = async({ firstname, lastname, email, phone, password, is_admin, is_engineer})=> {
@@ -410,6 +466,7 @@ const updateGuestCart = async({ guest_id, product_id, qty })=> {
 module.exports = {
   client,
   createTables,
+  createTriggers,
   createUser, 
   createProduct,
   deleteProduct,
