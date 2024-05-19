@@ -1,5 +1,4 @@
-// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
-const baseURL = ''
+const baseURL = 'https://hs-ecommerce-srv.onrender.com'
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
