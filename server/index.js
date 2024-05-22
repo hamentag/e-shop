@@ -254,6 +254,13 @@ app.use(
     }
   });  
 
+
+  // Handle keep warm requests
+  app.get('/api/keep-warm', (req, res) => {
+    res.status(200).send('Keep warm request received');
+  });
+  
+
   //
   app.use((err, req, res, next)=> {
     console.log(err);
