@@ -36,7 +36,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets'))
 const cors = require('cors')
 app.use(
   cors({
-    origin: ['https://hs-ecommerce.onrender.com', 'https://hs-eshop.netlify.app/', 'http://localhost:3000/'],
+    origin: ['https://hs-ecommerce.onrender.com', 'https://hs-eshop.netlify.app', 'http://localhost:3000/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 
     credentials: true
