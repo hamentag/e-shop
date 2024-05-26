@@ -266,6 +266,7 @@ app.get('api/keep-warm', (req, res) => {
 
 async function keepWarmRequest() {
   try {
+    // const fetch = (await import('node-fetch')).default;
     const response = await fetch('https://hs-ecommerce-srv.onrender.com/api/keep-warm');
     if (!response.ok) {
       throw new Error('Failed to send keep warm request');
@@ -342,7 +343,7 @@ const init = async()=> {
   app.listen(port, ()=> {
     console.log(`listening on port ${port}`);
     keepWarmRequest();
-    setInterval(keepWarmRequest, 300000);
+    setInterval(keepWarmRequest, 5000); // 300000
   });
 };
 
