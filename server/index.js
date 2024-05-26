@@ -140,7 +140,6 @@ app.put('/api/users/:id/cart',  isLoggedIn,async(req, res, next)=> {
   }
 });
 
-
 app.delete('/api/users/:user_id/cart/:id', isLoggedIn, async(req, res, next)=> {
   try {
     await deleteCartProduct({user_id: req.params.user_id, id: req.params.id });
@@ -150,7 +149,6 @@ app.delete('/api/users/:user_id/cart/:id', isLoggedIn, async(req, res, next)=> {
     next(ex);
   }
 });
-
 
 app.delete('/api/products/:id', async(req, res, next)=>{
   try{
@@ -191,7 +189,7 @@ app.post('/api/users/:id/products', isLoggedIn, async(req, res, next)=> {
   }
 });
 
-// guest
+//// Guest section
 //  create Guest
 app.post('/api/guests/join', async(req, res, next)=> { 
   try {
@@ -253,14 +251,13 @@ app.get('/api/guests/:id', async(req, res, next)=> {
   }
 }); 
 
-//
+// Error-handling middleware
 app.use((err, req, res, next)=> {
   console.log(err);
   res.status(err.status || 500).send({ error: err.message ? err.message : err });
 });
 
 // Handle keep warm requests  
-
 app.get('/api/keep-warm', (req, res, next)=> {
   try {
     res.send('Keep warm request received');
@@ -327,9 +324,9 @@ const init = async()=> {
 
   //
   const usersDummyData = await Promise.all([
-    createUser({firstname: 'Adam', lastname: 'Am', 
-                email:'adam@com', phone: '6151328764', password: 'adam_pw', 
-                is_admin: false, is_engineer: true}),
+    createUser({firstname: 'Demo', lastname: 'DEMO', 
+                email:'demo@example.com', phone: '6151328764', password: 'ecommerce', 
+                is_admin: false, is_engineer: false}),
     createUser({firstname: 'Yasir', lastname: 'Amentag', 
                 email:'yasir@com', phone: '6291382734', password: 'yasir_pw', 
                 is_admin: true, is_engineer: false}),
@@ -348,7 +345,7 @@ const init = async()=> {
   app.listen(port, ()=> {
     console.log(`listening on port ${port}`);
     keepWarmRequest();
-    setInterval(keepWarmRequest, 5000); // 300000
+    setInterval(keepWarmRequest, 300000);
   });
 };
 
