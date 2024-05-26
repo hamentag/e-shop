@@ -201,9 +201,6 @@ function App() {
     }
   }, [auth, refreshOrders]);
 
-
-
-
   // Display log in button when Login or Register form is scrolled past (compared to
   // the bottom of the header)
   useEffect(() => {
@@ -268,7 +265,6 @@ function App() {
       console.error(result.error)
     }
   }
-
 
   // add to cart
   const addToCart = async (product_id, qty) => {
@@ -591,7 +587,10 @@ function App() {
             <Link to={'/new_product'}>Add Product</Link>
           </>}
           <div className='cart'>
-            <h4><Link to={'/cart'}><span><img src={shoppingCart} alt="cart icon" style={{ width: '25px', height: '20px' }} /></span><sup>({cart.length === 0 ? 0 : cart[0].cart_count})</sup></Link></h4>
+              <Link to={'/cart'} className='crt'>
+                <div>{cart.length === 0 ? 0 : cart[0].cart_count}</div>
+                <img src={shoppingCart} alt="cart icon" style={{ width: '25px', height: '20px' }} />
+              </Link>
           </div>
         </div>
       </div>
