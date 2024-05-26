@@ -272,7 +272,6 @@ app.get('/api/keep-warm', (req, res, next)=> {
 
 async function keepWarmRequest() {
   try {
-    // const fetch = (await import('node-fetch')).default;
     const response = await fetch('https://hs-ecommerce-srv.onrender.com/api/keep-warm');
     if (!response.ok) {
       throw new Error('Failed to send keep warm request');
