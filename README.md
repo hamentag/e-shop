@@ -1,15 +1,15 @@
-# E-Commerce Website
-🔗 [GitHub Repository](https://github.com/hamentag/capstone_E-Commerce_App)  
-🔗 [Deployed site](https://hs-ecommerce.onrender.com/)
+# E-Shop Website
+🔗 [GitHub Repository](https://github.com/hamentag/e-shop)
+🔗 [Deployed site](https://hs-eshop.netlify.app/)
 **********************
 #### Demo account
-> Use `demo@example.com` as the email and `ecommerce` as the password to log in
+> Use `demo@example.com` as the email and `eshop` as the password to log in
 **********************
 ### Developers
 > `Hamza Amentag `        
 > `Soumya Zariouh`
 ### Summary
-The E-Commerce Website is a full-stack application aimed at providing a seamless online shopping experience. With a focus on user-friendly features, streamlined order placement functionality, and efficient administrative tools, the platform caters to both customers and administrators. Key highlights include a comprehensive product catalog, persistent shopping carts, secure order processing, and an easy-to-use interface accessible across various devices.
+The E-Shop website is a full-stack application aimed at providing a seamless online shopping experience. With a focus on user-friendly features, streamlined order placement functionality, and efficient administrative tools, the platform caters to both customers and administrators. Key highlights include a comprehensive product catalog, persistent shopping carts, secure order processing, and an easy-to-use interface accessible across various devices.
 **********************
 ### Application Functionality
 The application encompasses multiple features designed to facilitate a seamless online shopping experience, addressing the following user stories:
