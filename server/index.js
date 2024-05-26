@@ -260,8 +260,13 @@ app.use((err, req, res, next)=> {
 });
 
 // Handle keep warm requests  
-app.get('api/keep-warm', (req, res) => {
-  res.status(200).send('Keep warm request received');
+app.get('/api/keep-warm', (req, res, next)=> {
+  try {
+    res.send('Keep warm request received');
+  }
+  catch(ex){
+    next(ex);
+  }
 });
 
 async function keepWarmRequest() {
