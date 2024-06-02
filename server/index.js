@@ -325,7 +325,7 @@ const init = async()=> {
   //
   const usersDummyData = await Promise.all([
     createUser({firstname: 'Demo', lastname: 'DEMO', 
-                email:'demo@example.com', phone: '6151328764', password: 'ecommerce', 
+                email:'demo@example.com', phone: '6151328764', password: 'eshop', 
                 is_admin: false, is_engineer: false}),
     createUser({firstname: 'Yasir', lastname: 'Amentag', 
                 email:'yasir@com', phone: '6291382734', password: 'yasir_pw', 
