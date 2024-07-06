@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 export default function AddNewProduct({auth, createProduct}){
     const [title, setTitle ] = useState('');
     const [category, setCategory] = useState('');
+    const [brand, setBrand] = useState('');
     const [price, setPrice] = useState('');
     const [characteristics, setCharacteristics] = useState('');
     const [dimensions, setDimensions] = useState('');
@@ -23,9 +24,6 @@ export default function AddNewProduct({auth, createProduct}){
       }))
 
 
-      console.log(fls)
-
-
       const submittedImages = await Promise.all (images.map(image => {
         const submittedImage = {
             file: image.file,
@@ -35,7 +33,7 @@ export default function AddNewProduct({auth, createProduct}){
         return submittedImage
       }))
 
-      await createProduct({ title, category, price, characteristics, dimensions, inventory, submittedImages});
+      await createProduct({ title, category, brand, price, characteristics, dimensions, inventory, submittedImages});
     }
 
 
@@ -76,14 +74,11 @@ export default function AddNewProduct({auth, createProduct}){
     };
 
     const areFieldsFilled = () => {
-        return title && category && price && characteristics && inventory
+        return title && category && brand && price && characteristics && inventory
     }
     
 
-
-    ///
-    console.log("ts,,,", showcaseImageId)
-
+    //
     return(
         <>{
             auth.is_admin && 
@@ -93,6 +88,7 @@ export default function AddNewProduct({auth, createProduct}){
                        <div className='product-info'>
                             <input value={ title} placeholder='Title' onChange={ ev=> setTitle(ev.target.value)}/>
                             <input value={ category} placeholder='Category' onChange={ ev=> setCategory(ev.target.value)}/>
+                            <input value={ brand} placeholder='Brand' onChange={ ev=> setBrand(ev.target.value)}/>
                             <input value={ price } placeholder='Price' onChange={ ev=> setPrice(ev.target.value)}/>
                             <input value={ characteristics} placeholder='Characteristics' onChange={ ev=> setCharacteristics(ev.target.value)}/>
                             <input value={ dimensions} placeholder='Dimensions' onChange={ ev=> setDimensions(ev.target.value)}/>

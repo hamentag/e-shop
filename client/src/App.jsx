@@ -3,7 +3,8 @@ const baseURL = 'https://hs-ecommerce-srv.onrender.com'
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
-import Products from './components/Products'
+import Home from './components/Home';
+import Products from './components/Products';
 import SingleProduct from './components/SingleProduct';
 import Cart from './components/Cart';
 import Account from './components/Account';
@@ -13,49 +14,6 @@ import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import shoppingCart from "./assets/shopping-cart.png";
 
-const Login = ({ login }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const submitT0Login = ev => {
-    ev.preventDefault();
-    login({ email, password });
-  }
-  return (
-    <>
-      <h4>Sign in</h4>
-      <form onSubmit={submitT0Login} >
-        <input value={email} type='email' placeholder='email' onChange={ev => setEmail(ev.target.value)} />
-        <input value={password} placeholder='password' onChange={ev => setPassword(ev.target.value)} />
-        <button disabled={!(email && password)}>Log In</button>
-      </form>
-    </>
-  );
-}
-
-
-const Register = ({ register }) => {
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const submitT0Register = ev => {
-    ev.preventDefault();
-    register({ email, password, firstname, lastname });
-  }
-  return (
-    <>
-      <form onSubmit={submitT0Register}>
-        <input value={firstname} placeholder='First Name' onChange={ev => setFirstname(ev.target.value)} />
-        <input value={lastname} placeholder='Last Name' onChange={ev => setLastname(ev.target.value)} />
-        <input value={email} name='email' placeholder='Email' onChange={ev => setEmail(ev.target.value)} />
-        <input value={password} placeholder='password' onChange={ev => setPassword(ev.target.value)} />
-        <button disabled={!(firstname && lastname && email && password)}>Continuer</button>
-      </form>
-    </>
-  );
-}
 
 const DialogBox = ({ msg, setMsg }) => {
   return (
@@ -72,12 +30,78 @@ const DialogBox = ({ msg, setMsg }) => {
   )
 }
 
+//
+const LoginRegister = ({ login, register, popUpAuthn, setPopUpAuthn }) => {
+  const [emailLogin, setEmailLogin] = useState('');
+  const [passwordLogin, setPasswordLogin] = useState('');
+
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
+  const [emailReg, setEmailReg] = useState('');
+  const [passwordReg, setPasswordReg] = useState('');
+
+  const [hasAccount, setHasAccount] = useState(popUpAuthn === 'to-login');
+
+  const submitT0Login = ev => {
+    ev.preventDefault();
+    login({ email: emailLogin, password: passwordLogin });
+  }
+
+  const submitT0Register = ev => {
+    ev.preventDefault();
+    register({ email: emailReg, password: passwordReg, firstname, lastname });
+  }
+
+  return (
+    <>
+      <div className="dialog-box">
+        <div className="dialog-box-main">
+          {hasAccount ?
+            <div>
+              <div className='login-form' >
+                  <h4>Sign in to your account</h4>
+                  <form onSubmit={submitT0Login} >
+                    <input value={emailLogin} type='email' placeholder='Email' onChange={ev => setEmailLogin(ev.target.value)} />
+                    <input value={passwordLogin} placeholder='Password' onChange={ev => setPasswordLogin(ev.target.value)} />
+                    <button disabled={!(emailLogin && passwordLogin)}>Log In</button>
+                  </form>
+              </div>
+              Don't have an account?
+              <span onClick={() => { setHasAccount(false) }} className='signUp-link'>Sign Up</span>
+            </div>
+            :
+            <div>
+              <div className='register-form' > 
+                <h4>Create a new account</h4>
+                <form onSubmit={submitT0Register}>
+                  <input value={firstname} placeholder='First Name' onChange={ev => setFirstname(ev.target.value)} />
+                  <input value={lastname} placeholder='Last Name' onChange={ev => setLastname(ev.target.value)} />
+                  <input value={emailReg} name='email' placeholder='Email' onChange={ev => setEmailReg(ev.target.value)} />
+                  <input value={passwordReg} placeholder='Password' onChange={ev => setPasswordReg(ev.target.value)} />
+                  <button disabled={!(firstname && lastname && emailReg && passwordReg)}>Continuer</button>
+                </form>
+              </div>
+              Already have an account?
+              <span onClick={() => { setHasAccount(true) }} className='login-link'>Log In</span>
+            </div>
+          }
+        </div>
+        <button onClick={() => { setPopUpAuthn(null) }} style={{ fontSize: '18px' }}> &times; </button>
+      </div>
+      <div className="overlay" onClick={() => { setPopUpAuthn(null) }}></div>
+    </>
+  );
+}
+
+
+// App
 function App() {
   const [auth, setAuth] = useState({});
   const [guest, setGuest] = useState({});
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [illustrationVideos, setIllustrationVideos] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true)
   const [refreshCart, setRefreshCart] = useState(false);
@@ -85,11 +109,11 @@ function App() {
   const [refreshOrders, setRefreshOrders] = useState(false);
 
   const [msg, setMsg] = useState(null);
-  const [hasAccount, setHasAccount] = useState(true);
+  const [popUpAuthn, setPopUpAuthn] = useState(null);
 
-  const [isScrolledLoginRegElem, setIsScrolledLoginRegElem] = useState(false);
-  const loginRegRef = useRef(null);
+
   const headerRef = useRef(null);
+  const mainRef = useRef(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -111,6 +135,25 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const fetchIllustrationVideos = async () => {
+      const response = await fetch(`${baseURL}/api/illustration-videos`);
+      const json = await response.json();
+      if (response.ok) {
+        setIllustrationVideos(json);
+        // setIsLoading(false)
+      }
+      else {
+        console.error(response.error);
+        setMsg({
+          txt: "Oops! unable to fetch illustration videos currently."
+        })
+      }
+    };
+    fetchIllustrationVideos();
+  }, []);
+
+
+  useEffect(() => {
     const fetchProducts = async () => {
       const response = await fetch(`${baseURL}/api/products`);
       const json = await response.json();
@@ -120,7 +163,9 @@ function App() {
       }
       else {
         console.error(response.error);
-        setMsg("Oops! unable to fetch product list currently.")
+        setMsg({
+          txt: "Oops! unable to fetch product list currently."
+        })
       }
     };
     fetchProducts();
@@ -135,20 +180,17 @@ function App() {
         }
       });
       const json = await response.json();
-      if (response.ok) {
+      if (response.ok) {  
 
         if (guest.id) {
-          // from guest too logged in user  (from client side)
-          cart.forEach(async (element) => {
-            const guestCartItem = json.find(item => item.product_id === element.product_id);
+          // from guest to logged in user  (from client side)
+          cart.products.forEach(async (element) => {
+            const guestCartItem = json.products.find(item => item.product_id === element.product_id);
             if (!guestCartItem) {
               // add to cart
               await addToCart(element.product_id, element.qty);
             }
-            else {
-              const newQty = element.qty > guestCartItem.qty ? element.qty : guestCartItem.qty;
-              // update cart... to be defined
-            }
+
             setGuest({})
           });
         }
@@ -201,28 +243,7 @@ function App() {
     }
   }, [auth, refreshOrders]);
 
-  // Display log in button when Login or Register form is scrolled past (compared to
-  // the bottom of the header)
-  useEffect(() => {
-    const handleScroll = () => {
-      if (loginRegRef.current) {
-        const loginRegBtmPosition = loginRegRef.current.getBoundingClientRect().bottom;
-        const headerBtmPosition = headerRef.current.getBoundingClientRect().bottom;
-        setIsScrolledLoginRegElem(loginRegBtmPosition < headerBtmPosition);
-      }
-    };
-
-    // Add event listener to track scroll position
-    window.addEventListener('scroll', handleScroll);
-
-    // Clean up by removing event listener when component unmounts
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-
-
+  
   // add to guest cart
   const addToGuestCart = async (product_id, qty) => {
     if (true) {
@@ -235,7 +256,6 @@ function App() {
       });
       const json = await response.json();
       if (response.ok) {
-        setCart([...cart, json]);
         setRefreshCart(prevState => !prevState); // fetch updated cart
       }
       else {
@@ -279,7 +299,6 @@ function App() {
       });
       const json = await response.json();
       if (response.ok) {
-        setCart([...cart, json]);
         setRefreshCart(prevState => !prevState); // fetch cart
       }
       else {
@@ -308,12 +327,12 @@ function App() {
       });
       const json = await responseAPI.json();
       if (responseAPI.ok) {
-        for (let element of cart) {
-          if (element.product_id === product_id) {
-            element.qty = json.qty;
-            break;
-          }
-        }
+        // for (let element of cart) {
+        //   if (element.product_id === product_id) {
+        //     element.qty = json.qty;
+        //     break;
+        //   }
+        // }
         setRefreshCart(prevState => !prevState); // fetch updated cart
       }
       else {
@@ -336,12 +355,12 @@ function App() {
       });
       const json = await responseAPI.json();
       if (responseAPI.ok) {
-        for (let element of cart) {
-          if (element.product_id === product_id) {
-            element.qty = json.qty;
-            break;
-          }
-        }
+        // for (let element of cart) {
+        //   if (element.product_id === product_id) {
+        //     element.qty = json.qty;
+        //     break;
+        //   }
+        // }
         setRefreshCart(prevState => !prevState); // fetch updated cart
       }
       else {
@@ -354,7 +373,7 @@ function App() {
       }
     }
   };
-
+  
   // Create Order 
   const createOrder = async () => {
     if (auth.id) {
@@ -392,7 +411,7 @@ function App() {
     }
 
     if (responseAPI.ok) {
-      setCart(cart.filter(item => item.product_id !== id));
+      // setCart(cart.products.filter(item => item.product_id !== id));
       setRefreshCart(prevState => !prevState); // fetch updated cart
     }
   };
@@ -423,6 +442,7 @@ function App() {
     const json = await response.json();
     if (response.ok) {
       setAuth(json);
+      setPopUpAuthn(null)
     }
     else {
       window.localStorage.removeItem('token');
@@ -444,8 +464,10 @@ function App() {
     }
     else {
       console.error(json.error)
+      setPopUpAuthn(null)
       setMsg({
-        txt: "Incorrect email or password. Please try again."
+        txt: "Incorrect email or password. Please try again.",
+        more: <button onClick={() => { setPopUpAuthn("to-login"); setMsg(null) }}>Try again</button>
       })
     }
   };
@@ -474,18 +496,36 @@ function App() {
     }
   };
 
+  //
   const createProduct = async (newProductData) => {
+    const formData = new FormData();
+
+    Object.entries(newProductData).forEach(([key, value]) => {
+      if(key !== 'submittedImages'){
+        formData.append(key, value);
+      }        
+      else{
+        // const image = newProductData.submittedImages;
+        for (let i = 0; i < (newProductData.submittedImages).length; i++) {
+          formData.append('images', (newProductData.submittedImages)[i].file);
+          formData.append(`caption[${i}]`, (newProductData.submittedImages)[i].caption); // Add caption for each image
+          formData.append(`is_showcase[${i}]`, (newProductData.submittedImages)[i].is_showcase); // is_showcase for each image
+        }
+      }
+    });
+
+
+    //
     const response = await fetch(`${baseURL}/api/users/${auth.id}/products`, {
       method: 'POST',
-      body: JSON.stringify(newProductData),
+      body: formData,
       headers: {
-        'Content-Type': 'application/json',
         authorization: window.localStorage.getItem('token')
       }
     });
     const json = await response.json();
     if (response.ok) {
-      setMsg({ txt: "Product has been added." });
+      setMsg({ txt: "Product is now available!" });
       setRefreshProductList(prevState => !prevState);
     }
     else {
@@ -493,6 +533,7 @@ function App() {
     }
   }
 
+  //
   const deleteProduct = async (id) => {
     const response = await fetch(`${baseURL}/api/products/${id}`, {
       method: 'DELETE',
@@ -502,7 +543,7 @@ function App() {
     });
     if (response.ok) {
       //setProductCount((n)=> n -1);
-      setCart(cart.filter(item => item.product_id !== id));
+      // setCart(cart.products.filter(item => item.product_id !== id));
 
       setRefreshProductList(prevState => !prevState); // Refresh product list
       setRefreshCart(prevState => !prevState); // fetch updated cart
@@ -528,26 +569,28 @@ function App() {
 
   //
   useEffect(() => {
-    function keepWarmRequest() {
-      fetch(`${baseURL}/api/keep-warm`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to send keep warm request');
-          }
-          console.log('Keep warm request sent successfully');
-        })
-        .catch(error => {
-          console.error('Error sending keep warm request:', error);
-        });
-    }
-    keepWarmRequest();
-    setInterval(keepWarmRequest, 300000);
-  }, []);
+    const getHeaderHeight = () => {
+      if (headerRef.current && mainRef.current) {
+        const headerHeight = headerRef.current.getBoundingClientRect().height;
+        mainRef.current.style.marginTop = `${headerHeight}px`;
+      }
+    };
+
+    // get header height initially and whenever the window is resized
+    getHeaderHeight();
+    window.addEventListener('resize', getHeaderHeight);
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener('resize', getHeaderHeight);
+    };
+  }, [headerRef.current, mainRef.current]);
 
   //
   if (isLoading) {
     return <section className="loading">Loading..</section>
   }
+
 
   return (
     <>
@@ -562,20 +605,25 @@ function App() {
                 </div>
               </div>
               :
-              <>
-                {isScrolledLoginRegElem &&
-                  <button className='login-btn' onClick={() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    setHasAccount(true);
-                  }
-                  }>Log In
-                  </button>
+              <div>
+                <button className='login-btn' onClick={() => {
+                  // window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setPopUpAuthn("to-login") 
                 }
-              </>
+                }>Log In
+                </button>
+                <button className='login-btn' onClick={() => {                  
+                  setPopUpAuthn("to-register")
+                }
+                }>Join
+                </button>
+              </div>
           }
         </div>
         <div className='nav'>
           <div><Link to={'/'}>Home</Link></div>
+          <div><Link to={'/products/all'}>Shop All</Link></div>
+
           {auth.id && <>
             <div>  <Link to={'/account'}>Account</Link> </div>
             <div><Link to={'/orders'}>Order History</Link></div>
@@ -588,36 +636,27 @@ function App() {
           </>}
           <div className='cart'>
               <Link to={'/cart'} className='crt'>
-                <div>{cart.length === 0 ? 0 : cart[0].cart_count}</div>
+                <div>{cart? cart.cart_count : ''}</div>
                 <img src={shoppingCart} alt="cart icon" style={{ width: '25px', height: '20px' }} />
               </Link>
           </div>
         </div>
       </div>
-      <div className='main'>
-        {
-          !auth.id && <div ref={loginRegRef} className={location.pathname === '/cart' ? 'loginReg-in-cart-comp' : ''}>
-            {hasAccount ?
-              <div className='login-form'>
-                <Login login={login} />
-                Don't have an account?
-                <span onClick={() => { setHasAccount(false) }} className='signUp-link'>Sign Up</span>
-              </div>
-              :
-              <div className='register-form'>
-                <h4>Create account</h4>
-                <Register register={register} />
-                Already have an account?
-                <span onClick={() => { setHasAccount(true) }} className='login-link'>Log In</span>
-              </div>
-            }
-          </div>
-        }
+      <div className='main' ref={mainRef}>
 
-        {msg && <DialogBox msg={msg} setMsg={setMsg} />}
+      {msg && <DialogBox msg={msg} setMsg={setMsg} />}
+      {popUpAuthn && <LoginRegister login={login} register={register} popUpAuthn={popUpAuthn} setPopUpAuthn={setPopUpAuthn} />}
+                
+      {/* <NewImage />
+      <AllImages /> */}
 
+      <div>
         <Routes>
-          <Route path="/" element={<Products auth={auth} cart={cart} setMsg={setMsg}
+          <Route path="/" element={<Home illustrationVideos={illustrationVideos} auth={auth} cart={cart} setMsg={setMsg}
+            addToCart={addToCart} products={products}
+            deleteProduct={deleteProduct} />}
+          />
+          <Route path="/products/:seller" element={<Products auth={auth} cart={cart} setMsg={setMsg}
             addToCart={addToCart} products={products}
             deleteProduct={deleteProduct} />}
           />
@@ -629,7 +668,7 @@ function App() {
           />
           <Route path="/account" element={<Account auth={auth} />}
           />
-          <Route path="/checkout" element={<Checkout auth={auth} cart={cart} createOrder={createOrder} setMsg={setMsg} />}
+          <Route path="/checkout" element={<Checkout auth={auth} cart={cart} createOrder={createOrder} setPopUpAuthn={setPopUpAuthn} />}
           />
           <Route path="/users" element={<Users auth={auth} />}
           />
@@ -639,6 +678,7 @@ function App() {
           />
 
         </Routes>
+      </div>
       </div>
     </>
   )

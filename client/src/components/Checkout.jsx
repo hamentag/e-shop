@@ -1,7 +1,7 @@
 
 import {useState} from 'react'
 import { useNavigate } from 'react-router-dom';
-export default function Checkout({auth, cart, createOrder}){
+export default function Checkout({auth, cart, createOrder, setPopUpAuthn}){
     const [nameOnCard, setNameOnCard ] = useState('');
     const [cardNumber, setCardNumber] = useState('');
     const [expirationDate, setExpirationDate] = useState('');
@@ -14,8 +14,9 @@ export default function Checkout({auth, cart, createOrder}){
     const Confirmation = ()=> {
 
         return(
-            <div>
+            <div className='order-confirmation'>
                 <h1>Thank you for your order, {auth.firstname}</h1>
+                <button onClick={()=>{navigate('/orders')}}>See Order History</button>
             </div>
         )
     } 
@@ -23,25 +24,30 @@ export default function Checkout({auth, cart, createOrder}){
     const submitToPlaceOrder = async(ev) => {
         ev.preventDefault();
         /**
-         * Logic to check payment information should be written here
+         * Logic to check payment information goes here
          */
         createOrder();
         setConfirmedOrder(true);
-      }
+    }
+
+    //
+    if (!cart) {
+        return <section className="loading">Loading..</section>
+    }
         
     return(
         <>{
             confirmedOrder?
             <div>
                 <Confirmation  />
-                <button onClick={()=>{navigate('/orders')}}>See orders</button>
+               
             </div>
             :
             <div>
-            {cart.length !== 0 ?
+            {cart.cart_count !== 0 ?
                 <div>
-                    <h3>Order Details</h3>
                     <div className='order-details'>
+                    <h3>Order Details</h3>
                         <table className='order-items'>
                             <tbody>
                                 <tr>
@@ -52,12 +58,12 @@ export default function Checkout({auth, cart, createOrder}){
                                     <th scope="row" style={{ textAlign: 'end', paddingRight: '20px' }}>Subtotal</th>
                                 </tr>
                                 {
-                                    cart.map(item => {
+                                    cart.products.map(item => {
                                         return (
                                             <tr key={item.id}>
                                                 <td>
                                                     <div className='cart-item-info'>
-                                                        <img src={item.image} alt="product image" style={{ width: '65px', height: '55px' }} />
+                                                        <img src={(item.images.find(image => image.is_showcase)).url} alt="product image" style={{ width: '65px', height: '55px' }} />
                                                         <h4>{item.title}</h4>
 
                                                     </div>
@@ -81,15 +87,15 @@ export default function Checkout({auth, cart, createOrder}){
                                             <tbody>
                                                 <tr>
                                                     <td>Order Subtotal </td>
-                                                    <td>${cart[0].subtotal}</td>
+                                                    <td>${cart.subtotal}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Tax </td>
-                                                    <td>${cart[0].tax}</td>
+                                                    <td>${cart.tax}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Order Total </td>
-                                                    <td style={{ color: 'red' }}>${cart[0].total}</td>
+                                                    <td style={{ color: 'red' }}>${cart.total}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -100,8 +106,8 @@ export default function Checkout({auth, cart, createOrder}){
                     </div>
                     {
                         auth.id?
-                        <div>
-                            <h4>Payment Information</h4>
+                        <div className='payment-info'>
+                            <h3>Payment Information</h3>
                             <form onSubmit={ submitToPlaceOrder } className='payment-form'>
                                 <input value={ nameOnCard} placeholder='NAME ON CARD' onChange={ ev=> setNameOnCard(ev.target.value)}/>
                                 <input value={ cardNumber} placeholder='CARD NUMBER' onChange={ ev=> setCardNumber(ev.target.value)}/>
@@ -111,12 +117,11 @@ export default function Checkout({auth, cart, createOrder}){
                             </form> 
                         </div>
                         :
-                        <div>
-                            <p>Please log in or register to place your order.</p>
+                        <div style={{width:'fit-content', margin:'0 auto', padding:'1rem'}}>
+                            <div>Please log in or register to place your order.</div>
                             <button className='login-btn' onClick={()=>{
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                         
-                        }
+                                setPopUpAuthn("to-login")                     
+                            }
                       }>Log In
                   </button>  
                         </div>
