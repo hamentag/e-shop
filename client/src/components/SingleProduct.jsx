@@ -1,5 +1,4 @@
 const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -7,6 +6,7 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
 
     const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [displayedImage, setDisplayedImage] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     
@@ -14,8 +14,9 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
         const fetchSingleProduct = async()=> {
           const response = await fetch(`${baseURL}/api/products/${id}`);
           const json = await response.json();
-          if(response.ok){
+          if(response.ok){ console.log("json ,, ", json)
             setProduct(json);
+            setDisplayedImage(json.images.find(image => image.is_showcase))
           }
           else{
             console.error(response.error); 
@@ -30,10 +31,23 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
             <div className="product-details"> 
                 {product &&
                     <>
-                        <h3>Product Details "{product.title}"</h3>
+                        <h3>{product.title}</h3>
                         <div className="product-details-main">
                             <div>
-                                <img src={product.image} alt="product image" style={{width: '360px' , height:'225px'}}/>
+                                <div className="single-product-images">
+                                    <ul>
+                                        {
+                                            product.images.map(image => {
+                                                return(
+                                                    <li key={image.title} onMouseOver={()=>setDisplayedImage(image)}>
+                                                        <img src={image.url} alt="product image" style={{width: '46px' , height:'44px'}}/>
+                                                    </li>
+                                                )
+                                            })
+                                        }
+                                    </ul>
+                                    <img src={displayedImage.url} alt="product image" style={{width: '320px' , height:'310px'}}/>
+                                </div>
                                 <table>
                                     <tbody>
                                         <tr>
@@ -43,6 +57,10 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
                                         <tr>
                                             <th scope="row">Category</th>
                                             <td>{product.category}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Brand</th>
+                                            <td>{product.brand}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Price</th>
