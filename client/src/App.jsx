@@ -14,7 +14,6 @@ import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import shoppingCart from "./assets/shopping-cart.png";
 
-
 const DialogBox = ({ msg, setMsg }) => {
   return (
     <>
@@ -101,7 +100,7 @@ function App() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [illustrationVideos, setIllustrationVideos] = useState([]);
+  const [homeImages, setHomeImages] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true)
   const [refreshCart, setRefreshCart] = useState(false);
@@ -135,11 +134,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const fetchIllustrationVideos = async () => {
-      const response = await fetch(`${baseURL}/api/illustration-videos`);
+    const fetchHomeImages = async () => {
+      const response = await fetch(`${baseURL}/api/home-images`);
       const json = await response.json();
       if (response.ok) {
-        setIllustrationVideos(json);
+        setHomeImages(json);
         // setIsLoading(false)
       }
       else {
@@ -149,8 +148,10 @@ function App() {
         })
       }
     };
-    fetchIllustrationVideos();
+    fetchHomeImages();
   }, []);
+
+  console.log("homeImages ,,, ", homeImages)
 
 
   useEffect(() => {
@@ -652,7 +653,7 @@ function App() {
 
       <div>
         <Routes>
-          <Route path="/" element={<Home illustrationVideos={illustrationVideos} auth={auth} cart={cart} setMsg={setMsg}
+          <Route path="/" element={<Home homeImages={homeImages} auth={auth} cart={cart} setMsg={setMsg}
             addToCart={addToCart} products={products}
             deleteProduct={deleteProduct} />}
           />

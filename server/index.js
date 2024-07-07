@@ -239,9 +239,9 @@ app.delete('/api/products/:id', async(req, res, next)=>{
 
 
 // 
-app.get('/api/illustration-videos', async(req, res, next)=> {
+app.get('/api/home-images', async(req, res, next)=> {
   try {
-    const results =  await getFileUrls(data.illustration_videos)
+    const results =  await getFileUrls(data.home_images)
     res.send(results);
   }
   catch(ex){

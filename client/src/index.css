@@ -57,66 +57,54 @@ a {
   color: navy;
 }
 
-.illustration-image{
-  height: 350px;
-  background-size: cover; /* or 'contain' depending on your preference */
-  background-repeat: no-repeat;
+.home-image{
+  height: 75vh; 
+  width: 100vw;
+  background-size: cover;  
   background-position: center;
-}
-.illustration-video-background{
+  background-repeat: no-repeat;
   position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.illustration-video-background-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Cover the entire container */
-}
-.video-shifters, .illustration-video-content h1{
-  position: absolute;
-  left: 50%;
- 
-  width: 95%;
   color: white;
-
-  font-weight: bold;
-  
 }
-.illustration-video-content h1{
-  top: 15%;
+
+.home-image h1{
+  position: absolute;
+  top: 10%;
   left: 5%;
-  width: fit-content;
-  padding: 0.2rem 0.5rem;
-  background-color: #dadada99;
-  color: blue;
-  border-radius: 3px;
-  z-index: 2; 
+  font-size: 2.5rem;
+  background-color: #6968688c;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+}
+.home-image h1{
   cursor: pointer;
 }
-.video-shifters {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  z-index: 1; 
+
+.image-shifters {
+ transform: translate(0, -50%);
+ height: 40%; 
+ position: absolute; 
+ top: 50%; 
+ width: 100%; 
+ display: flex; 
+ justify-content: space-between;
 }
 
-.video-shifters{
+.image-shifters div{
+  height: 100%;
   display: flex;
-  justify-content: space-between; 
-}
-.video-shifters div{
-  padding: 1rem;
+  align-items: center;
+  justify-content: center;
+  width: 4rem; 
+  cursor: pointer; 
+  margin-right: 1rem; 
+  cursor: pointer;
+  margin-left: 1rem;
+  border-radius: 3px;
 }
 
-.video-shifters div:hover{
-  background-color: #e5e5e5ce;
+.image-shifters div:hover{
+  border: 1.5px solid #e5e5e5ce;
 }
 
 .cart{
@@ -327,9 +315,6 @@ background-color: rgba(141, 214, 141, 0.639);
 
 th{
   text-align: start;
-}
-td{
-  /* padding: 5px 10px; */
 }
 
 .cart-header{

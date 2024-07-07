@@ -421,7 +421,6 @@ const fetchOrderCollections = async(user_id)=> {
   `;
   const response = await client.query(SQL, [user_id]);
   return response.rows;
-  
 };
 
 // fetchOrders
