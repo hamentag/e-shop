@@ -1,20 +1,30 @@
 
 const data = {
-    illustration_videos: [
+    home_images: [
         {
-            title: 'illustration-video-carters-1.mp4',
-            caption: 'illustration video carters 1',
-            seller: "Carter's"
+            title: 'home-image-carters-1.jpg',
+            caption: 'Home image carters 1',
+            brand: "Carter's"
         },
         {
-            title: 'illustration-video-carters-2.mp4',
-            caption:  'illustration video carters 2',
-            seller: "Carter's"       
+            title: 'home-image-carters-2.gif',
+            caption: 'Home image carters 2',
+            brand: "Carter's"
         },
         {
-            title: 'illustration-video-melissa_and_doug-1.mp4',
-            caption:  'illustration video Melissa and Doug 1',
-            seller: "Melissa & Doug"       
+            title: 'home-image-melissa_and_doug-1.jpg',
+            caption:  'Home image Melissa and Doug 1',
+            brand: "Melissa & Doug" 
+        },
+        {
+            title: 'home-image-melissa_and_doug-2.jpg',
+            caption:  'Home image Melissa and Doug 2',
+            brand: "Melissa & Doug" 
+        },
+        {
+            title: 'home-image-melissa_and_doug-3.gif',
+            caption:  'Home image Melissa and Doug 3',
+            brand: "Melissa & Doug" 
         }
     ],
 
