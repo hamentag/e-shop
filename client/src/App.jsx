@@ -1,4 +1,6 @@
-const baseURL = 'https://hs-ecommerce-srv.onrender.com'
+// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
+const baseURL = 'http://3.82.20.60:3000'
+
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -12,6 +14,8 @@ import Users from './components/Users';
 import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import shoppingCart from "./assets/shopping-cart.png";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
 const DialogBox = ({ msg, setMsg }) => {
   return (
@@ -597,6 +601,7 @@ function App() {
       <div className='header' ref={headerRef}>
         <div className='header-top'>
           <h1><Link to={'/'}>E-Shop</Link></h1>
+          <div style={{display:'flex',gap:'0.5rem' ,width:'fit-content'}}>
           {
             auth.id ?
               <div>
@@ -605,7 +610,7 @@ function App() {
                 </div>
               </div>
               :
-              <div>
+              <div style={{display:'flex'}}>
                 <button className='login-btn' onClick={() => {
                   // window.scrollTo({ top: 0, behavior: 'smooth' });
                   setPopUpAuthn("to-login") 
@@ -617,8 +622,22 @@ function App() {
                 }
                 }>Join
                 </button>
-              </div>
+              </div>    
           }
+
+          <div className='cart'>
+              
+              <Link to={'/cart'} className='crt'>
+                <div>{cart? cart.cart_count : ''}</div>
+                <FontAwesomeIcon icon={faCartShopping} className='cart-icon' />
+      
+              </Link>
+          </div>
+
+
+          </div>
+
+
         </div>
         <div className='nav'>
           <div><Link to={'/'}>Home</Link></div>
@@ -634,12 +653,7 @@ function App() {
             <Link to={'/users'}>Show Users</Link>
             <Link to={'/new_product'}>Add Product</Link>
           </>}
-          <div className='cart'>
-              <Link to={'/cart'} className='crt'>
-                <div>{cart? cart.cart_count : ''}</div>
-                <img src={shoppingCart} alt="cart icon" style={{ width: '25px', height: '20px' }} />
-              </Link>
-          </div>
+         
         </div>
       </div>
       <div className='main' ref={mainRef}>

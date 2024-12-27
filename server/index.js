@@ -33,6 +33,9 @@ const {
 const { uploadFile, getFileUrl }  = require('./s3AWS.js')  // deleteFile
 
 //
+require('dotenv').config()
+
+//
 const{ data } = require('./data.js');
 
 const express = require('express');
@@ -56,7 +59,13 @@ const upload = multer({ storage: storage })
 const cors = require('cors')
 app.use(
   cors({
-    origin: ['https://hs-ecommerce.onrender.com', 'https://hs-eshop.netlify.app', 'http://localhost:3000'],
+    origin: [
+      'https://hs-ecommerce.onrender.com', 
+      'https://hs-eshop.netlify.app', 
+      'http://localhost:3000',
+      'http://localhost:5173'
+    ],
+
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 
     credentials: true

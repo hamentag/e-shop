@@ -1,5 +1,5 @@
-const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
-
+// const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
+const baseURL = 'http://3.82.20.60:3000'
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 

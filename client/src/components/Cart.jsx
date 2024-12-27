@@ -25,12 +25,13 @@ export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
                         {cart.products.map(item => {
                             return <li key={item.id} className="cart-item">
                                 <div className="cart-item-top">
-                                    <h4>{item.title}</h4>
+                                    <h4 onClick={()=>{navigate(`/${item.product_id}`)}}>{item.title}</h4>
                                     <div>${item.price}/ea</div>
                                 </div>
                                 <div>
                                     <div className="cart-item-info">
-                                        <img src={(item.images.find(image => image.is_showcase)).url} alt="product image" style={{ width: '65px', height: '55px' }} />
+                                        <img src={(item.images.find(image => image.is_showcase)).url} alt="product image" 
+                                            style={{ width: '65px', height: '55px' }} onClick={()=>{navigate(`/${item.product_id}`)}}/>
                                         <div>
                                             <p>{item.characteristics}.</p>
                                             <div>Dimensions: {item.dimensions} inch</div>
