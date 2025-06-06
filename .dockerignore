@@ -1,0 +1,29 @@
+# Node dependencies
+node_modules
+client/node_modules
+
+# Local build artifacts
+client/dist
+server/public  # Will be created by Docker build from client/dist
+
+.env
+*.log
+
+.git
+.gitignore
+
+node_modules
+client/node_modules
+dist
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
