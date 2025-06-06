@@ -1,6 +1,6 @@
 # E-Shop Website
 🔗 [GitHub Repository](https://github.com/hamentag/e-shop)
-🔗 [Deployed site](https://hs-eshop.netlify.app/)
+🔗 [Deployed site](https://prime.eshop-in.pro)
 **********************
 #### Demo account
 > Use `demo@example.com` as the email and `eshop` as the password to log in
