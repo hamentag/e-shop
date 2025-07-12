@@ -1,3 +1,40 @@
-node_modules
+# Node modules
+**/node_modules/
+
+# Python virtual environments
+**/venv/
+**/.venv/
+
+# Python cache
+**/__pycache__/
+**/*.py[cod]
+
+# dotenv files
+**/.env*
+
+# Logs and temporary/dev files
+*.log
+*.local
+.envrc
+*.sw[p]
+*.swo
+
+# Editor/IDE configs
+.vscode/
+.idea/
+*.iml
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+**/dist/
+**/build/
+**/.vite/
+**/.vite-temp/
+**/.cache/
+**/.eslintcache
+
+# Dependency lock files
 package-lock.json
-.env

@@ -503,6 +503,8 @@ app.get('*', (req, res) => {
 // init
 const init = async()=> {
   const port = process.env.PORT || 3000;
+
+  console.log('⏳ Connecting to database...');
   await client.connect();
   console.log('connected to database');
 
@@ -592,4 +594,7 @@ const init = async()=> {
   });
 };
 
-init();
+// init();
+init().catch((err) => {
+  console.error('Error during server initialization:', err);
+});

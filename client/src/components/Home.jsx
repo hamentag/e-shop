@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import ChatWidget from './ChatWidget';
+
 
 export default function Home({homeImages, auth, cart, setMsg, addToCart, products, deleteProduct}){
 
@@ -42,6 +44,10 @@ export default function Home({homeImages, auth, cart, setMsg, addToCart, product
                     <div onClick={() => { previousImage() }}><FontAwesomeIcon icon={faChevronLeft} /></div>
                     <div onClick={() => { nextImage() }}><FontAwesomeIcon icon={faChevronRight} /></div>
                 </div>
+                <div>
+                    <ChatWidget /> 
+                </div>
+
             </div>
         </div> 
     )

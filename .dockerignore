@@ -1,29 +1,47 @@
-# Node dependencies
-node_modules
-client/node_modules
+# Node modules
+**/node_modules/
 
-# Local build artifacts
-client/dist
-server/public  # Will be created by Docker build from client/dist
+# Python virtual environments
+**/venv/
+**/.venv/
 
-.env
-*.log
+# Python bytecode/cache
+**/__pycache__/
+**/*.py[cod]
 
+# dotenv
+**/.env*
+
+# Git and Docker
 .git
 .gitignore
-
-node_modules
-client/node_modules
-dist
-
-# Docker files
-Dockerfile
 .dockerignore
+Dockerfile
 
-# OS/editor files
-.DS_Store
+# Logs and editor swap files
+*.log
+*.sw[p]
+*.swo
+
+# IDE/editor junk
 .vscode/
 .idea/
-*.swp
-*.swo
+*.iml
+
+# System junk
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+**/dist/
+**/build/
+**/.vite*/
+**/.cache/
+**/.eslintcache
+
+# Local app-specific build outputs
+server/public/
+
+# Lockfiles
+package-lock.json
 
