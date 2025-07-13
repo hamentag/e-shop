@@ -1,12 +1,38 @@
 version: "3.8"
 
 services:
-  eshop-app:
-    build: .
-    container_name: eshop-container
-    image: eshop-app
-    ports:
-      - "3001:3000"
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.express
     env_file:
-      - .env
-#    restart: unless-stopped
+      - ./server/.env
+    image: eshop-express
+    container_name: eshop-express-container
+    network_mode: host
+    # ports:
+    #   - "3001:3000"
+
+  chat-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.flask
+    env_file:
+      - ./chat-backend/.env
+    image: eshop-chat
+    container_name: eshop-chat-container
+    ports:
+      - "5001:5000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.react
+    image: eshop-react
+    container_name: eshop-react-container
+    ports:
+      - "8082:80"
+    depends_on:
+      - backend
+      - chat-backend
+

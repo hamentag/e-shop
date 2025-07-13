@@ -17,6 +17,7 @@
 .gitignore
 .dockerignore
 Dockerfile
+Dockerfile.flask
 
 # Logs and editor swap files
 *.log
