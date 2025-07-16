@@ -7,6 +7,7 @@ export default function Products({auth, cart, setMsg, addToCart, products, delet
   const navigate = useNavigate();
   const { seller } = useParams();
   
+  
   useEffect(()=>{
     if(seller === 'all'){
       setProductsToDisplay(products)

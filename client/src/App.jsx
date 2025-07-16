@@ -1,6 +1,4 @@
-// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
-// const baseURL = 'http://3.82.20.60:3000'
-// const baseURL = 'https://prime.eshop-in.pro'
+
 const baseURL = ''
 
 import { useState, useEffect, useRef } from 'react'
@@ -15,101 +13,55 @@ import Checkout from './components/Checkout';
 import Users from './components/Users';
 import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
+import DialogBox from './components/DialogBox';
+
 import shoppingCart from "./assets/shopping-cart.png";
+
+import Navbar from './components/Navbar';
+
+import LoginRegister from './components/LoginRegister'
+
+import { cartAPI, authAPI, userAPI, productAPI, orderAPI} from './api';
+
+import useAuth from './hooks/useAuth';
+import useCart from './hooks/useCart';
+import useProducts from './hooks/useProducts';
+import useOrders from './hooks/useOrders';
+
+
+
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
-const DialogBox = ({ msg, setMsg }) => {
-  return (
-    <>
-      <div className="dialog-box">
-        <div className="dialog-box-main">
-          <p>{msg.txt}</p>
-          <div>{msg.more}</div>
-        </div>
-        <button onClick={() => { setMsg(null) }} style={{ fontSize: '18px' }}> &times; </button>
-      </div>
-      <div className="overlay" onClick={() => { setMsg(null) }}></div>
-    </>
-  )
-}
 
-//
-const LoginRegister = ({ login, register, popUpAuthn, setPopUpAuthn }) => {
-  const [emailLogin, setEmailLogin] = useState('');
-  const [passwordLogin, setPasswordLogin] = useState('');
-
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [emailReg, setEmailReg] = useState('');
-  const [passwordReg, setPasswordReg] = useState('');
-
-  const [hasAccount, setHasAccount] = useState(popUpAuthn === 'to-login');
-
-  const submitT0Login = ev => {
-    ev.preventDefault();
-    login({ email: emailLogin, password: passwordLogin });
-  }
-
-  const submitT0Register = ev => {
-    ev.preventDefault();
-    register({ email: emailReg, password: passwordReg, firstname, lastname });
-  }
-
-  return (
-    <>
-      <div className="dialog-box">
-        <div className="dialog-box-main">
-          {hasAccount ?
-            <div>
-              <div className='login-form' >
-                  <h4>Sign in to your account</h4>
-                  <form onSubmit={submitT0Login} >
-                    <input value={emailLogin} type='email' placeholder='Email' onChange={ev => setEmailLogin(ev.target.value)} />
-                    <input value={passwordLogin} placeholder='Password' onChange={ev => setPasswordLogin(ev.target.value)} />
-                    <button disabled={!(emailLogin && passwordLogin)}>Log In</button>
-                  </form>
-              </div>
-              Don't have an account?
-              <span onClick={() => { setHasAccount(false) }} className='signUp-link'>Sign Up</span>
-            </div>
-            :
-            <div>
-              <div className='register-form' > 
-                <h4>Create a new account</h4>
-                <form onSubmit={submitT0Register}>
-                  <input value={firstname} placeholder='First Name' onChange={ev => setFirstname(ev.target.value)} />
-                  <input value={lastname} placeholder='Last Name' onChange={ev => setLastname(ev.target.value)} />
-                  <input value={emailReg} name='email' placeholder='Email' onChange={ev => setEmailReg(ev.target.value)} />
-                  <input value={passwordReg} placeholder='Password' onChange={ev => setPasswordReg(ev.target.value)} />
-                  <button disabled={!(firstname && lastname && emailReg && passwordReg)}>Continuer</button>
-                </form>
-              </div>
-              Already have an account?
-              <span onClick={() => { setHasAccount(true) }} className='login-link'>Log In</span>
-            </div>
-          }
-        </div>
-        <button onClick={() => { setPopUpAuthn(null) }} style={{ fontSize: '18px' }}> &times; </button>
-      </div>
-      <div className="overlay" onClick={() => { setPopUpAuthn(null) }}></div>
-    </>
-  );
-}
+// const DialogBox = ({ msg, setMsg }) => {
+//   return (
+//     <>
+//       <div className="dialog-box">
+//         <div className="dialog-box-main">
+//           <p>{msg.txt}</p>
+//           <div>{msg.more}</div>
+//         </div>
+//         <button onClick={() => { setMsg(null) }} style={{ fontSize: '18px' }}> &times; </button>
+//       </div>
+//       <div className="overlay" onClick={() => { setMsg(null) }}></div>
+//     </>
+//   )
+// }
 
 
-// App
+//// App
 function App() {
-  const [auth, setAuth] = useState({});
-  const [guest, setGuest] = useState({});
-  const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState(null);
-  const [orders, setOrders] = useState([]);
+  // const [auth, setAuth] = useState({});
+  // const [guest, setGuest] = useState({});
+  // const [products, setProducts] = useState([]);
+  // const [cart, setCart] = useState(null);
+  // const [orders, setOrders] = useState([]);
   const [homeImages, setHomeImages] = useState([]);
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [refreshCart, setRefreshCart] = useState(false);
-  const [refreshProductList, setRefreshProductList] = useState(false);
+  // const [isLoading, setIsLoading] = useState(true)
+  // const [refreshCart, setRefreshCart] = useState(false);
   const [refreshOrders, setRefreshOrders] = useState(false);
 
   const [msg, setMsg] = useState(null);
@@ -122,458 +74,40 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const token = window.localStorage.getItem('token');
-    if (token) {
-      attemptLoginWithToken();
-    }
-    else {
-      const foundGuest = window.localStorage.getItem('guest');
-      if (foundGuest) {
-        checkFoundGuest();
-      }
-      else {
-        createGuest();
-      }
-    }
-  }, []);
+  const { auth, guest, setAuth, setGuest, login, register, logout } = useAuth({setMsg, setPopUpAuthn});
+  const { cart, setCart, refreshCart, setRefreshCart, addToCart, updateCart, removeFromCart } = useCart({auth, guest, setGuest, setMsg});
 
+  
+
+  const { products, isLoading, createProduct, deleteProduct } = useProducts({ auth, setMsg, setRefreshCart });
+  const { orders, createOrder } = useOrders({ auth, setMsg, setRefreshCart });
+
+  
+
+ 
+  ////  
   useEffect(() => {
-    const fetchHomeImages = async () => {
-      const response = await fetch(`${baseURL}/api/home-images`);
-      const json = await response.json();
-      if (response.ok) {
+    const getHomeImages = async () => {
+      try {
+        const json = await productAPI.fetchHomeImages();
         setHomeImages(json);
-        // setIsLoading(false)
-      }
-      else {
-        console.error(response.error);
+      } catch (err) {
+        console.error(err.message);
         setMsg({
-          txt: "Oops! unable to fetch illustration videos currently."
-        })
+          txt: "Oops! Unable to fetch illustration videos currently.",
+          more: <button onClick={() => setMsg(null)}>OK</button>
+        });
       }
     };
-    fetchHomeImages();
+    getHomeImages();
   }, []);
 
-  console.log("homeImages ,,, ", homeImages)
-
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const response = await fetch(`${baseURL}/api/products`);
-      const json = await response.json();
-      if (response.ok) {
-        setProducts(json);
-        setIsLoading(false)
-      }
-      else {
-        console.error(response.error);
-        setMsg({
-          txt: "Oops! unable to fetch product list currently."
-        })
-      }
-    };
-    fetchProducts();
-  }, [refreshProductList]);
-
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      const response = await fetch(`${baseURL}/api/users/${auth.id}/cart`, {
-        headers: {
-          authorization: window.localStorage.getItem('token')
-        }
-      });
-      const json = await response.json();
-      if (response.ok) {  
-
-        if (guest.id) {
-          // from guest to logged in user  (from client side)
-          cart.products.forEach(async (element) => {
-            const guestCartItem = json.products.find(item => item.product_id === element.product_id);
-            if (!guestCartItem) {
-              // add to cart
-              await addToCart(element.product_id, element.qty);
-            }
-
-            setGuest({})
-          });
-        }
-
-        setCart(json);
-      }
-      else {
-        console.error(json.error)
-      }
-    };
-
-    const fetchGuestCart = async () => {
-      const response = await fetch(`${baseURL}/api/guests/${guest.id}/cart`);
-      const json = await response.json();
-      if (response.ok) {
-        setCart(json);
-      }
-      else {
-        console.error(json.error)
-      }
-    }
-
-    if (auth.id) {
-      fetchCart();
-    }
-    else if (guest.id) {
-      fetchGuestCart();
-    }
-  }, [auth, guest, refreshCart]);
-
-
-  useEffect(() => {
-    const fetchOrders = async () => {
-      const response = await fetch(`${baseURL}/api/users/${auth.id}/orders`, {
-        headers: {
-          authorization: window.localStorage.getItem('token')
-        }
-      });
-      const json = await response.json();
-      if (response.ok) {
-        setOrders(json)
-      }
-      else {
-        console.error(json.error)
-      }
-    };
-
-    if (auth.id) {
-      fetchOrders();
-    }
-  }, [auth, refreshOrders]);
-
   
-  // add to guest cart
-  const addToGuestCart = async (product_id, qty) => {
-    if (true) {
-      const response = await fetch(`${baseURL}/api/guests/${guest.id}/guest_cart`, {
-        method: 'POST',
-        body: JSON.stringify({ product_id, qty }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      const json = await response.json();
-      if (response.ok) {
-        setRefreshCart(prevState => !prevState); // fetch updated cart
-      }
-      else {
-        console.error(json.error);
-        setMsg({
-          txt: json.error,
-          more: <button onClick={() => { setMsg(null) }}>OK</button>
-        })
-      }
-    }
-  };
-
-  // add guest
-  const createGuest = async () => {
-    const response = await fetch(`${baseURL}/api/guests/join`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    const result = await response.json();
-    if (response.ok) {
-      setGuest(result);
-      window.localStorage.setItem('guest', JSON.stringify(result));
-    }
-    else {
-      console.error(result.error)
-    }
-  }
-
-  // add to cart
-  const addToCart = async (product_id, qty) => {
-    if (auth.id) {
-      const response = await fetch(`${baseURL}/api/users/${auth.id}/cart`, {
-        method: 'POST',
-        body: JSON.stringify({ product_id, qty }),
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: window.localStorage.getItem('token')
-        }
-      });
-      const json = await response.json();
-      if (response.ok) {
-        setRefreshCart(prevState => !prevState); // fetch cart
-      }
-      else {
-        console.error(json.error);
-        setMsg({
-          txt: json.error,
-          more: <button onClick={() => { setMsg(null) }}>OK</button>
-        })
-      }
-    }
-    else {   // not logged in
-      await addToGuestCart(product_id, qty);
-    }
-  };
-
-  // update cart
-  const updateCart = async (product_id, qty) => {
-    if (auth.id) {
-      const responseAPI = await fetch(`${baseURL}/api/users/${auth.id}/cart`, {
-        method: 'PUT',
-        body: JSON.stringify({ product_id, qty }),
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: window.localStorage.getItem('token')
-        }
-      });
-      const json = await responseAPI.json();
-      if (responseAPI.ok) {
-        // for (let element of cart) {
-        //   if (element.product_id === product_id) {
-        //     element.qty = json.qty;
-        //     break;
-        //   }
-        // }
-        setRefreshCart(prevState => !prevState); // fetch updated cart
-      }
-      else {
-        console.error(json.error)
-        // alert(json.error)
-        setMsg({
-          txt: json.error,
-          more: <button onClick={() => { setMsg(null) }}>OK</button>
-        })
-      }
-    }
-    else if (guest.id) {
-      const responseAPI = await fetch(`${baseURL}/api/guests/${guest.id}/cart`, {
-        method: 'PUT',
-
-        body: JSON.stringify({ product_id, qty }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      const json = await responseAPI.json();
-      if (responseAPI.ok) {
-        // for (let element of cart) {
-        //   if (element.product_id === product_id) {
-        //     element.qty = json.qty;
-        //     break;
-        //   }
-        // }
-        setRefreshCart(prevState => !prevState); // fetch updated cart
-      }
-      else {
-        console.error(json.error)
-        // alert(json.error)
-        setMsg({
-          txt: json.error,
-          more: <button onClick={() => { setMsg(null) }}>OK</button>
-        })
-      }
-    }
-  };
   
-  // Create Order 
-  const createOrder = async () => {
-    if (auth.id) {
-      const response = await fetch(`${baseURL}/api/users/${auth.id}/orders`, {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: window.localStorage.getItem('token')
-        }
-      });
-      const json = await response.json();
-      if (response.ok) {
-        setOrders([...orders, ...json]);
-        setRefreshOrders(prevState => !prevState);
-        setRefreshCart(prevState => !prevState);
-      }
-    }
-  }
-
-  const removeFromCart = async (id) => {
-    let responseAPI;
-    if (auth.id) {
-      responseAPI = await fetch(`${baseURL}/api/users/${auth.id}/cart/${id}`, {
-        method: 'DELETE',
-        headers: {
-          authorization: window.localStorage.getItem('token')
-        }
-      });
-    }
-    else if (guest.id) {
-      responseAPI = await fetch(`${baseURL}/api/guests/${guest.id}/cart/${id}`, {
-        method: 'DELETE'
-      });
-    }
-
-    if (responseAPI.ok) {
-      // setCart(cart.products.filter(item => item.product_id !== id));
-      setRefreshCart(prevState => !prevState); // fetch updated cart
-    }
-  };
-
-  const checkFoundGuest = async () => {
-    //
-    const foundGuest = JSON.parse(window.localStorage.getItem('guest'));
-    try {
-      const response = await fetch(`${baseURL}/api/guests/${foundGuest.id}`);
-      const json = await response.json();
-
-      setGuest(json);
-
-    } catch (error) {
-      // invalid guest key.  
-      window.localStorage.removeItem('guest');
-      createGuest();
-    }
-  }
-
-  const attemptLoginWithToken = async () => {
-    const token = window.localStorage.getItem('token');
-    const response = await fetch(`${baseURL}/api/auth/me`, {
-      headers: {
-        authorization: token
-      }
-    });
-    const json = await response.json();
-    if (response.ok) {
-      setAuth(json);
-      setPopUpAuthn(null)
-    }
-    else {
-      window.localStorage.removeItem('token');
-    }
-  };
-
-  const login = async (credentials) => {
-    const response = await fetch(`${baseURL}/api/auth/login`, {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    const json = await response.json();
-    if (response.ok) {
-      window.localStorage.setItem('token', json.token);
-      attemptLoginWithToken();
-    }
-    else {
-      console.error(json.error)
-      setPopUpAuthn(null)
-      setMsg({
-        txt: "Incorrect email or password. Please try again.",
-        more: <button onClick={() => { setPopUpAuthn("to-login"); setMsg(null) }}>Try again</button>
-      })
-    }
-  };
-
-  const register = async (newUserData) => {
-    const response = await fetch(`${baseURL}/api/auth/register`, {
-      method: 'POST',
-      body: JSON.stringify(newUserData),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    const result = await response.json();
-    if (response.ok) {
-      setMsg({
-        txt: "Success! Your account has been created.",
-        more: <button onClick={() => { navigate('/account'); setMsg(null) }}>See Account</button>
-      });
-      login({ email: newUserData.email, password: newUserData.password });  // login by default when user success. creates account
-    }
-    else {
-      console.error(result.error);
-      setMsg({
-        txt: "Account creation failed with provided information."
-      });
-    }
-  };
-
-  //
-  const createProduct = async (newProductData) => {
-    const formData = new FormData();
-
-    Object.entries(newProductData).forEach(([key, value]) => {
-      if(key !== 'submittedImages'){
-        formData.append(key, value);
-      }        
-      else{
-        // const image = newProductData.submittedImages;
-        for (let i = 0; i < (newProductData.submittedImages).length; i++) {
-          formData.append('images', (newProductData.submittedImages)[i].file);
-          formData.append(`caption[${i}]`, (newProductData.submittedImages)[i].caption); // Add caption for each image
-          formData.append(`is_showcase[${i}]`, (newProductData.submittedImages)[i].is_showcase); // is_showcase for each image
-        }
-      }
-    });
 
 
-    //
-    const response = await fetch(`${baseURL}/api/users/${auth.id}/products`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        authorization: window.localStorage.getItem('token')
-      }
-    });
-    const json = await response.json();
-    if (response.ok) {
-      setMsg({ txt: "Product is now available!" });
-      setRefreshProductList(prevState => !prevState);
-    }
-    else {
-      console.error(json.error)
-    }
-  }
 
-  //
-  const deleteProduct = async (id) => {
-    const response = await fetch(`${baseURL}/api/products/${id}`, {
-      method: 'DELETE',
-      headers: {
-        authorization: window.localStorage.getItem('token')
-      }
-    });
-    if (response.ok) {
-      //setProductCount((n)=> n -1);
-      // setCart(cart.products.filter(item => item.product_id !== id));
-
-      setRefreshProductList(prevState => !prevState); // Refresh product list
-      setRefreshCart(prevState => !prevState); // fetch updated cart
-
-    }
-    else {
-      await response.json().then((json) => {
-        console.error(json.error)
-        setMsg({
-          txt: json.error,
-          more: <button onClick={() => { setMsg(null) }}>OK</button>
-        })
-      })
-    }
-  }
-
-  const logout = () => {
-    window.localStorage.removeItem('token');
-    setAuth({});
-    createGuest();
-  }
-
-
-  //
+  ////
   useEffect(() => {
     const getHeaderHeight = () => {
       if (headerRef.current && mainRef.current) {
@@ -591,6 +125,7 @@ function App() {
       window.removeEventListener('resize', getHeaderHeight);
     };
   }, [headerRef.current, mainRef.current]);
+
 
   //
   if (isLoading) {
@@ -666,7 +201,9 @@ function App() {
       {/* <NewImage />
       <AllImages /> */}
 
-      <div>
+      {/* <Navbar /> */}
+
+      <div style={{paddingTop:"25px"}}>
         <Routes>
           <Route path="/" element={<Home homeImages={homeImages} auth={auth} cart={cart} setMsg={setMsg}
             addToCart={addToCart} products={products}
