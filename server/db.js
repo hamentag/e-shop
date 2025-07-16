@@ -303,15 +303,30 @@ const deleteGuestCartProduct = async({ guest_id, id })=> {
   await client.query(SQL, [guest_id, id]);
 };
 
-const deleteProduct = async({id}) =>{
-  const SQL = `
+
+////
+const deleteProduct = async ({ id }) => {
+  // 1. Get image filenames for this product
+  const imageQuery = `
+    SELECT title FROM images WHERE product_id = $1
+  `;
+  const imageResult = await client.query(imageQuery, [id]);
+  const images = imageResult.rows;
+
+  // 2. Delete the product (this will cascade and delete related images in DB)
+  const productQuery = `
     DELETE FROM products
     WHERE id = $1
-    RETURNING *;  
+    RETURNING *;
   `;
-  await client.query(SQL, [id]);
-}
+  const productResult = await client.query(productQuery, [id]);
+  const deletedProduct = productResult.rows[0];
 
+  return { deletedProduct, images };
+};
+
+
+////
 const authenticate = async({ email, password })=> {
   const SQL = `
     SELECT id, password

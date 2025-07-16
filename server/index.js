@@ -30,7 +30,7 @@ const {
   addProductImage
 } = require('./db');
 
-const { uploadFile, getFileUrl }  = require('./s3AWS.js')  // deleteFile
+const { uploadFile, getFileUrl, deleteFile  }  = require('./s3AWS.js')
 
 //
 require('dotenv').config()
@@ -73,8 +73,10 @@ app.use(
 );
 
 // Functions
+
 //
 const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex');
+
 //
 const getFileUrls = async (files) => {
   return await Promise.all(files.map(async(file) => {
@@ -82,7 +84,8 @@ const getFileUrls = async (files) => {
     return { ...file, url}
   }));
 }
-//  
+
+//
 const isLoggedIn = async(req, res, next)=> {
   try {
     req.user = await findUserWithToken(req.headers.authorization);
@@ -93,7 +96,7 @@ const isLoggedIn = async(req, res, next)=> {
   }
 };
 
-
+//
 app.post('/api/auth/login', async(req, res, next)=> {
   try {
     res.send(await authenticate(req.body));
@@ -237,17 +240,46 @@ app.delete('/api/users/:user_id/cart/:id', isLoggedIn, async(req, res, next)=> {
   }
 });
 
-app.delete('/api/products/:id', async(req, res, next)=>{
-  try{
-    await deleteProduct({id: req.params.id});
-    res.sendStatus(204);
-  } catch(ex){
-    next(ex);
+// Delete product
+// app.delete('/api/products/:id', async (req, res, next) => {
+//   try {
+//     const deletedProduct = await deleteProduct({ id: req.params.id });
+
+//     if (!deletedProduct) {
+//       return res.status(404).send({ error: 'Product not found or already deleted' });
+//     }
+
+//     res.status(200).send(deletedProduct);
+//   } catch (ex) {
+//     next(ex);
+//   }
+// });
+
+////
+app.delete('/api/products/:id', async (req, res, next) => {
+  try {
+    const { deletedProduct, images } = await deleteProduct({ id: req.params.id });
+
+    if (!deletedProduct) {
+      return res.status(404).send({ error: 'Product not found' });
+    }
+
+    // Delete images from S3
+    const deleteImagePromises = images.map(image =>
+      deleteFile(image.title)
+    );
+    await Promise.all(deleteImagePromises);
+
+    res.status(200).send({
+      message: 'Product and associated images deleted successfully',
+      deletedProduct,
+    });
+  } catch (err) {
+    next(err);
   }
 });
 
-
-// 
+// get home images urls
 app.get('/api/home-images', async(req, res, next)=> {
   try {
     const results =  await getFileUrls(data.home_images)
@@ -289,6 +321,15 @@ app.get('/api/products/:id', async(req, res, next)=> {
   }
 });
 
+
+// Ensure 'uploads/' directory exists before using multer (prevents ENOENT error)
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('uploads/ directory created automatically');
+}
+
+
 // Storage Configuration for multiple files
 const storage2 = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -301,58 +342,150 @@ const storage2 = multer.diskStorage({
 
 const upload2 = multer({ storage: storage2 });
 
+
 // Add new product: Create new product, upload its images to s3, and save images' info
-
-app.post('/api/users/:id/products', isLoggedIn,  upload2.array('images', 10), async(req, res, next)=> {
-  try {
+// app.post('/api/users/:id/products', isLoggedIn,  upload2.array('images', 10), async(req, res, next)=> {
+//   try {
     
-    // Create product on database
-    const createProductResult = await createProduct({title: req.body.title, category: req.body.category, 
-      brand: req.body.brand, price: req.body.price, dimensions: req.body.dimensions, 
-      characteristics: req.body.characteristics, inventory: req.body.inventory});
+//     // Create product on database
+//     const createProductResult = await createProduct({
+//       title: req.body.title, 
+//       category: req.body.category, 
+//       brand: req.body.brand, 
+//       price: req.body.price, 
+//       dimensions: req.body.dimensions, 
+//       characteristics: req.body.characteristics, 
+//       inventory: req.body.inventory
+//     });
 
+//     const files = req.files;
+
+//     // Resize images
+//     const addNewProductPromises = files.map(async (file, index) => {
+//       const resizedFilePath = `uploads/resized-${file.filename}`;
+//       await sharp(file.path)
+//           .resize({ width: 800, height: 600 })
+//           .toFile(resizedFilePath);
+
+//       // upload files to S3
+//       const fileContent = fs.readFileSync(resizedFilePath);
+
+//       const fileName = generateFileName();
+
+//       const uploadResult = await uploadFile(fileContent,  `eshop_images/${fileName}`, file.mimetype) // await uploadFileToS3(resizedFilePath, `resized-${file.filename}`);
+
+//       // save image info on database  
+//       const saveImageInfoResult = await saveImageInfo({fileName: fileName, caption: req.body.caption[index], is_showcase: req.body.is_showcase[index], product_id: createProductResult.id});
+
+//       // Clean up local resized file and original file
+//       fs.unlinkSync(resizedFilePath);
+//       fs.unlinkSync(file.path); 
+
+//       return {uploadResult, saveImageInfoResult};
+//   });
+
+//   const addNewProductResults = await Promise.all(addNewProductPromises);
+
+//    // Clean up original files
+//    // files.forEach(file => fs.unlinkSync(file.path));
+
+//    // Send a response
+//    res.status(200).send({
+//       message: 'Product created successfully',
+//       files: addNewProductResults
+//    });
+   
+//   }
+//   catch(ex){
+//     const err = new Error(`Failed to create product: ${ex.message}`);
+//     err.stack = ex.stack; // preserve original stack trace (optional)
+//     next(err);
+//   }
+// });
+
+
+//////////////////////////
+// const { uploadFile, getFileUrl } = require('./s3AWS');
+
+app.post('/api/users/:id/products', isLoggedIn, upload2.array('images', 10), async (req, res, next) => {
+  try {
+    // 1. Create product in DB
+    const createProductResult = await createProduct({
+      title: req.body.title,
+      category: req.body.category,
+      brand: req.body.brand,
+      price: req.body.price,
+      dimensions: req.body.dimensions,
+      characteristics: req.body.characteristics,
+      inventory: req.body.inventory
+    });
+
+    const product_id = createProductResult.id;
     const files = req.files;
 
-    // Resize images
-    const addNewProductPromises = files.map(async (file, index) => {
-      const resizedFilePath = `uploads/resized-${file.filename}`;
-      await sharp(file.path)
+    // 2. Upload images and save info
+    const imageResults = await Promise.all(
+      files.map(async (file, index) => {
+        const resizedFilePath = `uploads/resized-${file.filename}`;
+        await sharp(file.path)
           .resize({ width: 800, height: 600 })
           .toFile(resizedFilePath);
 
-      // upload files to S3
-      const fileContent = fs.readFileSync(resizedFilePath);
+        const fileContent = fs.readFileSync(resizedFilePath);
+        const fileName = generateFileName();
+        const mimeType = file.mimetype;
 
-      const fileName = generateFileName();
+        await uploadFile(fileContent, `eshop_images/${fileName}`, mimeType);
 
-      const uploadResult = await uploadFile(fileContent,  `eshop_images/${fileName}`, file.mimetype) // await uploadFileToS3(resizedFilePath, `resized-${file.filename}`);
+        const saveImageInfoResult = await saveImageInfo({
+          fileName,
+          caption: req.body.caption[index],
+          is_showcase: req.body.is_showcase[index],
+          product_id
+        });
 
-      // save image info on database  
-      const saveImageInfoResult = await saveImageInfo({fileName: fileName, caption: req.body.caption[index], is_showcase: req.body.is_showcase[index], product_id: createProductResult.id});
+        const imageUrl = await getFileUrl(fileName);
 
-      // Clean up local resized file and original file
-      fs.unlinkSync(resizedFilePath);
-      fs.unlinkSync(file.path); 
+        // Clean up local files
+        fs.unlinkSync(resizedFilePath);
+        fs.unlinkSync(file.path);
 
-      return {uploadResult, saveImageInfoResult};
-  });
+        return {
+          title: fileName,
+          caption: req.body.caption[index],
+          is_showcase: req.body.is_showcase[index],
+          url: imageUrl
+        };
+      })
+    );
 
-  const addNewProductResults = await Promise.all(addNewProductPromises);
+    // 3. Construct full product object
+    const productToSend = {
+      id: product_id,
+      title: req.body.title,
+      category: req.body.category,
+      brand: req.body.brand,
+      price: req.body.price,
+      dimensions: req.body.dimensions,
+      characteristics: req.body.characteristics,
+      inventory: req.body.inventory,
+      images: imageResults
+    };
 
-   // Clean up original files
-   // files.forEach(file => fs.unlinkSync(file.path));
+    // 4. Send response
+    res.status(201).send(productToSend);
 
-   // Send a response
-   res.status(200).send({
-      message: 'Product created successfully',
-      files: addNewProductResults
-   });
-   
-  }
-  catch(ex){
+  } catch (ex) {
     next(ex);
   }
 });
+
+
+
+
+
+
+
 
 //// Guest section
 //  create Guest
@@ -451,17 +584,17 @@ app.get('/api/keep-warm', (req, res, next)=> {
   }
 });
 
-async function keepWarmRequest() {
-  try {
-    const response = await fetch('https://hs-ecommerce-srv.onrender.com/api/keep-warm');
-    if (!response.ok) {
-      throw new Error('Failed to send keep warm request');
-    }
-    console.log('Keep warm request sent successfully');
-  } catch (error) {
-    console.error('Error sending keep warm request:', error);
-  }
-}
+// async function keepWarmRequest() {
+//   try {
+//     const response = await fetch('https://hs-ecommerce-srv.onrender.com/api/keep-warm');
+//     if (!response.ok) {
+//       throw new Error('Failed to send keep warm request');
+//     }
+//     console.log('Keep warm request sent successfully');
+//   } catch (error) {
+//     console.error('Error sending keep warm request:', error);
+//   }
+// }
 
 
 //
@@ -589,8 +722,8 @@ const init = async()=> {
 
   app.listen(port, ()=> {
     console.log(`listening on port ${port}`);
-    keepWarmRequest();
-    setInterval(keepWarmRequest, 300000);
+    // keepWarmRequest();
+    // setInterval(keepWarmRequest, 300000);
   });
 };
 

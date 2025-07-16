@@ -47,9 +47,23 @@ const getFileUrl = async(fileTitle) => {
     const url = await getSignedUrl(s3, command, { expiresIn: seconds });
   
     return url
-  }
+}
 
-  
+// Delete a file from S3
+const deleteFile = async (fileTitle) => {
+  const params = {
+    Bucket: bucketName,
+    Key: `eshop_images/${fileTitle}`
+  };
+
+  const command = new DeleteObjectCommand(params);        console.log("Now deleteing from s3 this image: ", fileTitle)
+  await s3.send(command);
+};
+
+
+
 module.exports = {
-  uploadFile, getFileUrl
+  uploadFile,
+  getFileUrl,
+  deleteFile
 };
