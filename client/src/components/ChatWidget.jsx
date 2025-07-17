@@ -1,4 +1,5 @@
-// ChatWidget.jsx
+// src/components/ChatWidget.jsx
+
 import React, { useState, useRef, useEffect } from 'react';
 
 const ChatWidget = () => {

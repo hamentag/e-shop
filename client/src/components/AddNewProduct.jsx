@@ -1,7 +1,15 @@
+// src/components/AddNewProduct.jsx
 
 import { useState, useRef } from 'react'
 
-export default function AddNewProduct({auth, createProduct}){
+import useAuth from '../hooks/useAuth';
+import useProducts from '../hooks/useProducts';
+
+export default function AddNewProduct(){
+    const { auth } = useAuth();
+    const { createProduct } = useProducts();
+
+
     const [title, setTitle ] = useState('');
     const [category, setCategory] = useState('');
     const [brand, setBrand] = useState('');

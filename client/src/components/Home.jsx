@@ -1,12 +1,15 @@
+// src/components/Home.jsx
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+
 import ChatWidget from './ChatWidget';
 
 
-export default function Home({homeImages, auth, cart, setMsg, addToCart, products, deleteProduct}){
-
+export default function Home({ homeImages }){
+    
     const [currentImgIndex, setCurrentImgIndex] = useState(Math.floor(Math.random() * homeImages.length));
 
     const navigate = useNavigate();

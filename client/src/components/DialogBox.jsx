@@ -1,8 +1,13 @@
+// src/components/DialogBox.jsx
 
-// components/DialogBox.jsx
 import React, { useEffect } from 'react';
 
-export default function DialogBox({ msg, setMsg }) {
+import useOverlay from '../hooks/useOverlay';
+
+
+export default function DialogBox() {
+
+  const { msg, setMsg } = useOverlay();
   
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -33,3 +38,4 @@ export default function DialogBox({ msg, setMsg }) {
     </>
   );
 }
+

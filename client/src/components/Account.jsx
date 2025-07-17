@@ -1,5 +1,11 @@
+// src/components/Account.jsx
 
-export default function Account({auth}){
+import useAuth from '../hooks/useAuth';
+
+
+export default function Account(){
+    const { auth } = useAuth();
+
     return(
         <>
             { auth.id &&

@@ -1,10 +1,19 @@
-import { useEffect, useState } from 'react';
-import { productAPI } from '../api';
+// src/contexts/ProductContext.jsx
 
-export default function useProducts({ auth, setMsg, setRefreshCart }) {
+import { createContext, useContext, useEffect, useState } from 'react';
+import { productAPI } from '../api';
+import useOverlay from '../hooks/useOverlay';
+import useAuth from '../hooks/useAuth';
+
+export const ProductContext = createContext();
+
+export const ProductProvider = ({ children }) => {
+    const { setMsg } = useOverlay();
+  const { auth } = useAuth();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  
   // Fetch all products
   useEffect(() => {
     const getProducts = async () => {
@@ -68,10 +77,20 @@ export default function useProducts({ auth, setMsg, setRefreshCart }) {
     }
   };
 
-  return {
-    products,
-    isLoading,
-    createProduct,
-    deleteProduct
-  };
+  return (
+    <ProductContext.Provider value={{
+      products,
+      isLoading,
+      createProduct,
+      deleteProduct,
+    }}>
+      {children}
+    </ProductContext.Provider>
+  );
+};
+
+export default function useProducts() {
+  const context = useContext(ProductContext);
+  if (!context) throw new Error('useProducts must be used within a ProductProvider');
+  return context;
 }

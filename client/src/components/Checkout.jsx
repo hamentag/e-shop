@@ -1,7 +1,22 @@
+// src/components/Checkout.jsx
 
 import {useState} from 'react'
 import { useNavigate } from 'react-router-dom';
-export default function Checkout({auth, cart, createOrder, setPopUpAuthn}){
+
+import useOverlay from '../hooks/useOverlay';
+import useAuth from '../hooks/useAuth';
+import useCart from '../hooks/useCart';
+import useOrders from '../hooks/useOrders';
+
+
+export default function Checkout(){
+
+    const { setPopUpAuthn } = useOverlay();
+    const { auth } = useAuth();
+    const { cart } = useCart();    
+    const { createOrder } = useOrders();
+    
+
     const [nameOnCard, setNameOnCard ] = useState('');
     const [cardNumber, setCardNumber] = useState('');
     const [expirationDate, setExpirationDate] = useState('');

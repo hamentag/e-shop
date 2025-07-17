@@ -1,5 +1,4 @@
-
-const baseURL = ''
+// src/App.jsx
 
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
@@ -14,76 +13,34 @@ import Users from './components/Users';
 import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import DialogBox from './components/DialogBox';
-
-import shoppingCart from "./assets/shopping-cart.png";
+import LoginRegister from './components/LoginRegister'
 
 import Navbar from './components/Navbar';
 
-import LoginRegister from './components/LoginRegister'
+import { productAPI } from './api';
 
-import { cartAPI, authAPI, userAPI, productAPI, orderAPI} from './api';
-
+import useOverlay from './hooks/useOverlay';
 import useAuth from './hooks/useAuth';
 import useCart from './hooks/useCart';
 import useProducts from './hooks/useProducts';
-import useOrders from './hooks/useOrders';
-
-
-
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
 
-// const DialogBox = ({ msg, setMsg }) => {
-//   return (
-//     <>
-//       <div className="dialog-box">
-//         <div className="dialog-box-main">
-//           <p>{msg.txt}</p>
-//           <div>{msg.more}</div>
-//         </div>
-//         <button onClick={() => { setMsg(null) }} style={{ fontSize: '18px' }}> &times; </button>
-//       </div>
-//       <div className="overlay" onClick={() => { setMsg(null) }}></div>
-//     </>
-//   )
-// }
-
-
 //// App
 function App() {
-  // const [auth, setAuth] = useState({});
-  // const [guest, setGuest] = useState({});
-  // const [products, setProducts] = useState([]);
-  // const [cart, setCart] = useState(null);
-  // const [orders, setOrders] = useState([]);
+
+  const { msg, setMsg, popUpAuthn, setPopUpAuthn } = useOverlay();
+  const { auth, logout } = useAuth();
+  const { cart } = useCart();
+  const { isLoading } = useProducts();
+
+
   const [homeImages, setHomeImages] = useState([]);
 
-  // const [isLoading, setIsLoading] = useState(true)
-  // const [refreshCart, setRefreshCart] = useState(false);
-  const [refreshOrders, setRefreshOrders] = useState(false);
-
-  const [msg, setMsg] = useState(null);
-  const [popUpAuthn, setPopUpAuthn] = useState(null);
-
-
   const headerRef = useRef(null);
-  const mainRef = useRef(null);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const { auth, guest, setAuth, setGuest, login, register, logout } = useAuth({setMsg, setPopUpAuthn});
-  const { cart, setCart, refreshCart, setRefreshCart, addToCart, updateCart, removeFromCart } = useCart({auth, guest, setGuest, setMsg});
-
-  
-
-  const { products, isLoading, createProduct, deleteProduct } = useProducts({ auth, setMsg, setRefreshCart });
-  const { orders, createOrder } = useOrders({ auth, setMsg, setRefreshCart });
-
-  
-
+  const mainRef = useRef(null);    
  
   ////  
   useEffect(() => {
@@ -103,10 +60,6 @@ function App() {
   }, []);
 
   
-  
-
-
-
   ////
   useEffect(() => {
     const getHeaderHeight = () => {
@@ -195,41 +148,23 @@ function App() {
       </div>
       <div className='main' ref={mainRef}>
 
-      {msg && <DialogBox msg={msg} setMsg={setMsg} />}
-      {popUpAuthn && <LoginRegister login={login} register={register} popUpAuthn={popUpAuthn} setPopUpAuthn={setPopUpAuthn} />}
+      {msg && <DialogBox />}
+      {popUpAuthn && <LoginRegister />}
                 
-      {/* <NewImage />
-      <AllImages /> */}
-
+  
       {/* <Navbar /> */}
 
       <div style={{paddingTop:"25px"}}>
         <Routes>
-          <Route path="/" element={<Home homeImages={homeImages} auth={auth} cart={cart} setMsg={setMsg}
-            addToCart={addToCart} products={products}
-            deleteProduct={deleteProduct} />}
-          />
-          <Route path="/products/:seller" element={<Products auth={auth} cart={cart} setMsg={setMsg}
-            addToCart={addToCart} products={products}
-            deleteProduct={deleteProduct} />}
-          />
-          <Route path="/:id" element={<SingleProduct auth={auth} cart={cart} addToCart={addToCart}
-            deleteProduct={deleteProduct} setMsg={setMsg} />}
-          />
-          <Route path="/cart" element={<Cart auth={auth} cart={cart} updateCart={updateCart}
-            setMsg={setMsg} removeFromCart={removeFromCart} />}
-          />
-          <Route path="/account" element={<Account auth={auth} />}
-          />
-          <Route path="/checkout" element={<Checkout auth={auth} cart={cart} createOrder={createOrder} setPopUpAuthn={setPopUpAuthn} />}
-          />
-          <Route path="/users" element={<Users auth={auth} />}
-          />
-          <Route path="/new_product" element={<AddNewProduct auth={auth} createProduct={createProduct} />}
-          />
-          <Route path="/orders" element={<Orders auth={auth} orders={orders} />}
-          />
-
+          <Route path="/" element={<Home homeImages={homeImages} />} />
+          <Route path="/products/:seller" element={<Products />} />
+          <Route path="/:id" element={<SingleProduct />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/new_product" element={<AddNewProduct />} />
+          <Route path="/orders" element={<Orders />} />
         </Routes>
       </div>
       </div>

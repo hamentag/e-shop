@@ -1,11 +1,18 @@
+// src/components/Cart.jsx
 
 import { useNavigate } from "react-router-dom";
 
-export default function Cart({auth, cart, updateCart, setMsg, removeFromCart}){
+import useOverlay from '../hooks/useOverlay';
+import useCart from '../hooks/useCart';
+
+export default function Cart(){
+
+    const { setMsg } = useOverlay();
+    const { cart, updateCart, removeFromCart } = useCart();
 
     const navigate = useNavigate();
-
-    //  
+    
+    //
     if (!cart) {
         return <section className="loading">Loading..</section>
       }

@@ -1,10 +1,19 @@
-// const baseURL = 'https://hs-ecommerce-srv.onrender.com'
-// const baseURL = 'http://3.82.20.60:3000'
-// const baseURL = 'https://prime.eshop-in.pro'
+// src/components/Users.jsx
+
 const baseURL = ''
+
 import { useState, useEffect } from 'react'
 
-export default function Users({auth}){
+
+import useOverlay from '../hooks/useOverlay';
+import useAuth from '../hooks/useAuth';
+ 
+
+export default function Users(){
+
+    const { setMsg } = useOverlay();
+    const { auth } = useAuth();
+
     const [users, setUsers] = useState([]);
     const [error, setError] = useState(null);
 

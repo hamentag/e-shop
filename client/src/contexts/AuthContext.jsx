@@ -1,13 +1,21 @@
-// hooks/useAuth.js
-import { useEffect, useState } from 'react';
+// src/contexts/AuthContext.js
+
+import { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI, userAPI } from '../api';
+import useOverlay from '../hooks/useOverlay';
 
-export default function useAuth({ setMsg, setPopUpAuthn }) {
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({});
   const [guest, setGuest] = useState({});
+
+  const { setMsg, setPopUpAuthn } = useOverlay();
+ 
   const navigate = useNavigate();
 
+  
   useEffect(() => {
     const initializeUser = async () => {
       const token = localStorage.getItem('token');
@@ -48,23 +56,17 @@ export default function useAuth({ setMsg, setPopUpAuthn }) {
     initializeUser();
   }, []);
 
-
-  //// token login
   const attemptLoginWithToken = async (token) => {
     try {
-      // const token = localStorage.getItem('token');
-      const json = await authAPI.attemptLoginWithToken(token);
-      setAuth(json);
+      const user = await authAPI.attemptLoginWithToken(token);
+      setAuth(user);
       setPopUpAuthn(null);
-      // return json; 
     } catch (err) {
       console.error(err.message);
       localStorage.removeItem('token');
     }
   };
 
-
-  //// login
   const login = async (credentials) => {
     try {
       const json = await authAPI.login(credentials);
@@ -75,19 +77,25 @@ export default function useAuth({ setMsg, setPopUpAuthn }) {
       setPopUpAuthn(null);
       setMsg({
         txt: "Incorrect email or password. Please try again.",
-        more: <button onClick={() => { setPopUpAuthn("to-login"); setMsg(null) }}>Try again</button>,
+        more: (
+          <button onClick={() => { setPopUpAuthn("to-login"); setMsg(null); }}>
+            Try again
+          </button>
+        ),
       });
     }
   };
 
-
-  //// register
   const register = async (newUserData) => {
     try {
       await authAPI.register(newUserData);
       setMsg({
         txt: "Success! Your account has been created.",
-        more: <button onClick={() => { navigate('/account'); setMsg(null) }}>See Account</button>
+        more: (
+          <button onClick={() => { navigate('/account'); setMsg(null); }}>
+            See Account
+          </button>
+        ),
       });
       await login({ email: newUserData.email, password: newUserData.password });
     } catch (err) {
@@ -98,8 +106,6 @@ export default function useAuth({ setMsg, setPopUpAuthn }) {
     }
   };
 
-
-  ////
   const logout = async () => {
     window.localStorage.removeItem('token');
     setAuth({});
@@ -112,15 +118,14 @@ export default function useAuth({ setMsg, setPopUpAuthn }) {
     }
   };
 
-  return {
-    auth,
-    guest,
-    setAuth,
-    setGuest,
-    login,
-    register,
-    logout,
-  };
-  
-}
+  return (
+    <AuthContext.Provider value={{
+      auth, guest, login, logout, register,
+      setAuth, setGuest
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
+////

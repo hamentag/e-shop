@@ -1,7 +1,20 @@
-import { useNavigate } from 'react-router-dom';
-export default function Orders({ auth, orders }) {
+// src/components/Orders.jsx
 
+import { useNavigate } from 'react-router-dom';
+
+import useAuth from '../hooks/useAuth';
+import useOrders from '../hooks/useOrders';
+
+
+
+export default function Orders() {
+
+    const { auth } = useAuth();
+    const { orders } = useOrders(); 
+     
     const navigate = useNavigate();
+
+
     return (
         <>{
             auth.id && <div>{

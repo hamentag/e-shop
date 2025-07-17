@@ -1,7 +1,21 @@
+// src/components/Products.jsx
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-export default function Products({auth, cart, setMsg, addToCart, products, deleteProduct}){
+import useOverlay from '../hooks/useOverlay';
+import useAuth from '../hooks/useAuth';
+import useCart from '../hooks/useCart';
+import useProducts from '../hooks/useProducts';
+
+
+export default function Products(){
+
+  const { setMsg } = useOverlay();
+  const { auth } = useAuth();
+  const { cart, addToCart } = useCart();
+  const { products, deleteProduct } = useProducts();
+
   const [productsToDisplay, setProductsToDisplay] = useState([]);
     
   const navigate = useNavigate();

@@ -1,13 +1,23 @@
-// const baseURL = 'https://hs-ecommerce-srv.onrender.com' 
-// const baseURL = 'http://3.82.20.60:3000'
-// const baseURL = 'https://prime.eshop-in.pro'
+// src/components/SingleProduct.jsx
+
 const baseURL = ''
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
+import useOverlay from '../hooks/useOverlay';
+import useAuth from '../hooks/useAuth';
+import useCart from '../hooks/useCart';
+import useProducts from '../hooks/useProducts';
 
+
+export default function SingleProduct(){
+
+    const { setMsg } = useOverlay();
+    const { auth } = useAuth();
+    const { addToCart } = useCart();
+    const { deleteProduct } = useProducts();
+    
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [displayedImage, setDisplayedImage] = useState(null);
@@ -18,7 +28,8 @@ export default function SingleProduct({auth, addToCart, deleteProduct, setMsg}){
         const fetchSingleProduct = async()=> {
           const response = await fetch(`${baseURL}/api/products/${id}`);
           const json = await response.json();
-          if(response.ok){ console.log("json ,, ", json)
+          if(response.ok){ 
+            // console.log("json ,, ", json)
             setProduct(json);
             setDisplayedImage(json.images.find(image => image.is_showcase))
           }
