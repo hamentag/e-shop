@@ -9,16 +9,18 @@ import { ProductProvider } from './ProductContext.jsx';
 
 export const AppProviders = ({ children }) => {
     return (
-        <OverlayProvider>
-            <AuthProvider>
-                <CartProvider>
-                    <OrderProvider>
-                        <ProductProvider>
+
+        <AuthProvider>
+            <CartProvider>
+                <OrderProvider>
+                    <ProductProvider>
+                        <OverlayProvider>
                             {children}
-                        </ProductProvider>
-                    </OrderProvider>
-                </CartProvider>
-            </AuthProvider>
-        </OverlayProvider>
+                        </OverlayProvider>
+                    </ProductProvider>
+                </OrderProvider>
+            </CartProvider>
+        </AuthProvider>
+
     );
 };

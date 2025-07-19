@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({});
   const [guest, setGuest] = useState({});
 
-  const { setMsg, setPopUpAuthn } = useOverlay();
+  // const { setMsg, setPopUpAuthn } = useOverlay();
  
   const navigate = useNavigate();
 
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('guest', JSON.stringify(guest));
       } catch (err) {
         console.error('Guest creation failed:', err.message);
-        setMsg?.({ txt: 'Unable to initialize guest session.' });
+        // setMsg?.({ txt: 'Unable to initialize guest session.' });
       }
     };
 
@@ -60,10 +60,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const user = await authAPI.attemptLoginWithToken(token);
       setAuth(user);
-      setPopUpAuthn(null);
+      // setPopUpAuthn(null);
     } catch (err) {
       console.error(err.message);
       localStorage.removeItem('token');
+      throw new Error("Session expired or invalid login");
     }
   };
 
@@ -72,40 +73,26 @@ export const AuthProvider = ({ children }) => {
       const json = await authAPI.login(credentials);
       localStorage.setItem('token', json.token);
       await attemptLoginWithToken(json.token);
+
     } catch (err) {
       console.error(err.message);
-      setPopUpAuthn(null);
-      setMsg({
-        txt: "Incorrect email or password. Please try again.",
-        more: (
-          <button onClick={() => { setPopUpAuthn("to-login"); setMsg(null); }}>
-            Try again
-          </button>
-        ),
-      });
+      throw new Error("Invalid email or password");
     }
   };
 
+
+  //
   const register = async (newUserData) => {
     try {
       await authAPI.register(newUserData);
-      setMsg({
-        txt: "Success! Your account has been created.",
-        more: (
-          <button onClick={() => { navigate('/account'); setMsg(null); }}>
-            See Account
-          </button>
-        ),
-      });
-      await login({ email: newUserData.email, password: newUserData.password });
     } catch (err) {
-      console.error(err.message);
-      setMsg({
-        txt: "Account creation failed: " + err.message
-      });
+      console.error('Registration failed:', err.message);
+      throw new Error('Registration failed. Please try again.');
     }
   };
 
+  
+  // 
   const logout = async () => {
     window.localStorage.removeItem('token');
     setAuth({});

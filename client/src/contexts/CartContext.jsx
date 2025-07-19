@@ -10,7 +10,7 @@ export const CartContext = createContext();
 
 
 export const CartProvider = ({ children }) => {
-    const { setMsg } = useOverlay();
+    // const { setMsg } = useOverlay();
     const { auth, guest, setGuest } = useAuth();
     const [cart, setCart] = useState(null);
     const [refreshCart, setRefreshCart] = useState(false);
@@ -27,10 +27,10 @@ export const CartProvider = ({ children }) => {
             setRefreshCart(prev => !prev);
         } catch (err) {
             console.error(err.message);
-            setMsg?.({
-                txt: 'Failed to add item to cart.',
-                more: <button onClick={() => setMsg(null)}>OK</button>,
-            });
+            // setMsg?.({
+            //     txt: 'Failed to add item to cart.',
+            //     more: <button onClick={() => setMsg(null)}>OK</button>,
+            // });
         }
     };
 
@@ -60,10 +60,10 @@ export const CartProvider = ({ children }) => {
                 }
             } catch (err) {
                 console.error('Error fetching cart:', err.message);
-                setMsg?.({
-                    txt: 'Something went wrong while loading the cart.',
-                    more: <button onClick={() => setMsg(null)}>OK</button>,
-                });
+                // setMsg?.({
+                //     txt: 'Something went wrong while loading the cart.',
+                //     more: <button onClick={() => setMsg(null)}>OK</button>,
+                // });
             }
         };
 
@@ -82,10 +82,10 @@ export const CartProvider = ({ children }) => {
             setRefreshCart(prev => !prev);
         } catch (err) {
             console.error(err.message);
-            setMsg?.({
-                txt: err.message,
-                more: <button onClick={() => setMsg(null)}>OK</button>,
-            });
+            // setMsg?.({
+            //     txt: err.message,
+            //     more: <button onClick={() => setMsg(null)}>OK</button>,
+            // });
         }
     };
 
@@ -101,10 +101,10 @@ export const CartProvider = ({ children }) => {
             setRefreshCart(prev => !prev);
         } catch (err) {
             console.error(err.message);
-            setMsg?.({
-                txt: err.message,
-                more: <button onClick={() => setMsg(null)}>OK</button>,
-            });
+            // setMsg?.({
+            //     txt: err.message,
+            //     more: <button onClick={() => setMsg(null)}>OK</button>,
+            // });
         }
     };
 

@@ -9,7 +9,7 @@ import useCart from '../hooks/useCart';
 export const OrderContext = createContext();
 
 export const OrderProvider = ({ children }) => {
-    const { setMsg } = useOverlay();
+    // const { setMsg } = useOverlay();
     const { auth } = useAuth();
     const { setRefreshCart } = useCart();
     const [orders, setOrders] = useState([]);
@@ -25,7 +25,7 @@ export const OrderProvider = ({ children }) => {
                 setOrders(data);
             } catch (err) {
                 console.error('Fetch orders error:', err.message);
-                setMsg?.({ txt: 'Unable to fetch orders.' });
+                // setMsg?.({ txt: 'Unable to fetch orders.' });
             }
         };
 
@@ -44,7 +44,7 @@ export const OrderProvider = ({ children }) => {
             setRefreshCart?.(prev => !prev);
         } catch (err) {
             console.error('Create order error:', err.message);
-            setMsg?.({ txt: 'Failed to create order.' });
+            // setMsg?.({ txt: 'Failed to create order.' });
         }
     };
 

@@ -14,6 +14,8 @@ import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import DialogBox from './components/DialogBox';
 import LoginRegister from './components/LoginRegister'
+import LoginForm from './components/LoginForm'
+import SignUpForm from './components/SignUpForm'
 
 import Navbar from './components/Navbar';
 
@@ -35,12 +37,14 @@ function App() {
   const { auth, logout } = useAuth();
   const { cart } = useCart();
   const { isLoading } = useProducts();
+    
+  const { openModal, closeModal } = useOverlay();
 
 
   const [homeImages, setHomeImages] = useState([]);
 
   const headerRef = useRef(null);
-  const mainRef = useRef(null);    
+  const mainRef = useRef(null);  
  
   ////  
   useEffect(() => {
@@ -103,12 +107,33 @@ function App() {
               <div style={{display:'flex'}}>
                 <button className='login-btn' onClick={() => {
                   // window.scrollTo({ top: 0, behavior: 'smooth' });
-                  setPopUpAuthn("to-login") 
+                  // setPopUpAuthn("to-login")
+                  openModal(
+                    <LoginForm />,
+                    {
+                      title: 'Login',
+                      props: {
+                        dialogClassName: 'modal-fullscreen-sm-down',
+                        size: 'md'
+                      }
+                    }
+                  );
                 }
                 }>Log In
                 </button>
-                <button className='login-btn' onClick={() => {                  
-                  setPopUpAuthn("to-register")
+
+                <button className='login-btn' onClick={() => {
+                  // setPopUpAuthn("to-register")
+                  openModal(
+                    <SignUpForm />,
+                    {
+                      title: 'Sign Up',
+                      props: {
+                        dialogClassName: 'modal-fullscreen-sm-down',
+                        size: 'md'
+                      }
+                    }
+                  );
                 }
                 }>Join
                 </button>
@@ -146,10 +171,11 @@ function App() {
          
         </div>
       </div>
+      
       <div className='main' ref={mainRef}>
 
       {msg && <DialogBox />}
-      {popUpAuthn && <LoginRegister />}
+      {/* {popUpAuthn && <LoginRegister />} */}
                 
   
       {/* <Navbar /> */}

@@ -1,41 +1,24 @@
-// src/components/DialogBox.jsx
+// components/DialogBox.jsx
 
-import React, { useEffect } from 'react';
-
+import { Modal, Button } from 'react-bootstrap';
 import useOverlay from '../hooks/useOverlay';
 
-
 export default function DialogBox() {
-
   const { msg, setMsg } = useOverlay();
-  
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setMsg(null);
-      }
-    };
 
-    // Attach event listener
-    document.addEventListener('keydown', handleKeyDown);
+  const handleClose = () => setMsg(null);
 
-    // Cleanup
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [setMsg]);
+  if (!msg) return null;
 
   return (
-    <>
-      <div className="dialog-box">
-        <div className="dialog-box-main">
-          <p>{msg.txt}</p>
-          <div>{msg.more}</div>
-        </div>
-        <button onClick={() => setMsg(null)} style={{ fontSize: '18px' }}> &times; </button>
-      </div>
-      <div className="overlay" onClick={() => setMsg(null)}></div>
-    </>
+    <Modal show={true} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Notice</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>{msg.txt}</Modal.Body>
+      <Modal.Footer>
+        {msg.more ? msg.more : <Button variant="primary" onClick={handleClose}>OK</Button>}
+      </Modal.Footer>
+    </Modal>
   );
 }
-

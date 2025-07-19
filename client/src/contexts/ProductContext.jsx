@@ -8,7 +8,7 @@ import useAuth from '../hooks/useAuth';
 export const ProductContext = createContext();
 
 export const ProductProvider = ({ children }) => {
-    const { setMsg } = useOverlay();
+    // const { setMsg } = useOverlay();
   const { auth } = useAuth();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,10 +23,10 @@ export const ProductProvider = ({ children }) => {
         setIsLoading(false);
       } catch (err) {
         console.error('Fetch products error:', err.message);
-        setMsg?.({
-          txt: "Oops! Unable to fetch product list.",
-          more: <button onClick={() => setMsg(null)}>OK</button>
-        });
+        // setMsg?.({
+        //   txt: "Oops! Unable to fetch product list.",
+        //   more: <button onClick={() => setMsg(null)}>OK</button>
+        // });
       }
     };
     getProducts();
@@ -52,10 +52,10 @@ export const ProductProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       const created = await productAPI.createProduct(auth.id, formData, token);
       setProducts(prev => [created, ...prev]);
-      setMsg({ txt: 'Product created!' });
+      // setMsg({ txt: 'Product created!' });
     } catch (err) {
       console.error(err.message);
-      setMsg?.({ txt: err.message });
+      // setMsg?.({ txt: err.message });
     }
   };
 
@@ -67,13 +67,13 @@ export const ProductProvider = ({ children }) => {
 
       setProducts(prev => prev.filter(p => p.id !== id));
       setRefreshCart?.(prev => !prev); // optional
-      setMsg({
-        txt: `${deleted.title} deleted.`,
-        more: <button onClick={() => setMsg(null)}>OK</button>
-      });
+      // setMsg({
+      //   txt: `${deleted.title} deleted.`,
+      //   more: <button onClick={() => setMsg(null)}>OK</button>
+      // });
     } catch (err) {
       console.error(err.message);
-      setMsg?.({ txt: err.message });
+      // setMsg?.({ txt: err.message });
     }
   };
 
