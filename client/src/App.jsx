@@ -13,9 +13,12 @@ import Users from './components/Users';
 import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import DialogBox from './components/DialogBox';
-import LoginRegister from './components/LoginRegister'
 import LoginForm from './components/LoginForm'
 import SignUpForm from './components/SignUpForm'
+
+import LoginToast from './components/LoginToast'
+
+import useGreeting from './hooks/useGreeting'
 
 import Navbar from './components/Navbar';
 
@@ -33,7 +36,7 @@ import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 //// App
 function App() {
 
-  const { msg, setMsg, popUpAuthn, setPopUpAuthn } = useOverlay();
+  const { msg, setMsg, popUpAuthn, setPopUpAuthn, showActionToast } = useOverlay();
   const { auth, logout } = useAuth();
   const { cart } = useCart();
   const { isLoading } = useProducts();
@@ -45,8 +48,10 @@ function App() {
 
   const headerRef = useRef(null);
   const mainRef = useRef(null);  
+
+  
  
-  ////  
+  ////
   useEffect(() => {
     const getHomeImages = async () => {
       try {
@@ -63,36 +68,118 @@ function App() {
     getHomeImages();
   }, []);
 
+
+  useGreeting();
+
   
-  ////
-  useEffect(() => {
-    const getHeaderHeight = () => {
-      if (headerRef.current && mainRef.current) {
-        const headerHeight = headerRef.current.getBoundingClientRect().height;
-        mainRef.current.style.marginTop = `${headerHeight}px`;
-      }
-    };
+  
+  // ////
+  // const launchLoginForm = () => {
+  //   openModal(
+  //     <LoginForm />,
+  //     {
+  //       title: 'Login',
+  //       props: {
+  //         dialogClassName: 'modal-fullscreen-sm-down',
+  //         size: 'md'
+  //       }
+  //     }
+  //   );
+  // }
 
-    // get header height initially and whenever the window is resized
-    getHeaderHeight();
-    window.addEventListener('resize', getHeaderHeight);
+  // ////
+  // const launchSignUpForm = () => {
+  //     openModal(
+  //       <SignUpForm />,
+  //       {
+  //         title: 'Sign Up',
+  //         props: {
+  //           dialogClassName: 'modal-fullscreen-sm-down',
+  //           size: 'md'
+  //         }
+  //       }
+  //     );
+  // }
+  
+  // ////
+  // const prevAuthRef = useRef(null); // Start with null, not auth
+    
 
-    // Clean up the event listener on unmount
-    return () => {
-      window.removeEventListener('resize', getHeaderHeight);
-    };
-  }, [headerRef.current, mainRef.current]);
+  // useEffect(() => {
+  //   const prev = prevAuthRef.current;
 
+  //   // User just logged in
+  //   if (!prev?.id && auth?.id) {
+  //     showActionToast(
+  //       `Welcome Back ${auth.firstname}`, 
+  //       <button type="button" className="btn btn-primary btn-sm"
+  //       >See cart
+  //       </button>
+  //     );
+  //   }
+  //   // User just logged out
+  //   else if (prev?.id && !auth?.id) {
+  //     console.log("just logged out");
+  //     const c = 
+  //     showActionToast(
+  //       'You have been logged out.',
+  //       <button type="button" className="btn btn-primary btn-sm" onClick={ launchLoginForm }>log in again</button>
+  //     );
+  //   }
+  //   //
+  //   else if (!auth?.id) {
+  //     showActionToast('login.', 
+  //       <div className="">
+  //     <div className='d-flex justify-content-evenly'>
+  //         <button
+  //         type="button"
+  //         className="btn btn-primary btn-sm w-50"
+  //         onClick={ launchLoginForm }
+  //       >
+  //         Log in
+  //       </button>
+  //     </div>
+  //     <p className='pt-1'>New customer?{' '}
+  //         <a onClick={launchSignUpForm}  href="#" 
+  //         className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+  //         >Sign Up
+  //         </a>
+  //     </p>
 
-  //
-  if (isLoading) {
-    return <section className="loading">Loading..</section>
-  }
+    
+    
+  //   </div>
+  // );
 
+  //   }
 
-  return (
-    <>
-      <div className='header' ref={headerRef}>
+  //   prevAuthRef.current = auth;
+  // }, [auth]);
+
+ 
+
+  
+  // ////
+  // useEffect(() => {
+  //   const getHeaderHeight = () => {
+  //     if (headerRef.current && mainRef.current) {
+  //       const headerHeight = headerRef.current.getBoundingClientRect().height;
+  //       mainRef.current.style.marginTop = `${headerHeight}px`;
+  //     }
+  //   };
+
+  //   // get header height initially and whenever the window is resized
+  //   getHeaderHeight();
+  //   window.addEventListener('resize', getHeaderHeight);
+
+  //   // Clean up the event listener on unmount
+  //   return () => {
+  //     window.removeEventListener('resize', getHeaderHeight);
+  //   };
+  // }, [headerRef.current, mainRef.current]);
+  const Nvb = () => {
+    return (
+       <div className='header' ref={headerRef}>
         <div className='header-top'>
           <h1><Link to={'/'}>E-Shop</Link></h1>
           <div style={{display:'flex',gap:'0.5rem' ,width:'fit-content'}}>
@@ -106,34 +193,13 @@ function App() {
               :
               <div style={{display:'flex'}}>
                 <button className='login-btn' onClick={() => {
-                  // window.scrollTo({ top: 0, behavior: 'smooth' });
-                  // setPopUpAuthn("to-login")
-                  openModal(
-                    <LoginForm />,
-                    {
-                      title: 'Login',
-                      props: {
-                        dialogClassName: 'modal-fullscreen-sm-down',
-                        size: 'md'
-                      }
-                    }
-                  );
+                 launchLoginForm();
                 }
                 }>Log In
                 </button>
 
                 <button className='login-btn' onClick={() => {
-                  // setPopUpAuthn("to-register")
-                  openModal(
-                    <SignUpForm />,
-                    {
-                      title: 'Sign Up',
-                      props: {
-                        dialogClassName: 'modal-fullscreen-sm-down',
-                        size: 'md'
-                      }
-                    }
-                  );
+                  launchSignUpForm();
                 }
                 }>Join
                 </button>
@@ -171,14 +237,28 @@ function App() {
          
         </div>
       </div>
-      
+    )
+  }
+
+
+
+
+  //
+  if (isLoading) {
+    return <section className="loading">Loading..</section>
+  }
+
+
+  return (
+    <>
+
       <div className='main' ref={mainRef}>
 
       {msg && <DialogBox />}
-      {/* {popUpAuthn && <LoginRegister />} */}
                 
-  
+      <Nvb />  
       {/* <Navbar /> */}
+
 
       <div style={{paddingTop:"25px"}}>
         <Routes>

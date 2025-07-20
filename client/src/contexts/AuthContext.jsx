@@ -10,6 +10,8 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({});
   const [guest, setGuest] = useState({});
+  
+  const [loggedOut, setLoggedOut] = useState(false);
 
   // const { setMsg, setPopUpAuthn } = useOverlay();
  
@@ -95,6 +97,7 @@ export const AuthProvider = ({ children }) => {
   // 
   const logout = async () => {
     window.localStorage.removeItem('token');
+    setLoggedOut(true)
     setAuth({});
     try {
       const guest = await userAPI.createGuest();
@@ -108,7 +111,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       auth, guest, login, logout, register,
-      setAuth, setGuest
+      setAuth, setGuest, loggedOut
     }}>
       {children}
     </AuthContext.Provider>

@@ -241,21 +241,6 @@ app.delete('/api/users/:user_id/cart/:id', isLoggedIn, async(req, res, next)=> {
 });
 
 // Delete product
-// app.delete('/api/products/:id', async (req, res, next) => {
-//   try {
-//     const deletedProduct = await deleteProduct({ id: req.params.id });
-
-//     if (!deletedProduct) {
-//       return res.status(404).send({ error: 'Product not found or already deleted' });
-//     }
-
-//     res.status(200).send(deletedProduct);
-//   } catch (ex) {
-//     next(ex);
-//   }
-// });
-
-////
 app.delete('/api/products/:id', async (req, res, next) => {
   try {
     const { deletedProduct, images } = await deleteProduct({ id: req.params.id });
@@ -343,67 +328,6 @@ const storage2 = multer.diskStorage({
 const upload2 = multer({ storage: storage2 });
 
 
-// Add new product: Create new product, upload its images to s3, and save images' info
-// app.post('/api/users/:id/products', isLoggedIn,  upload2.array('images', 10), async(req, res, next)=> {
-//   try {
-    
-//     // Create product on database
-//     const createProductResult = await createProduct({
-//       title: req.body.title, 
-//       category: req.body.category, 
-//       brand: req.body.brand, 
-//       price: req.body.price, 
-//       dimensions: req.body.dimensions, 
-//       characteristics: req.body.characteristics, 
-//       inventory: req.body.inventory
-//     });
-
-//     const files = req.files;
-
-//     // Resize images
-//     const addNewProductPromises = files.map(async (file, index) => {
-//       const resizedFilePath = `uploads/resized-${file.filename}`;
-//       await sharp(file.path)
-//           .resize({ width: 800, height: 600 })
-//           .toFile(resizedFilePath);
-
-//       // upload files to S3
-//       const fileContent = fs.readFileSync(resizedFilePath);
-
-//       const fileName = generateFileName();
-
-//       const uploadResult = await uploadFile(fileContent,  `eshop_images/${fileName}`, file.mimetype) // await uploadFileToS3(resizedFilePath, `resized-${file.filename}`);
-
-//       // save image info on database  
-//       const saveImageInfoResult = await saveImageInfo({fileName: fileName, caption: req.body.caption[index], is_showcase: req.body.is_showcase[index], product_id: createProductResult.id});
-
-//       // Clean up local resized file and original file
-//       fs.unlinkSync(resizedFilePath);
-//       fs.unlinkSync(file.path); 
-
-//       return {uploadResult, saveImageInfoResult};
-//   });
-
-//   const addNewProductResults = await Promise.all(addNewProductPromises);
-
-//    // Clean up original files
-//    // files.forEach(file => fs.unlinkSync(file.path));
-
-//    // Send a response
-//    res.status(200).send({
-//       message: 'Product created successfully',
-//       files: addNewProductResults
-//    });
-   
-//   }
-//   catch(ex){
-//     const err = new Error(`Failed to create product: ${ex.message}`);
-//     err.stack = ex.stack; // preserve original stack trace (optional)
-//     next(err);
-//   }
-// });
-
-
 //////////////////////////
 // const { uploadFile, getFileUrl } = require('./s3AWS');
 
@@ -479,10 +403,6 @@ app.post('/api/users/:id/products', isLoggedIn, upload2.array('images', 10), asy
     next(ex);
   }
 });
-
-
-
-
 
 
 
@@ -583,18 +503,6 @@ app.get('/api/keep-warm', (req, res, next)=> {
     next(ex);
   }
 });
-
-// async function keepWarmRequest() {
-//   try {
-//     const response = await fetch('https://hs-ecommerce-srv.onrender.com/api/keep-warm');
-//     if (!response.ok) {
-//       throw new Error('Failed to send keep warm request');
-//     }
-//     console.log('Keep warm request sent successfully');
-//   } catch (error) {
-//     console.error('Error sending keep warm request:', error);
-//   }
-// }
 
 
 //
@@ -709,21 +617,14 @@ const init = async()=> {
     createUser({firstname: 'Yasir', lastname: 'Amentag', 
                 email:'yasir@com', phone: '6291382734', password: 'yasir_pw', 
                 is_admin: true, is_engineer: false}),
+    createUser({firstname: 'Wisam', lastname: 'Amentag', 
+                email:'c@m', phone: '6291682722', password: 'tst', 
+                is_admin: true, is_engineer: true}),
     ]);
 
-  // console.log(await fetchUsers());
-  // console.log(await fetchProducts());
-
-  // console.log(await fetchCart(usersDummyData[0].id));
-  // const testCart = await addToCart({ user_id: usersDummyData[0].id, product_id: productsDummyDataFaker[4].id, qty: 2 });
-  // const testCart2 = await addToCart({ user_id: usersDummyData[0].id, product_id: productsDummyDataFaker[6].id, qty: 1 });
-  // console.log("Adam's cart:",testCart);
-  // console.log("fetchCart: ", await fetchCart(usersDummyData[0].id));
 
   app.listen(port, ()=> {
     console.log(`listening on port ${port}`);
-    // keepWarmRequest();
-    // setInterval(keepWarmRequest, 300000);
   });
 };
 
