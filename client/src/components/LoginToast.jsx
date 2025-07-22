@@ -1,5 +1,7 @@
+// src/components/LoginToast.jsx
+
 import React, { useState, useRef, useEffect } from 'react';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
+
 
 export default function LoginToast() {
   const [show, setShow] = useState(false);

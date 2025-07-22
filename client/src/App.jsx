@@ -29,6 +29,8 @@ import useAuth from './hooks/useAuth';
 import useCart from './hooks/useCart';
 import useProducts from './hooks/useProducts';
 
+import useAuthUI from './hooks/useAuthUI';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
@@ -69,9 +71,12 @@ function App() {
   }, []);
 
 
-  useGreeting();
+  // useGreeting();
 
   
+
+
+
   
   // ////
   // const launchLoginForm = () => {
@@ -241,7 +246,7 @@ function App() {
   }
 
 
-
+  const {launchSignUpForm} = useAuthUI()
 
   //
   if (isLoading) {
@@ -254,25 +259,26 @@ function App() {
 
       <div className='main' ref={mainRef}>
 
-      {msg && <DialogBox />}
-                
-      <Nvb />  
-      {/* <Navbar /> */}
+        {msg && <DialogBox />}
+                  
+        {/* <Nvb />   */}
+        <Navbar />
 
 
-      <div style={{paddingTop:"25px"}}>
-        <Routes>
-          <Route path="/" element={<Home homeImages={homeImages} />} />
-          <Route path="/products/:seller" element={<Products />} />
-          <Route path="/:id" element={<SingleProduct />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/new_product" element={<AddNewProduct />} />
-          <Route path="/orders" element={<Orders />} />
-        </Routes>
-      </div>
+        <div style={{ paddingTop: "25px", maxWidth: "100%", overflowX: "hidden" }}>
+           
+          <Routes>
+            <Route path="/" element={<Home homeImages={homeImages} />} />
+            <Route path="/products/:seller" element={<Products />} />
+            <Route path="/:id" element={<SingleProduct />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/new_product" element={<AddNewProduct />} />
+            <Route path="/orders" element={<Orders />} />
+          </Routes>
+        </div>
       </div>
     </>
   )
