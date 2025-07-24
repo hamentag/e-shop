@@ -6,9 +6,10 @@ import LoginForm from '../components/LoginForm';
 import SignUpForm from '../components/SignUpForm';
 
 export default function useAuthUI() {
-  const { openModal } = useOverlay();
+  const { openModal, hideOffcanvas } = useOverlay();
 
   const launchLoginForm = useCallback(() => {
+    hideOffcanvas();
     openModal(<LoginForm />, {
       title: 'Login',
       props: {
@@ -19,6 +20,7 @@ export default function useAuthUI() {
   }, [openModal]);
 
   const launchSignUpForm = useCallback(() => {
+    hideOffcanvas();
     openModal(<SignUpForm />, {
       title: 'Sign Up',
       props: {

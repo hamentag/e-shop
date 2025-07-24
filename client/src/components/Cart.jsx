@@ -15,7 +15,7 @@ export default function Cart(){
     //
     if (!cart) {
         return <section className="loading">Loading..</section>
-      }
+    }
 
     return(
         <>
