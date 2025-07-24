@@ -10,96 +10,62 @@ import useCart from '../hooks/useCart';
 import useOverlay from "../hooks/useOverlay";
 
 import CartOverview from '../components/CartOverview';
+import NavbarMenu from '../components/NavbarMenu';
+import NavAccount from '../components/NavAccount';
+
 
 export default function Navbar() {
+    const navigate = useNavigate();
+
     const { searchParam, setSearchParam } = useSearch()
 
     const { auth, logout } = useAuth()
     const { cart } = useCart()
 
-    const { showOffcanvas } = useOverlay();
+    const { showOffcanvas, hideOffcanvas } = useOverlay();
 
     const { launchSignUpForm, launchLoginForm } = useAuthUI()
 
 
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
+    //  useEffect (() => {
+    //     console.log("tst")
 
-        const offcanvasEl = document.getElementById('offcanvasNavbar');
-        const bsOffcanvas = window.bootstrap.Offcanvas.getInstance(offcanvasEl);
+    // }, [auth]);
 
-        if (bsOffcanvas) {
-            bsOffcanvas.hide();
-        }
-    };
 
 
 
     return (
         <nav
-            className="navbar fixed-top b shadow-sm p-1 bg-white rounded"
+            className="navbar fixed-top b shadow-sm p-0 bg-white rounded"
             data-bs-theme="light"
         >
             <div className="container-fluid d-flex flex-nowrap align-items-center">
                 <div className="navbar-brand flex-shrink-1 py-0" >
                   <Link to={'/'}>E-Shop</Link>
-                </div>
+                </div>    
 
-                <form className="d-flex flex-grow-1 mx-1" role="search" onSubmit={handleSearchSubmit}>
-                    <input
-                        className="form-control me-2 flex-shrink-1 py-1"
+                <form
+                    className="d-flex flex-grow-1 mx-1"
+                    role="search"
+                    onSubmit={(e) => e.preventDefault()}
+                    >
+                    <div className="input-group search-group">
+                        <Link to={'/products/all'} className="btn btn-outline-secondary btn-sm">All</Link>
+                        <input
+                        className="form-control py-1 no-outline"
                         type="search"
                         placeholder="Search"
                         aria-label="Search"
                         value={searchParam}
                         onChange={(e) => setSearchParam(e.target.value)}
-                    />
+                        />
+                    </div>
                 </form>
-
-                <div className="nav-item dropdown btn flex-shrink-1 nav-btn">
-                    <button  className="nav-link dropdown-toggle flex-shrink-1"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                            {/* <span><i className="bi bi-person"></i></span> {' '} */}
-                            <span><i className="bi bi-person fs-4"></i></span>  {' '}
-                            <span className="fname-account">
-                                {auth.id? `${auth.firstname}` : 'Account'}
-                            </span>                            
-                    </button>
-                    <ul className="dropdown-menu">
-                        {!auth.id && (
-                            <>
-                                <li>
-                                    <button className='dropdown-item' onClick={ launchLoginForm }>Log In </button>                                                            
-                                </li>
-                                <li><hr className="dropdown-divider" /></li>                              
-                                <li>
-                                    <button className='dropdown-item' onClick={ launchSignUpForm }>Sign Up </button>                                                            
-                                </li>
-                            </>
-                        )}
-
-                        {auth.id && (
-                            <>
-                                <li>  
-                                    <button className='dropdown-item' >
-                                        <Link to={'/orders'}>Orders </Link>
-                                    </button>                                                   
-                                </li>
-                                <li><hr className="dropdown-divider" /></li>                               
-                                <li>  
-                                    <button className='dropdown-item' >
-                                        <Link to={'/account'}>Profile</Link>
-                                    </button>                                                   
-                                </li>  
-                                <li><hr className="dropdown-divider" /></li>                               
-                                <li>
-                                    <button className='dropdown-item' onClick={ logout }>Quit</button>                                                            
-                                </li>
-                            </>
-                        )}
-                    </ul>
-                </div>
-
+           
+               
+                <NavAccount />
+        
 
                 {/* ///////////////////CART////////////////////////// */}              
                 < button className="btn flex-shrink-1 position-relative p-0 nav-btn"
@@ -142,15 +108,9 @@ export default function Navbar() {
                     onClick={() => {
                         showOffcanvas({
                             title: 'Menu',
-                            content: (
-
-                                <div></div>
-                               
-                                            ),
+                            content: <NavbarMenu />,
                                         })
                                     }}
-
-
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
