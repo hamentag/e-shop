@@ -10,12 +10,14 @@ import useAuth from '../hooks/useAuth';
 import useCart from '../hooks/useCart';
 import useProducts from '../hooks/useProducts';
 
+import CartQtyCtrl from '../components/CartQtyCtrl';
+
 
 export default function SingleProduct(){
 
     const { setMsg } = useOverlay();
     const { auth } = useAuth();
-    const { addToCart } = useCart();
+    const { cart, addToCart } = useCart();
     const { deleteProduct } = useProducts();
     
     const { id } = useParams();
@@ -23,6 +25,8 @@ export default function SingleProduct(){
     const [displayedImage, setDisplayedImage] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+
+       const [crtPrd, setCrtPrd] = useState(null);
     
     useEffect(()=> {
         const fetchSingleProduct = async()=> {
@@ -32,6 +36,12 @@ export default function SingleProduct(){
             // console.log("json ,, ", json)
             setProduct(json);
             setDisplayedImage(json.images.find(image => image.is_showcase))
+
+            ///
+
+          
+
+            ///
           }
           else{
             console.error(response.error); 
@@ -39,7 +49,25 @@ export default function SingleProduct(){
           }
         };
         fetchSingleProduct();
-      }, []);
+      }, [id, cart]);
+
+      useEffect(() => {
+
+            if(cart && product){
+                             
+                for (let i = 0; i < cart.products.length; i++) {
+                   
+                    if (cart.products[i].product_id === product.id) {
+                        setCrtPrd(cart.products[i])
+                        break;
+                    }
+                    setCrtPrd(null)
+            } 
+        }
+       
+      }, [cart, product])
+
+
 
       return(
         <>{ !error &&
@@ -47,6 +75,17 @@ export default function SingleProduct(){
                 {product &&
                     <>
                         <h3>{product.title}</h3>
+                       
+                        {crtPrd?  
+                        <CartQtyCtrl item = { crtPrd }/>
+                        :
+                        <div>Not in cart
+                            <button className="btn btn-primary" onClick={()=> { addToCart(product.id,1) }}
+                            >Add to Cart</button>
+                        </div>
+                        }
+                       
+                           
                         <div className="product-details-main">
                             <div>
                                 <div className="single-product-images">
@@ -54,7 +93,10 @@ export default function SingleProduct(){
                                         {
                                             product.images.map(image => {
                                                 return(
-                                                    <li key={image.title} onMouseOver={()=>setDisplayedImage(image)}>
+                                                    <li key={image.title} 
+                                                        onMouseOver={()=>setDisplayedImage(image)}
+                                                        onClick={()=>setDisplayedImage(image)}
+                                                        >
                                                         <img src={image.url} alt="product image" style={{width: '46px' , height:'44px'}}/>
                                                     </li>
                                                 )
