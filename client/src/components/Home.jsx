@@ -40,7 +40,7 @@ export default function Home({ homeImages }){
                 style={{ backgroundImage: `url(${homeImages[currentImgIndex].url})` }} >
 
                 <h1 onClick={()=>{
-                    navigate(`products/${homeImages[currentImgIndex].brand}`)}}
+                    navigate(`products/brands/${homeImages[currentImgIndex].brand}`)}}
                     >Shop {homeImages[currentImgIndex].brand}
                 </h1>
                 <div className='image-shifters'>

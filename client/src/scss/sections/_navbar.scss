@@ -1,0 +1,216 @@
+// _navbar.scss
+
+
+//// Default 
+/// 
+.navbar {
+    .container-fluid {
+        padding: 0;
+      
+
+        form {
+            min-width: 0;
+            input {
+                font-size: small;
+            }
+
+            input.no-outline {
+            box-shadow: none !important;
+            outline: none !important;
+            border: none;
+            }
+
+            .input-group.search-group {
+            border: 1.5px solid #ced4da;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+            }
+
+            .input-group.search-group:focus-within {
+            border-color: #9d9d9de3;
+            }
+            .search-group .btn {
+            border: none;
+            border-right: 2px solid #ced4da;  
+            }
+
+           
+        }
+
+        .navbar-brand {
+            color: $second-color;
+            // color: green;
+            font-size: small;
+        }
+        .nav-item {
+            .nav-link {
+               
+            }
+        }
+        
+        .nav-btn {
+            position: relative; 
+        } 
+
+            span {
+                position: relative; 
+                display: inline-block;
+            }
+           
+            .cart-count {
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 0.75rem;
+                font-weight: bold;
+                background: $primary-color;
+                color: white;
+                border-radius: 50%;
+                padding: 2px 6px;
+                line-height: 1;
+                z-index: 1;
+            } 
+                    
+    }
+
+    .navbar-brand {
+        min-width: 0;
+        margin-right: 0;
+        font-weight: bold;
+        font-size: clamp(0.75rem, 1.75vw, 2rem);
+    }
+
+
+    .navbar-toggler {
+        min-width: 0;
+        outline: none;        
+        box-shadow: none;
+        transform: scale(0.75);
+    }
+   
+
+    .navbar-toggler-icon{
+        transform: scale(0.6);     
+    }
+
+    .bi-cart2 {
+        transform: scale(0.75);
+    }
+
+
+    ////
+    // min 
+    @media (min-width: 360px) {}
+
+    @media (min-width: 360px) {
+        .container-fluid {
+            form {
+                max-width: 10rem;
+            }
+            .navbar-brand {
+                font-size: medium;
+            }
+        }
+    }
+
+    @media (min-width: 428px) {}
+
+    @media (min-width: 576px) {
+        .container-fluid {   
+            padding: 0 1rem;
+
+            form {
+                max-width: 15rem;
+            }
+            .navbar-brand {
+                font-size: large;
+            }
+                        
+        }
+       
+    }
+       @media (min-width: 768px) {
+            .navbar-toggler-icon{
+                transform: scale(0.75);
+            }
+    }
+       @media (min-width: 992px) {
+          .navbar-toggler {
+        transform: scale(1);
+        }
+
+        .container-fluid {
+            form {
+                max-width: 30rem;
+                input {
+                    font-size: medium;
+                }
+            }
+            .navbar-brand {
+                font-size: x-large;
+            }
+            
+        }
+        
+       
+
+       
+    }
+       @media (min-width: 1200px) {
+       
+    }
+       @media (min-width: 1400px) {
+       
+    }
+
+
+
+
+
+        // max
+
+        @media (max-width: 576px) {
+            .container-fluid {
+                .fname-account {
+                    display: none;
+                }
+              
+               
+            }
+        }
+
+    
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                // padding: 0.25rem 0.25rem;
+            }
+    
+            .mavbar-toggler-icon {
+                transform: scale(0.5);
+            }
+    
+        }
+    
+    
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                // padding: 0.25rem 0.25rem;
+            }
+    
+            .menu-burger-icon {
+                // transform: scale(0.5);
+            }
+    
+        }
+    
+        @media (max-width: 992px) {
+            .menu-burger-icon {
+                // transform: scale(0.75);
+            }
+        }
+
+   
+
+}

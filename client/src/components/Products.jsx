@@ -7,6 +7,7 @@ import useOverlay from '../hooks/useOverlay';
 import useAuth from '../hooks/useAuth';
 import useCart from '../hooks/useCart';
 import useProducts from '../hooks/useProducts';
+import useSearch from "../hooks/useSearch";
 
 
 export default function Products(){
@@ -19,18 +20,65 @@ export default function Products(){
   const [productsToDisplay, setProductsToDisplay] = useState([]);
     
   const navigate = useNavigate();
-  const { seller } = useParams();
+
+  // const { seller } = useParams();
+  const { brand, category } = useParams();
+
+  const { searchParam, setSearchParam } = useSearch();
   
   
-  useEffect(()=>{
-    if(seller === 'all'){
-      setProductsToDisplay(products)
-    }
-    else{
-      setProductsToDisplay(products.filter(prd => prd.brand === seller))
+  // useEffect(()=>{
+  //   if(seller === 'all'){
+  //     setProductsToDisplay(products)
+  //   }
+  //   else{
+  //     setProductsToDisplay(products.filter(prd => prd.brand === seller))
+  //   }
+
+  // },[seller])
+
+
+  // useEffect(()=>{
+  //   if (seller !== 'all') {
+  //     setProductsToDisplay(products.filter(prd => prd.brand === seller))
+  //     return
+  //   }
+
+  //   if (searchParam.trim()) {
+  //     setProductsToDisplay(
+  //           products.filter((product) =>
+  //       product.title.toLowerCase().includes(searchParam.toLowerCase()))
+            
+  //     )
+  //     return
+  //   }
+  //   setProductsToDisplay(products)
+
+
+  // },[seller, searchParam])
+
+
+  
+
+  useEffect(() => {
+    let urlPrds = products;
+
+    if (searchParam.trim()) {
+      urlPrds = urlPrds.filter((product) =>
+        product.title.toLowerCase().includes(searchParam.toLowerCase())
+      );
+    } else if (brand) {
+      urlPrds = urlPrds.filter((prd) => prd.brand === brand);
+    } else if (category) {
+      urlPrds = urlPrds.filter((prd) => prd.category === category);
     }
 
-  },[seller])
+    setProductsToDisplay(urlPrds);
+    console.log("prd to dspl: ", productsToDisplay)
+  }, [products, brand, category, searchParam]);
+
+
+
 
 
   return (

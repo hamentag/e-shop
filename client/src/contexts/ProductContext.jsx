@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { productAPI } from '../api';
-import useOverlay from '../hooks/useOverlay';
 import useAuth from '../hooks/useAuth';
 
 export const ProductContext = createContext();
@@ -10,7 +9,11 @@ export const ProductContext = createContext();
 export const ProductProvider = ({ children }) => {
     // const { setMsg } = useOverlay();
   const { auth } = useAuth();
+
   const [products, setProducts] = useState([]);
+
+  const [category, setCategory] = useState('');
+
   const [isLoading, setIsLoading] = useState(true);
 
   
@@ -83,6 +86,8 @@ export const ProductProvider = ({ children }) => {
       isLoading,
       createProduct,
       deleteProduct,
+      category,
+      setCategory
     }}>
       {children}
     </ProductContext.Provider>

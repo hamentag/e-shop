@@ -1,0 +1,22 @@
+
+
+.offcanvas {
+   
+    --bs-offcanvas-width: 100%;
+
+
+
+
+    
+     
+    @media (min-width: 360px) {
+        --bs-offcanvas-width: 85%;
+    } 
+    
+    @media (min-width: 428px) {
+         --bs-offcanvas-width: 75%;
+    }
+     @media (min-width: 576px) {
+        --bs-offcanvas-width: 28rem;
+    }
+}

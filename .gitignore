@@ -41,3 +41,8 @@ package-lock.json
 
 
 server/uploads/
+
+
+# Compiled CSS files
+client/src/style.css
+client/src/style.css.map
