@@ -38,6 +38,7 @@ const data = {
             dimensions: '18 x 16 x 25',
             characteristics: 'Soft and cuddly, machine washable, suitable for all ages',
             inventory: 3,
+            rate: 4.7,
             images: [
                 {
                     title: 'stuffed_elephant_0.png',
@@ -65,6 +66,7 @@ const data = {
             dimensions: '3 x 3 x 8',
             characteristics: 'Durable, BPA-free, heat-resistant',
             inventory: 25,
+            rate: 3.6,
             images: [
                 {
                     title: 'glass_baby_bottle_with_silicone_sleeve_0.png',
@@ -92,6 +94,7 @@ const data = {
             dimensions: '25 x 18 x 20',
             characteristics: 'The Little Tikes Activity Garden easily converts from a closed play center to an open, two-sided play center without tools to grow with your child',
             inventory: 18,
+            rate: 4.7,
             images: [
                 {
                     title: 'Activity_Garden_0.png',
@@ -119,6 +122,7 @@ const data = {
             dimensions: '10 x 7.5 x 4',
             characteristics: '3-Pack Cute and Fun Baby Bibs for Boy and Girl - Our organic baby boy bibs and girl bibs are exclusively designed to ensure that your baby never runs out of styling options.',
             inventory: 56,
+            rate: 4.0,
             images: [
                 {
                     title: 'Baby_3_Pack_Bibs_0.png',
@@ -137,6 +141,7 @@ const data = {
             dimensions: '12 x 8 x 4',
             characteristics: 'Crafted in extra soft slub jersey with a super cute print, this set is complete with a short-sleeve bodysuit to pair with easy on pants and a matching cardigan.',
             inventory: 126,
+            rate: 4.6,
             images: [
                 {
                     title: 'Baby_3-Piece_Whale_Little_Cardigan_Set_0.png',
@@ -160,6 +165,7 @@ const data = {
             dimensions: '25 x 18 x 20',
             characteristics: 'Crafted in soft cotton, this pack of five is perfect for baby.',
             inventory: 112,
+            rate: 4.3,
             images: [
                 {
                     title: 'Baby_Bodysuits_5-Pack_Short_Sleeve_Bodysuits_0.png',
@@ -182,11 +188,12 @@ const data = {
         {
             title: 'Baby Double Knit Wearable Blanket',
             category: 'Baby Accessories',
-            brand: "looks",
+            brand: "Looks",
             price: 27.19,
             dimensions: '42 x 35',
             characteristics: 'Soft, organic cotton double-knit wearable blanket for a bedtime routine that s comfy, safe and snug keeping your baby at just the right temp.',
             inventory: 45,
+            rate: 3.9,
             images: [
                 {
                     title: 'Baby_Double_Knit_Wearable_Blanket_0.png',
@@ -214,6 +221,7 @@ const data = {
             dimensions: '4.2 x 2.8 x 2.2',
             characteristics: 'Designed for his growing feet, these shoes are perfect for baby.',
             inventory: 52,
+            rate: 4.0,
             images: [
                 {
                     title: 'Baby_Every_Step_Hook_&_Loop_Soft_Sandals_0.png',
@@ -245,6 +253,7 @@ const data = {
             dimensions: '7 x 5 x 3',
             characteristics: 'Crafted in soft cotton with a slogan about Papa, this bodysuit will be a family favorite.',
             inventory: 75,
+            rate: 4.5,
             images: [
                 {
                     title: 'Baby_Smiles_For_Papa_Sleeveless_Bodysuit_0.png',
@@ -264,6 +273,7 @@ const data = {
             dimensions: '16 x 15 x 8',
             characteristics: 'Soft block set for babies and toddlers. Lightweight pieces (10 cubes and 4 triangles) are easy for young children to lift and manipulate.',
             inventory: 26,
+            rate: 4.2,
             images: [
                 {
                     title: 'BOHS_Foam_Learning_Blocks_0.png',
@@ -291,6 +301,7 @@ const data = {
             dimensions: '21 x 17 x 7',
             characteristics: 'This friendly face is the perfect toy for sensory stimulation! With high contrast fabrics, a baby-safe mirror, rattles, squeakers, and crinkle paper.',
             inventory: 5,
+            rate: 4.1,
             images: [
                 {
                     title: 'Friendly_Face_Toy_0.png',
@@ -318,6 +329,7 @@ const data = {
             dimensions: '10 x 8 x 5',
             characteristics: 'Features six reversible cards with high-contrast images supporting baby-s natural progression of visual development.',
             inventory: 37,
+            rate: 4.8,
             images: [
                 {
                     title: 'Infant_Stim_To_Go_0.png',
@@ -341,6 +353,7 @@ const data = {
             dimensions: '31 x 22 x 20',
             characteristics: 'Learning Lane Activity Walker encourages early walking and helps kids discover the rules of the road. This driving-themed walker offers three different ways to play. ',
             inventory: 12,
+            rate: 4.7,
             images: [
                 {
                     title: 'Learning_Lane_Activity_Walker_0.png',
@@ -368,6 +381,7 @@ const data = {
             dimensions: '12 x 10 x 6',
             characteristics: "Let baby's playtime shape with this 3-piece soft shape set! Each shape has a noisemaker and medley of research-based high-contrast graphics.",
             inventory: 50,
+            rate: 4.6,
             images: [
                 {
                     title: 'Mind_Shapes_0.png',
@@ -391,6 +405,7 @@ const data = {
             dimensions: '12 x 9 x 6',
             characteristics: "2-piece set / Long sleeves / Made to match, this cozy set is complete with a long-sleeve bodysuit and a pair of coveralls, too.",
             inventory: 19,
+            rate: 4.4,
             images: [
                 {
                     title: 'Baby_2-Piece_Bodysuit_&_Sweater_Coveralls_0.png',
@@ -418,6 +433,7 @@ const data = {
             dimensions: '11.5 x 7.5 x 5',
             characteristics: "Fit together 45 sturdy jumbo cardboard jigsaw puzzle pieces to complete a colorful map of the United States, Educational and fun, featuring the locations of 63 national parks and many of the animals and key park features",
             inventory: 26,
+            rate: 4.7,
             images: [
                 {
                     title: 'National Parks U.S.A. Map Floor Puzzle - 45 Pieces_0.png',
@@ -445,6 +461,7 @@ const data = {
             dimensions: '8.25 x 8.25 x 2.5',
             characteristics: "Match picture clues to complete six favorite farm animals / 16 cubes and a durable wooden tray; 6 puzzles in one / Develop visual and manipulative skills",
             inventory: 57,
+            rate: 4.8,
             images: [
                 {
                     title: 'Farm Cube Puzzle - 16 Pieces_0.png',
@@ -472,6 +489,7 @@ const data = {
             dimensions: '14 x 9.2 x 4',
             characteristics: "Place letters into wooden puzzle boards to spell words that match illustrations / Includes 8 double-sided wooden puzzle boards and 64 wooden letters / Fits into one compact wooden storage case",
             inventory: 39,
+            rate: 4.7,
             images: [
                 {
                     title: 'See & Spell Learning Toy_0.png',

@@ -6,6 +6,7 @@ import { CartProvider } from './CartContext.jsx';
 import { OrderProvider } from './OrderContext.jsx';
 import { ProductProvider } from './ProductContext.jsx';
 import { SearchProvider } from './SearchContext.jsx';
+import { BrandsProvider } from './BrandsContext.jsx';
 
 
 export const AppProviders = ({ children }) => {
@@ -13,13 +14,15 @@ export const AppProviders = ({ children }) => {
         <AuthProvider>
             <CartProvider>
                 <OrderProvider>
+                    <BrandsProvider>
                     <ProductProvider>
-                        <SearchProvider>
-                            <OverlayProvider>
-                                {children}
-                            </OverlayProvider>
-                        </SearchProvider>
-                    </ProductProvider>
+                            <SearchProvider>
+                                <OverlayProvider>
+                                    {children}
+                                </OverlayProvider>
+                            </SearchProvider>                        
+                        </ProductProvider>
+                    </BrandsProvider>
                 </OrderProvider>
             </CartProvider>
         </AuthProvider>

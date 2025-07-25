@@ -10,9 +10,9 @@ import useOverlay from '../hooks/useOverlay';
 import useProducts from "../hooks/useProducts";
 import useAuth from "../hooks/useAuth";
 import useAuthUI from "../hooks/useAuthUI";
+import useBrands from '../hooks/useBrands';
 
 import CartQtyCtrl from '../components/CartQtyCtrl';
-import CollapsiblePanel from '../components/CollapsiblePanel';
 import NavAccount from '../components/NavAccount';
 import AccordionItem from '../components/AccordionItem';
 
@@ -30,18 +30,12 @@ export default function NavbarMenu() {
     const { products } = useProducts();
 
     const { auth, logout } = useAuth();
-    const { launchSignUpForm, launchLoginForm } = useAuthUI()
-
-
-
-
+    const { launchSignUpForm, launchLoginForm } = useAuthUI();
+    const { topBrands } = useBrands();
 
     const categories = selectCategories(products)
 
-    console.log("tst,,: ", categories)
-
-
-
+    
     return (
         <div className="offcanvas-body nav-menu">
             <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
@@ -83,8 +77,18 @@ export default function NavbarMenu() {
 
                 <AccordionItem title="Best Sellers" id="itemThree" parentId="accordionExample">
                     <ul className="list-unstyled">
-                      <li>Soemseller</li>
-                       <li>SomeOtherseller</li>
+                        {topBrands.map((brand) => (
+                            <li key={brand.id} >
+                                <Link to={`/products/brands/${brand.brand}`}
+                                    className="dropdown-item"
+                                    onClick={hideOffcanvas}
+                                >
+                                    {brand.brand}                                    
+                                </Link>
+                            </li>
+                        ))}
+                      {/* <li>Soemseller</li>
+                       <li>SomeOtherseller</li> */}
                     </ul>
                 </AccordionItem>
 

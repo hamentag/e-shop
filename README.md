@@ -34,5 +34,36 @@ The application encompasses multiple features designed to facilitate a seamless 
     * Order Management: Administrators can view and filter orders, modify order status, and promote user accounts.
 * As an Engineer
     * Database Seeding: Engineers ensure a well-seeded database to simulate various scenarios.
-    * Security: Engineers ensure user data security to prevent unauthorized access or manipulation.     
+    * Security: Engineers ensure user data security to prevent unauthorized access or manipulation.
+**********************
+
+### Setup Instructions
+
+
+
+#### Daily Scheduled Task (pg_cron)
+
+This project uses pg_cron to run a daily scheduled task at 6 AM that updates top brands in the database.
+
+##### Setup Instructions (run once as admin)
+
+1. Enable the pg_cron extension in your PostgreSQL database:
+
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+2. Grant permission to your PostgreSQL user (skip this step if you're using a PostgreSQL superuser):
+
+        GRANT USAGE ON SCHEMA cron TO your_user;
+        GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA cron TO your_user;
+
+
+3. Register the scheduled task (run this once to start the daily job):
+
+        SELECT cron.schedule(
+            'daily_top_brands',
+            '0 6 * * *',
+            $$SELECT update_top_brands();$$
+        );
+
+    This setup is only required during initial installation by the developer or admin.
 

@@ -74,7 +74,7 @@ export default function Products(){
     }
 
     setProductsToDisplay(urlPrds);
-    console.log("prd to dspl: ", productsToDisplay)
+ 
   }, [products, brand, category, searchParam]);
 
 

@@ -1,4 +1,4 @@
-
+// server/db.js
 const pg = require('pg');
 // const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/eCommerce_site_db');
 
@@ -11,19 +11,21 @@ const client = new Client({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,// 5432  // Default PostgreSQL port
+  port: process.env.DB_PORT,// 5432 Default PostgreSQL port
 });
+
+const TOP_BRANDS_LIMIT = parseInt(process.env.TOP_BRANDS_LIMIT) || 4;
+const TAX_RATE = parseFloat(process.env.TAX_RATE) || 6.5;
 
 const uuid = require('uuid');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT = process.env.JWT || 'shhh';
 
-const TAX_RATE = 6.5;
 
 const createTables = async()=> {
   const SQL = `
-    -- Create tables:
+     -- Drop existing tables:
     DROP TABLE IF EXISTS users cascade;
     DROP TABLE IF EXISTS products cascade;
     DROP TABLE IF EXISTS cart cascade;
@@ -34,9 +36,13 @@ const createTables = async()=> {
     DROP TABLE IF EXISTS images cascade;
     DROP TABLE IF EXISTS sellers cascade;
     DROP TABLE IF EXISTS stores cascade;
+    DROP TABLE IF EXISTS top_brands cascade;
     
+       -- Create required extensions:
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS pg_cron;
 
+      -- Create tables:
     CREATE TABLE users(
       id UUID PRIMARY KEY,
       firstname VARCHAR(40) NOT NULL,
@@ -57,8 +63,18 @@ const createTables = async()=> {
       price NUMERIC NOT NULL,
       dimensions VARCHAR(45) NOT NULL,
       characteristics VARCHAR(255) NOT NULL,
-      inventory INTEGER NOT NULL
+      inventory INTEGER NOT NULL,
+      rate NUMERIC(2,1) NOT NULL CHECK (rate >= 0.0 AND rate <= 5.0)
     );
+    CREATE TABLE top_brands (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      brand VARCHAR(45) NOT NULL,
+      average_rate NUMERIC(2, 1) CHECK (average_rate >= 0 AND average_rate <= 5),
+      product_count INTEGER NOT NULL,
+      total_rate NUMERIC(7, 2) NOT NULL CHECK (total_rate >= 0),
+      calculated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
     CREATE TABLE cart(
       id UUID PRIMARY KEY,
       user_id UUID REFERENCES users(id) NOT NULL,
@@ -204,8 +220,58 @@ const createTriggers = async()=> {
   EXECUTE FUNCTION clear_cart_when_place_order();
   `;
   await client.query(SQL);
+
+  // update_top_brands function
+  SQL = `
+  CREATE OR REPLACE FUNCTION update_top_brands()
+  RETURNS void AS $$
+  BEGIN
+    DELETE FROM top_brands;
+
+    INSERT INTO top_brands (brand, average_rate, product_count, total_rate, calculated_at)
+    SELECT
+      brand,
+      ROUND(AVG(rate), 1) AS average_rate,
+      COUNT(*) AS product_count,
+      SUM(rate) AS total_rate,
+      NOW()
+    FROM products
+    GROUP BY brand
+    ORDER BY average_rate DESC
+    LIMIT ${TOP_BRANDS_LIMIT};
+  END;
+  $$ LANGUAGE plpgsql;
+  `;
+  await client.query(SQL);
+
+
+
+//   // -- Schedule update_top_brands function to run daily at 6 AM // Reqires permission!
+//   const cronSQL = `
+//   SELECT cron.schedule(
+//     'daily_top_brands',
+//     '0 6 * * *',
+//     $$SELECT update_top_brands();$$
+//   );
+// `;
+// await client.query(cronSQL);
+
 };
 
+
+// // Initialize top_brands table
+// const initTopBrands = async() => {
+//   const SQL = `SELECT update_top_brands();`;
+//   await client.query(SQL);
+// }
+
+const initTopBrands = async() => {
+  let SQL = `SELECT update_top_brands();
+  `;
+  await client.query(SQL);
+}
+
+ 
 
 // create new user
 const createUser = async({ firstname, lastname, email, phone, password, is_admin, is_engineer})=> {
@@ -217,11 +283,11 @@ const createUser = async({ firstname, lastname, email, phone, password, is_admin
 };
 
 // create new product
-const createProduct = async({ title, category, brand, price, dimensions, characteristics, inventory })=> {
+const createProduct = async({ title, category, brand, price, dimensions, characteristics, inventory, rate })=> {
   const SQL = `
-    INSERT INTO products(id, title, category, brand, price, dimensions, characteristics, inventory) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+    INSERT INTO products(id, title, category, brand, price, dimensions, characteristics, inventory, rate) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), title, category, brand, price, dimensions, characteristics, inventory]);
+  const response = await client.query(SQL, [uuid.v4(), title, category, brand, price, dimensions, characteristics, inventory, rate]);
   return response.rows[0];
 };
 
@@ -400,7 +466,14 @@ const fetchProducts = async()=> {
   return response.rows;
 };
 
-
+// fetchTopBrands
+const fetchTopBrands = async()=> {
+  const SQL = `
+    SELECT * FROM top_brands;
+  `;
+  const response = await client.query(SQL);
+  return response.rows;
+};
 
 
 // fetchCart
@@ -692,12 +765,14 @@ module.exports = {
   client,
   createTables,
   createTriggers,
+  initTopBrands,
   createUser, 
   createProduct,
   createSeller,
   deleteProduct,
   fetchUsers, 
   fetchProducts,
+  fetchTopBrands,
   fetchCart,
   addToCart,
   updateCart,
