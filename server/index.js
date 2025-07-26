@@ -9,6 +9,7 @@ const {
   deleteProduct,
   fetchUsers,
   fetchProducts,
+  fetchCategories,
   fetchTopBrands,
   fetchCart,
   addToCart,
@@ -30,7 +31,7 @@ const {
   saveImageInfo,
   fetchFiles,
   addProductImage
-} = require('./db');
+} = require('./db.js');
 
 const { uploadFile, getFileUrl, deleteFile } = require('./s3AWS.js')
 
@@ -39,6 +40,9 @@ require('dotenv').config()
 
 //
 const { data } = require('./data.js');
+const {seedProducts} = require('./seedProducts.js')
+
+const { linkProductToCategory, getProductsByCategory } = require('./db/queries/productCategory.js');
 
 const express = require('express');
 const app = express();
@@ -49,6 +53,7 @@ const multer = require('multer')
 const crypto = require('crypto')
 const sharp = require('sharp')
 const fs = require('fs')
+const uuid = require('uuid');
 
 //for deployment only
 const path = require('path');
@@ -76,7 +81,6 @@ app.use(
 
 // Functions
 
-//
 const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex');
 
 //
@@ -277,7 +281,7 @@ app.get('/api/home-images', async (req, res, next) => {
   }
 });
 
-//
+// Get products
 app.get('/api/products', async (req, res, next) => {
   try {
     const products = await fetchProducts();
@@ -286,7 +290,6 @@ app.get('/api/products', async (req, res, next) => {
       return { ...product, images: imagesWithUrls }
     })
     );
-
     res.send(results);
   }
   catch (ex) {
@@ -294,6 +297,24 @@ app.get('/api/products', async (req, res, next) => {
   }
 });
 
+// Get products by category id
+app.get('/api/category/:id/products' , async (req, res, next) => {
+  try {
+    const products = await getProductsByCategory(req.params.id);
+
+    const results = await Promise.all(products.map(async (product) => {
+      const imagesWithUrls = await getFileUrls(product.images)
+      return { ...product, images: imagesWithUrls }
+    })
+    );
+    res.send(results);
+  }
+  catch (ex) {
+    next(ex);
+  }
+});
+
+// get single product
 app.get('/api/products/:id', async (req, res, next) => {
   try {
     const singleProduct = await fetchSingleProduct(req.params.id);
@@ -330,15 +351,18 @@ const storage2 = multer.diskStorage({
 const upload2 = multer({ storage: storage2 });
 
 
-//////////////////////////
+/// Create product (db, s3)
 // const { uploadFile, getFileUrl } = require('./s3AWS');
 
 app.post('/api/users/:id/products', isLoggedIn, upload2.array('images', 10), async (req, res, next) => {
   try {
+
+    const product_id = uuid.v4();
+
     // 1. Create product in DB
-    const createProductResult = await createProduct({
+    await createProduct({
+      id: product_id,
       title: req.body.title,
-      category: req.body.category,
       brand: req.body.brand,
       price: req.body.price,
       dimensions: req.body.dimensions,
@@ -347,7 +371,7 @@ app.post('/api/users/:id/products', isLoggedIn, upload2.array('images', 10), asy
       rate: req.body.rate
     });
 
-    const product_id = createProductResult.id;
+    
     const files = req.files;
 
     // 2. Upload images and save info
@@ -390,7 +414,6 @@ app.post('/api/users/:id/products', isLoggedIn, upload2.array('images', 10), asy
     const productToSend = {
       id: product_id,
       title: req.body.title,
-      category: req.body.category,
       brand: req.body.brand,
       price: req.body.price,
       dimensions: req.body.dimensions,
@@ -407,7 +430,15 @@ app.post('/api/users/:id/products', isLoggedIn, upload2.array('images', 10), asy
   }
 });
 
-
+// Fetch categories
+app.get('/api/category', async (req, res, next) => {
+  try {
+    res.send(await fetchCategories());
+  }
+  catch (ex) {
+    next(ex);
+  }
+});
 
 
 //// Guest section
@@ -573,29 +604,9 @@ const init = async () => {
   console.log('triggers created');
 
 
-  //// Create init products
-  data.products.forEach(async (product) => {
-    const product_id = (await createProduct({
-      title: product.title,
-      category: product.category,
-      brand: product.brand,
-      price: product.price,
-      dimensions: product.dimensions,
-      characteristics: product.characteristics,
-      inventory: product.inventory,
-      rate: product.rate
-    })).id;
+  // Create init products
+  await seedProducts();
 
-    // store data in database 
-    product.images.forEach(async (image, index) => {
-      if (index !== 0) {
-        await addProductImage(image.title, image.caption, product_id, false)
-      }
-      else {
-        await addProductImage(image.title, image.caption, product_id, true)
-      }
-    });
-  });
 
   // Initialize top_brands (run after populating the products table)
   await initTopBrands(); 

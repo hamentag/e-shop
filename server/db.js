@@ -2,7 +2,7 @@
 const pg = require('pg');
 // const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/eCommerce_site_db');
 
-const { Client } = require('pg');  
+const { Client } = require('pg');
 
 require('dotenv').config()
 
@@ -28,6 +28,9 @@ const createTables = async()=> {
      -- Drop existing tables:
     DROP TABLE IF EXISTS users cascade;
     DROP TABLE IF EXISTS products cascade;
+    DROP TABLE IF EXISTS category cascade;
+    DROP TABLE IF EXISTS product_category cascade;
+    DROP TABLE IF EXISTS top_brands cascade;
     DROP TABLE IF EXISTS cart cascade;
     DROP TABLE IF EXISTS orders CASCADE;
     DROP TABLE IF EXISTS guests cascade;
@@ -36,7 +39,6 @@ const createTables = async()=> {
     DROP TABLE IF EXISTS images cascade;
     DROP TABLE IF EXISTS sellers cascade;
     DROP TABLE IF EXISTS stores cascade;
-    DROP TABLE IF EXISTS top_brands cascade;
     
        -- Create required extensions:
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -58,13 +60,21 @@ const createTables = async()=> {
     CREATE TABLE products(
       id UUID PRIMARY KEY,
       title VARCHAR(60) NOT NULL,
-      category VARCHAR(45) NOT NULL,
       brand VARCHAR(45) NOT NULL,
       price NUMERIC NOT NULL,
       dimensions VARCHAR(45) NOT NULL,
       characteristics VARCHAR(255) NOT NULL,
       inventory INTEGER NOT NULL,
       rate NUMERIC(2,1) NOT NULL CHECK (rate >= 0.0 AND rate <= 5.0)
+    );
+     CREATE TABLE category (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      name VARCHAR(50) UNIQUE NOT NULL
+    );
+    CREATE TABLE product_category (
+      product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+      category_id UUID REFERENCES category(id) ON DELETE CASCADE,
+      PRIMARY KEY (product_id, category_id)
     );
     CREATE TABLE top_brands (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -245,7 +255,6 @@ const createTriggers = async()=> {
   await client.query(SQL);
 
 
-
 //   // -- Schedule update_top_brands function to run daily at 6 AM // Reqires permission!
 //   const cronSQL = `
 //   SELECT cron.schedule(
@@ -259,12 +268,6 @@ const createTriggers = async()=> {
 };
 
 
-// // Initialize top_brands table
-// const initTopBrands = async() => {
-//   const SQL = `SELECT update_top_brands();`;
-//   await client.query(SQL);
-// }
-
 const initTopBrands = async() => {
   let SQL = `SELECT update_top_brands();
   `;
@@ -272,7 +275,6 @@ const initTopBrands = async() => {
 }
 
  
-
 // create new user
 const createUser = async({ firstname, lastname, email, phone, password, is_admin, is_engineer})=> {
   const SQL = `
@@ -283,11 +285,11 @@ const createUser = async({ firstname, lastname, email, phone, password, is_admin
 };
 
 // create new product
-const createProduct = async({ title, category, brand, price, dimensions, characteristics, inventory, rate })=> {
+const createProduct = async({id, title, brand, price, dimensions, characteristics, inventory, rate })=> {
   const SQL = `
-    INSERT INTO products(id, title, category, brand, price, dimensions, characteristics, inventory, rate) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
+    INSERT INTO products(id, title, brand, price, dimensions, characteristics, inventory, rate) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), title, category, brand, price, dimensions, characteristics, inventory, rate]);
+  const response = await client.query(SQL, [id, title, brand, price, dimensions, characteristics, inventory, rate]);
   return response.rows[0];
 };
 
@@ -454,13 +456,21 @@ const fetchProducts = async()=> {
   JOIN images i ON p.id = i.product_id
   GROUP BY p.id,
   p.title,
-  p.category,
   p.brand,
   p.price,
   p.dimensions,
   p.characteristics,
   p.inventory
   ;
+  `;
+  const response = await client.query(SQL);
+  return response.rows;
+};
+
+// fetch categories
+const fetchCategories = async() => {
+  const SQL = `
+  SELECT * FROM category;
   `;
   const response = await client.query(SQL);
   return response.rows;
@@ -490,7 +500,6 @@ const fetchCart = async(user_id)=> {
       GROUP BY c.id,
         p.id,
         p.title,
-        p.category,
         p.brand,
         p.price,
         p.dimensions,
@@ -587,7 +596,6 @@ const fetchSingleProduct = async(id)=> {
       SELECT
           id,
           title,
-          category,
           brand,
           price,
           dimensions,
@@ -602,7 +610,6 @@ const fetchSingleProduct = async(id)=> {
   JOIN images c ON pd.id = c.product_id
   GROUP BY pd.id, 
   pd.title,
-  pd.category,
   pd.brand,
   pd.price,
   pd.dimensions,
@@ -648,7 +655,6 @@ const fetchGuestCart = async(guest_id) => {
       GROUP BY c.id,
         p.id,
         p.title,
-        p.category,
         p.brand,
         p.price,
         p.dimensions,
@@ -772,6 +778,7 @@ module.exports = {
   deleteProduct,
   fetchUsers, 
   fetchProducts,
+  fetchCategories,
   fetchTopBrands,
   fetchCart,
   addToCart,

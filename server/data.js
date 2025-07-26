@@ -1,38 +1,10 @@
-
+//
 const data = {
-    home_images: [
-        {
-            title: 'home-image-carters-1.jpg',
-            caption: 'Home image carters 1',
-            brand: "Carter's"
-        },
-        {
-            title: 'home-image-carters-2.gif',
-            caption: 'Home image carters 2',
-            brand: "Carter's"
-        },
-        {
-            title: 'home-image-melissa_and_doug-1.jpg',
-            caption:  'Home image Melissa and Doug 1',
-            brand: "Melissa & Doug" 
-        },
-        {
-            title: 'home-image-melissa_and_doug-2.jpg',
-            caption:  'Home image Melissa and Doug 2',
-            brand: "Melissa & Doug" 
-        },
-        {
-            title: 'home-image-melissa_and_doug-3.gif',
-            caption:  'Home image Melissa and Doug 3',
-            brand: "Melissa & Doug" 
-        }
-    ],
-
     //
     products: [
         {
             title: 'Stuffed Elephant',
-            category: 'Toys',
+            category: ['Toys', 'Decoration'],
             brand: "Lampy",
             price: 42.2,
             dimensions: '18 x 16 x 25',
@@ -60,7 +32,7 @@ const data = {
         },
         {
             title: 'Glass Baby Bottle with Silicone Sleeve',
-            category: 'Baby Bottles',
+            category: ['Baby Bottles', 'Pharmacy'],
             brand: "Philips",
             price: 48,
             dimensions: '3 x 3 x 8',
@@ -88,7 +60,7 @@ const data = {
         },
         {
             title: 'Activity Garden',
-            category: 'Toys',
+            category: ['Toys', 'Kids'],
             brand: "Lampy",
             price: 95.99,
             dimensions: '25 x 18 x 20',
@@ -116,7 +88,7 @@ const data = {
         },
         {
             title: 'Baby 3-Pack Bibs',
-            category: 'Baby Accessories',
+            category: ['Baby Accessories', 'Kids'],
             brand: "Adventure",
             price: 15.49,
             dimensions: '10 x 7.5 x 4',
@@ -135,7 +107,7 @@ const data = {
             ]
         },{
             title: 'Baby 3-Piece Whale Little Cardigan Set',
-            category: 'Baby Clothes',
+            category: ['Clothes', 'Kids'],
             brand: "Carter's",
             price: 25.10,
             dimensions: '12 x 8 x 4',
@@ -159,7 +131,7 @@ const data = {
         },
         {
             title: 'Baby Bodysuits 5-Pack Short-Sleeve Bodysuits',
-            category: 'Baby Clothes',
+            category: ['Clothes', 'Kids'],
             brand: "looks",
             price: 35.49,
             dimensions: '25 x 18 x 20',
@@ -187,7 +159,7 @@ const data = {
         },
         {
             title: 'Baby Double Knit Wearable Blanket',
-            category: 'Baby Accessories',
+            category: ['Baby Accessories', 'Kids'],
             brand: "Looks",
             price: 27.19,
             dimensions: '42 x 35',
@@ -215,7 +187,7 @@ const data = {
         },
         {
             title: 'Baby Every Step Hook & Loop Soft Sandals',
-            category:  'Baby Clothes',
+            category: ['Clothes', 'Kids'],
             brand: "New Power",
             price: 23.40,
             dimensions: '4.2 x 2.8 x 2.2',
@@ -247,7 +219,7 @@ const data = {
         },
         {
             title: 'Baby -Smiles For Papa- Sleeveless Bodysuit',
-            category: 'Baby Clothes',
+            category: ['Clothes', 'Kids'],
             brand: "Carter's",
             price: 16.49,
             dimensions: '7 x 5 x 3',
@@ -267,7 +239,7 @@ const data = {
         },
         {
             title: 'BOHS Foam Learning Blocks',
-            category: 'Educational Toys',
+            category: ['Education', 'Kids'],
             brand: "Learning Space",
             price: 25.2,
             dimensions: '16 x 15 x 8',
@@ -295,7 +267,7 @@ const data = {
         },
         {
             title: 'Friendly Face Toy',
-            category: 'Toys',
+            category: ['Toys', 'Kids'],
             brand: "Enjoyable",
             price: 26.89,
             dimensions: '21 x 17 x 7',
@@ -323,7 +295,7 @@ const data = {
         },
         {
             title: 'Infant Stim To Go',
-            category: 'Toys',
+            category: ['Toys', 'Kids'],
             brand: "Enjoyable",
             price: 15.69,
             dimensions: '10 x 8 x 5',
@@ -347,7 +319,7 @@ const data = {
         },
         {
             title: 'Learning Lane Activity Walker',
-            category: 'Educational Toys',
+            category: ['Education', 'Kids'],
             brand: "Learning Space",
             price: 47.99,
             dimensions: '31 x 22 x 20',
@@ -375,7 +347,7 @@ const data = {
         },
         {
             title: 'Mind Shapes',
-            category: 'Educational Toys',
+            category: ['Education', 'Kids'], 
             brand: "Learning Space",
             price: 25.65,
             dimensions: '12 x 10 x 6',
@@ -399,7 +371,7 @@ const data = {
         },
         {
             title: 'Baby 2-Piece Bodysuit & Sweater Coveralls',
-            category:  'Baby Clothes',
+            category: ['Clothes', 'Kids'], 
             brand: "Carter's",
             price: 28.15,
             dimensions: '12 x 9 x 6',
@@ -427,11 +399,11 @@ const data = {
         },
         {
             title: 'National Parks U.S.A. Map Floor Puzzle - 45 Pieces',
-            category: 'Educational Toys',
+            category: ['Toys', 'Education'],
             brand: "Melissa & Doug", 
             price: 38.25,
             dimensions: '11.5 x 7.5 x 5',
-            characteristics: "Fit together 45 sturdy jumbo cardboard jigsaw puzzle pieces to complete a colorful map of the United States, Educational and fun, featuring the locations of 63 national parks and many of the animals and key park features",
+            characteristics: "Fit together 45 sturdy jumbo cardboard jigsaw puzzle pieces to complete a colorful map of the United States, Education and fun, featuring the locations of 63 national parks and many of the animals and key park features",
             inventory: 26,
             rate: 4.7,
             images: [
@@ -455,7 +427,7 @@ const data = {
         },
         {
             title: 'Farm Cube Puzzle - 16 Pieces',
-            category:  'Educational Toys',
+            category: ['Toys', 'Education'],
             brand: "Melissa & Doug",
             price: 33.15,
             dimensions: '8.25 x 8.25 x 2.5',
@@ -483,7 +455,7 @@ const data = {
         },
         {
             title: 'See & Spell Learning Toy',
-            category: 'Educational Toys',
+            category: ['Education', 'Toys'],
             brand: "Melissa & Doug",
             price: 23.99,
             dimensions: '14 x 9.2 x 4',
@@ -509,7 +481,34 @@ const data = {
                 }     
             ]
         }
-    ]
+    ],
+     home_images: [
+        {
+            title: 'home-image-carters-1.jpg',
+            caption: 'Home image carters 1',
+            brand: "Carter's"
+        },
+        {
+            title: 'home-image-carters-2.gif',
+            caption: 'Home image carters 2',
+            brand: "Carter's"
+        },
+        {
+            title: 'home-image-melissa_and_doug-1.jpg',
+            caption:  'Home image Melissa and Doug 1',
+            brand: "Melissa & Doug" 
+        },
+        {
+            title: 'home-image-melissa_and_doug-2.jpg',
+            caption:  'Home image Melissa and Doug 2',
+            brand: "Melissa & Doug" 
+        },
+        {
+            title: 'home-image-melissa_and_doug-3.gif',
+            caption:  'Home image Melissa and Doug 3',
+            brand: "Melissa & Doug" 
+        }
+    ],
 
 }
 

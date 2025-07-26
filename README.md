@@ -66,4 +66,28 @@ CREATE EXTENSION IF NOT EXISTS pg_cron;
         );
 
     This setup is only required during initial installation by the developer or admin.
+**********************
 
+#### Database Seeding
+
+Before running the application, you can optionally seed the database with sample data using:
+
+    node seedProducts.js
+
+This script will insert initial products, categories, and images — but only if the database is empty.
+
+* Prevents Duplicate Seeding:
+
+By default, the script checks if any products already exist in the database. If data is found, it will exit safely to prevent duplicate records.
+
+* Force Re-Seeding (Dev Use)
+
+If you want to force re-seeding, you can pass the --force flag:
+
+    node seedProducts.js --force
+
+This will run the seed process regardless of existing data.
+
+* Safe Rollback on Error
+
+The script wraps all database operations in a transaction. If any part of the process fails, all changes will be rolled back automatically, keeping your database clean.
