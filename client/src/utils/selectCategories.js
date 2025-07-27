@@ -17,3 +17,4 @@ export function selectCategories(products) {
 
   return Array.from(categorySet);
 }
+

@@ -8,7 +8,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import useOverlay from '../hooks/useOverlay';
 import useAuth from '../hooks/useAuth';
 import useCart from '../hooks/useCart';
-import useProducts from '../hooks/useProducts';
+import useProduct from '../hooks/useProduct';
 
 import CartQtyCtrl from '../components/CartQtyCtrl';
 
@@ -18,7 +18,7 @@ export default function SingleProduct(){
     const { setMsg } = useOverlay();
     const { auth } = useAuth();
     const { cart, addToCart } = useCart();
-    const { deleteProduct } = useProducts();
+    const { deleteProduct } = useProduct();
     
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -37,11 +37,6 @@ export default function SingleProduct(){
             setProduct(json);
             setDisplayedImage(json.images.find(image => image.is_showcase))
 
-            ///
-
-          
-
-            ///
           }
           else{
             console.error(response.error); 

@@ -1,10 +1,10 @@
-// src/hooks/useProducts.js
+// src/hooks/useProduct.js
 
 import { useContext } from 'react';
 import { ProductContext } from '../contexts/ProductContext';
 
-export default function useProducts() {
+export default function useProduct() {
   const context = useContext(ProductContext);
-  if (!context) throw new Error("useProducts must be used inside ProductProvider");
+  if (!context) throw new Error("useProduct must be used inside ProductProvider");
   return context;
 }

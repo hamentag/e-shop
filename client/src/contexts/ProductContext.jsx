@@ -17,23 +17,35 @@ export const ProductProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   
-  // Fetch all products
-  useEffect(() => {
-    const getProducts = async () => {
+  // Get all products
+  const getProducts = async () => {
       try {
         const data = await productAPI.fetchProducts();
-        setProducts(data);
-        setIsLoading(false);
+        setProducts(data); //
+        setIsLoading(false); //
+        return data
       } catch (err) {
         console.error('Fetch products error:', err.message);
-        // setMsg?.({
-        //   txt: "Oops! Unable to fetch product list.",
-        //   more: <button onClick={() => setMsg(null)}>OK</button>
-        // });
       }
     };
+
+  useEffect(() => {
     getProducts();
   }, []);
+
+  
+  // Get products by category
+  const getProductsByCategory = async (categoryId) => {
+    try {
+      const data = await productAPI.fetchProductsByCategory(categoryId);
+      // setProducts(data);
+      setIsLoading(false); //
+      return data
+    } catch (err) {
+      console.error('Fetch products error:', err.message);
+    }
+  };
+
 
   // Create product
   const createProduct = async (newProductData) => {
@@ -84,6 +96,8 @@ export const ProductProvider = ({ children }) => {
     <ProductContext.Provider value={{
       products,
       isLoading,
+      getProducts, 
+      getProductsByCategory,
       createProduct,
       deleteProduct,
       category,
@@ -94,8 +108,8 @@ export const ProductProvider = ({ children }) => {
   );
 };
 
-export default function useProducts() {
+export default function useProduct() {
   const context = useContext(ProductContext);
-  if (!context) throw new Error('useProducts must be used within a ProductProvider');
+  if (!context) throw new Error('useProduct must be used within a ProductProvider');
   return context;
 }

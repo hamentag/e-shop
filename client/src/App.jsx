@@ -1,7 +1,7 @@
 // src/App.jsx
 
 import { useState, useEffect, useRef } from 'react'
-import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Home from './components/Home';
 import Products from './components/Products';
@@ -12,11 +12,8 @@ import Checkout from './components/Checkout';
 import Users from './components/Users';
 import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
-import DialogBox from './components/DialogBox';
-import LoginForm from './components/LoginForm'
-import SignUpForm from './components/SignUpForm'
+import Footer from './components/Footer';
 
-import LoginToast from './components/LoginToast'
 
 import useGreeting from './hooks/useGreeting'
 
@@ -27,33 +24,19 @@ import { productAPI } from './api';
 import useOverlay from './hooks/useOverlay';
 import useAuth from './hooks/useAuth';
 import useCart from './hooks/useCart';
-import useProducts from './hooks/useProducts';
-
-import useAuthUI from './hooks/useAuthUI';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
-import useBrands from './hooks/useBrands';
+import useProduct from './hooks/useProduct';
 
 
 //// App
 function App() {
 
-  const { msg, setMsg, popUpAuthn, setPopUpAuthn, showActionToast } = useOverlay();
-  const { auth, logout } = useAuth();
-  const { cart } = useCart();
-  const { isLoading } = useProducts();
+  const { setMsg } = useOverlay();
+  const { isLoading } = useProduct();
     
-  const { openModal, closeModal } = useOverlay();
-
-
   const [homeImages, setHomeImages] = useState([]);
-
-  const headerRef = useRef(null);
   const mainRef = useRef(null);
 
   
- 
   ////
   useEffect(() => {
     const getHomeImages = async () => {
@@ -91,12 +74,10 @@ function App() {
         <div style={{ paddingTop: "25px", maxWidth: "100%", overflowX: "hidden" }}>           
           <Routes>
             <Route path="/" element={<Home homeImages={homeImages} />} />
-            {/* <Route path="/products/:seller" element={<Products />} /> */}
             <Route path="/products/all" element={<Products />} />
             <Route path="/products/brands/:brand" element={<Products />} />
             <Route path="/products/categories/:category" element={<Products />} />
-
-
+            <Route path="/products/search/:searchKey" element={<Products />} /> 
             <Route path="/:id" element={<SingleProduct />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/account" element={<Account />} />
@@ -106,6 +87,8 @@ function App() {
             <Route path="/orders" element={<Orders />} />
           </Routes>
         </div>
+
+        <Footer />
       </div>
     </>
   )

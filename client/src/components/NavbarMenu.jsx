@@ -3,44 +3,41 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-
-import useSearch from "../hooks/useSearch";
 import useCart from '../hooks/useCart';
 import useOverlay from '../hooks/useOverlay';
-import useProducts from "../hooks/useProducts";
+import useProduct from '../hooks/useProduct';
 import useAuth from "../hooks/useAuth";
 import useAuthUI from "../hooks/useAuthUI";
 import useBrands from '../hooks/useBrands';
+import useCategory from "../hooks/useCategory";
 
 import CartQtyCtrl from '../components/CartQtyCtrl';
 import NavAccount from '../components/NavAccount';
 import AccordionItem from '../components/AccordionItem';
 
-import { selectCategories } from '../utils/selectCategories';
+// import { selectCategories } from '../utils/selectCategories';
 
 
 
 export default function NavbarMenu() {
+    const navigate = useNavigate()
     const { cart, updateCart, removeFromCart } = useCart();
-
-    const { searchParam, setSearchParam } = useSearch();
-
     const { hideOffcanvas } = useOverlay();
-
-    const { products } = useProducts();
-
+    const { products } = useProduct();
     const { auth, logout } = useAuth();
     const { launchSignUpForm, launchLoginForm } = useAuthUI();
     const { topBrands } = useBrands();
+    const [mnSear, setMnSear] = useState('')
 
-    const categories = selectCategories(products)
+    // const categories = selectCategories(products)
+    const { categories } = useCategory();
+
 
     
     return (
         <div className="offcanvas-body nav-menu">
             <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li className="nav-item">
-                    {/* <a className="nav-link active" aria-current="page" href="#">Home</a> */}
                     <Link to={'/'} className="nav-link" onClick={hideOffcanvas} >Home</Link>
                 </li>
 
@@ -62,13 +59,13 @@ export default function NavbarMenu() {
                 <AccordionItem title="Categories" id="itemOne" parentId="accordionExample">
                     <ul className="px-1 py-0">
                         {categories.map((category) => (
-                            <li key={category}>
+                            <li key={category.id}>
                                 <Link
-                                    to={`/products/categories/${category}`}
+                                    to={`/products/categories/${category.id}`}
                                     className="dropdown-item"
                                     onClick={hideOffcanvas}
                                 >
-                                    {category}
+                                    {category.name}
                                 </Link>
                             </li>
                         ))}
@@ -87,8 +84,6 @@ export default function NavbarMenu() {
                                 </Link>
                             </li>
                         ))}
-                      {/* <li>Soemseller</li>
-                       <li>SomeOtherseller</li> */}
                     </ul>
                 </AccordionItem>
 
@@ -115,14 +110,15 @@ export default function NavbarMenu() {
             <hr className="nav-divider my-4" />
 
             {/* /// Search form /// */}
-            <form className="d-flex mt-3" role="search" onSubmit={(e) => { e.preventDefault(); hideOffcanvas() }}>
+            <form className="d-flex mt-3" role="search" onSubmit={(e) => { e.preventDefault(); hideOffcanvas(); navigate(`/products/search/${mnSear}`); }}>
                 <input
                     className="form-control me-2"
                     type="search"
                     placeholder="Search"
                     aria-label="Search"
-                    value={searchParam}
-                    onChange={(e) => setSearchParam(e.target.value)}
+                    value={mnSear}
+                    onChange={(e) => setMnSear(e.target.value)}
+                    
                 />
                 <button className="btn btn-outline-success" type="submit">
                     Search

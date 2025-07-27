@@ -113,18 +113,6 @@ export const OverlayProvider = ({ children }) => {
 
     
 
-  //
-  const location = useLocation();
-  const [searchParam, setSearchParam] = useState("");
-
-  useEffect(() => {
-    if (!searchParam.trim()) {
-      hideOffcanvas();
-    }
-  }, [location.pathname]);
-
-
-
 
   return (
     <OverlayContext.Provider

@@ -7,7 +7,10 @@ export const fetchUserCart = async (userId, token) => {
   const response = await fetch(`/api/users/${userId}/cart`, {
     headers: { authorization: token },
   });
-  return await response.json();
+  // return await response.json();
+  const rslt = await response.json();
+  console.log("api fetch cart >>> ", rslt)
+  return rslt
 };
 
 //

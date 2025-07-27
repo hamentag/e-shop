@@ -11,6 +11,14 @@ export const fetchProducts = async () => {
 };
 
 //
+export const fetchProductsByCategory = async (categoryId) => {
+  const response = await fetch(`${baseURL}/api/category/${categoryId}/products`);
+  const json = await response.json();
+  if (!response.ok) throw new Error(json.error || 'Failed to fetch products');
+  return json;  
+}
+
+//
 export const fetchHomeImages = async () => {
   const response = await fetch(`${baseURL}/api/home-images`);
   const json = await response.json();

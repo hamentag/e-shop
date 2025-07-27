@@ -5,9 +5,8 @@ import { AuthProvider } from './AuthContext.jsx';
 import { CartProvider } from './CartContext.jsx';
 import { OrderProvider } from './OrderContext.jsx';
 import { ProductProvider } from './ProductContext.jsx';
-import { SearchProvider } from './SearchContext.jsx';
 import { BrandsProvider } from './BrandsContext.jsx';
-
+import { CategoryProvider } from './CategoryContext.jsx';
 
 export const AppProviders = ({ children }) => {
     return (
@@ -15,12 +14,12 @@ export const AppProviders = ({ children }) => {
             <CartProvider>
                 <OrderProvider>
                     <BrandsProvider>
-                    <ProductProvider>
-                            <SearchProvider>
+                        <ProductProvider>
+                            <CategoryProvider>
                                 <OverlayProvider>
                                     {children}
                                 </OverlayProvider>
-                            </SearchProvider>                        
+                            </CategoryProvider>
                         </ProductProvider>
                     </BrandsProvider>
                 </OrderProvider>

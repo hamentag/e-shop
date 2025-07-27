@@ -5,7 +5,6 @@ import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom"
 
 import useAuth from "../hooks/useAuth";
 import useAuthUI from '../hooks/useAuthUI';
-import useSearch from "../hooks/useSearch";
 import useCart from '../hooks/useCart';
 import useOverlay from "../hooks/useOverlay";
 
@@ -16,8 +15,6 @@ import NavAccount from '../components/NavAccount';
 
 export default function Navbar() {
     const navigate = useNavigate();
-
-    const { searchParam, setSearchParam } = useSearch()
 
     const { auth, logout } = useAuth()
     const { cart } = useCart()
@@ -53,12 +50,18 @@ export default function Navbar() {
                     <div className="input-group search-group">
                         <Link to={'/products/all'} className="btn btn-outline-secondary btn-sm">All</Link>
                         <input
-                        className="form-control py-1 no-outline"
-                        type="search"
-                        placeholder="Search"
-                        aria-label="Search"
-                        value={searchParam}
-                        onChange={(e) => setSearchParam(e.target.value)}
+                            className="form-control py-1 no-outline"
+                            type="search"
+                            placeholder="Search"
+                            aria-label="Search"
+                            onChange={(e) => {
+                                const value = e.target.value.trim();
+                                if (value) {
+                                navigate(`/products/search/${value}`);
+                                } else {
+                                navigate(`/products/all`);
+                                }
+                            }}
                         />
                     </div>
                 </form>
@@ -114,71 +117,6 @@ export default function Navbar() {
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
-
-             
-
-                {/* <div
-                    className="offcanvas offcanvas-end"
-                    tabIndex="0"
-                    id="offcanvasNavbar"
-                    aria-labelledby="offcanvasNavbarLabel"
-                >
-                    <div className="offcanvas-header">
-                        <h5 className="offcanvas-title" id="offcanvasNavbarLabel">
-                            Offcanvas
-                        </h5>
-                        <button
-                            type="button"
-                            className="btn-close"
-                            data-bs-dismiss="offcanvas"
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                    <div className="offcanvas-body">
-                        <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-                            <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="#">Home</a>
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" href="#">Link</a>
-                            </li>
-                            <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle"
-                                    href="#"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Dropdown
-                                </a>
-                                <ul className="dropdown-menu">
-                                    <li><a className="dropdown-item" href="#">Action</a></li>
-                                    <li><a className="dropdown-item" href="#">Another action</a></li>
-                                    <li>
-                                        <hr className="dropdown-divider" />
-                                    </li>
-                                    <li>
-                                        <a className="dropdown-item" href="#">Something else here</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                        <form className="d-flex mt-3" role="search" onSubmit={handleSearchSubmit}>
-                            <input
-                                className="form-control me-2"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search" 
-                                value={searchParam}
-                                onChange={(e) => setSearchParam(e.target.value)}
-                            />
-                            <button className="btn btn-outline-success" type="submit">
-                                Search
-                            </button>
-                        </form>
-                    </div>
-                </div> */}
 
             </div>
         </nav>

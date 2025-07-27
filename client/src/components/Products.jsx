@@ -6,8 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import useOverlay from '../hooks/useOverlay';
 import useAuth from '../hooks/useAuth';
 import useCart from '../hooks/useCart';
-import useProducts from '../hooks/useProducts';
-import useSearch from "../hooks/useSearch";
+import useProduct from '../hooks/useProduct';
 
 
 export default function Products(){
@@ -15,70 +14,45 @@ export default function Products(){
   const { setMsg } = useOverlay();
   const { auth } = useAuth();
   const { cart, addToCart } = useCart();
-  const { products, deleteProduct } = useProducts();
+  const { products, deleteProduct, getProducts, getProductsByCategory } = useProduct();
 
   const [productsToDisplay, setProductsToDisplay] = useState([]);
     
   const navigate = useNavigate();
 
-  // const { seller } = useParams();
-  const { brand, category } = useParams();
+  const { brand, category, searchKey } = useParams();
 
-  const { searchParam, setSearchParam } = useSearch();
-  
-  
-  // useEffect(()=>{
-  //   if(seller === 'all'){
-  //     setProductsToDisplay(products)
-  //   }
-  //   else{
-  //     setProductsToDisplay(products.filter(prd => prd.brand === seller))
-  //   }
-
-  // },[seller])
-
-
-  // useEffect(()=>{
-  //   if (seller !== 'all') {
-  //     setProductsToDisplay(products.filter(prd => prd.brand === seller))
-  //     return
-  //   }
-
-  //   if (searchParam.trim()) {
-  //     setProductsToDisplay(
-  //           products.filter((product) =>
-  //       product.title.toLowerCase().includes(searchParam.toLowerCase()))
-            
-  //     )
-  //     return
-  //   }
-  //   setProductsToDisplay(products)
-
-
-  // },[seller, searchParam])
-
-
-  
 
   useEffect(() => {
-    let urlPrds = products;
+    const filterProducts = async () => {
+      let filtered = [];
 
-    if (searchParam.trim()) {
-      urlPrds = urlPrds.filter((product) =>
-        product.title.toLowerCase().includes(searchParam.toLowerCase())
-      );
-    } else if (brand) {
-      urlPrds = urlPrds.filter((prd) => prd.brand === brand);
-    } else if (category) {
-      urlPrds = urlPrds.filter((prd) => prd.category === category);
-    }
+      if (category) {
+        // fetch filtered products by category
+        filtered = await getProductsByCategory(category);
+      } else {
+        // use products state
+        filtered = [...products];
 
-    setProductsToDisplay(urlPrds);
- 
-  }, [products, brand, category, searchParam]);
+        if (brand) {
+          filtered = filtered.filter(product =>
+            product.brand?.toLowerCase() === brand.toLowerCase()
+          );
+        }
 
+        if (!brand && searchKey && searchKey.trim()) {
+          filtered = filtered.filter(product =>
+            product.title.toLowerCase().includes(searchKey.toLowerCase())
+          );
+        }
+        
+      }
 
+      setProductsToDisplay(filtered);
+    };
 
+    filterProducts();
+  }, [category, brand, searchKey, products]);
 
 
   return (

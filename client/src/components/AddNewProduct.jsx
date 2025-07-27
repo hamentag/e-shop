@@ -3,11 +3,11 @@
 import { useState, useRef } from 'react'
 
 import useAuth from '../hooks/useAuth';
-import useProducts from '../hooks/useProducts';
+import useProduct from '../hooks/useProduct';
 
 export default function AddNewProduct(){
     const { auth } = useAuth();
-    const { createProduct } = useProducts();
+    const { createProduct } = useProduct();
 
 
     const [title, setTitle ] = useState('');
