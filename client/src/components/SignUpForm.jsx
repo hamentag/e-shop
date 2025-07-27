@@ -22,7 +22,7 @@ export default function SignUpForm() {
   const formRef = useRef(null);
 
   const { openModal, closeModal, showToast } = useOverlay();
-  const { login, register } = useAuth();
+  const { login, register, setFirstTimeUser } = useAuth();
 
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -64,6 +64,7 @@ export default function SignUpForm() {
     try {
       setSignUpError(''); // clear previous error
       await register({ email: emailReg, password: passwordReg, firstname, lastname });
+      setFirstTimeUser(true)
       showToast({
                 title: 'Sign Up',
                 message: 'Sign Up Success',
@@ -172,7 +173,10 @@ export default function SignUpForm() {
                 <div className="form-check mb-3">
                     <input className="form-check-input" type="checkbox" id="termsCheck" required />
                     <label className="form-check-label" htmlFor="termsCheck">
-                    I agree to the terms and conditions
+                      I agree to the {' '}
+                      <a target="_blank" href="https://github.com/hamentag/e-shop" className="text-decoration-underline">
+                      terms and conditions
+                      </a>
                     </label>
                     <div className="invalid-feedback">You must agree before submitting.</div>
                 </div>

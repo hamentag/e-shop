@@ -9,16 +9,32 @@ import useCart from '../hooks/useCart';
 import CartQtyCtrl from '../components/CartQtyCtrl';
 
 
+import { truncateText, formatPrice } from '../utils/formatters';
+
+
+import useProduct from "../hooks/useProduct";
+
+
 
 export default function CartOverview() {
     const { cart, updateCart, removeFromCart } = useCart();
 
+    const { products } = useProduct()
+
     const navigate = useNavigate();
 
+    console.log("cart ,, subtotal?? :", cart)
+
+    console.log("Products ,, subtotal?? :", products)
+
+
+     
 
     if (!cart) {
         return <section className="loading">Loading..</section>
     }
+
+    const [subTotDollars, subTotCents] = formatPrice(cart.subtotal.toFixed(2));
 
     return (
         <>
@@ -28,13 +44,31 @@ export default function CartOverview() {
                     <button onClick={() => { navigate('/products/all') }}>Shop Now</button>
                 </div>
             ) : (
-                <div>
-                    <div>
-                        <div>Subtotal ({cart.cart_count} items): ${cart.subtotal}</div>
-                        <button onClick={() => { navigate('/checkout') }}>Proceed to checkout</button>
-                    </div>
-                    <ul>
+                <div style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+          {/* Sticky subtotal + button */}
+          <div className="position-sticky top-0 bg-white z-3 border-bottom py-2 px-3">
+            <div className="d-grid gap-2">
+                <strong className="fs-5">
+                    Subtotal ({cart.cart_count} items): {' '} 
+                     <span className="text-primary small fw-semibold">
+                        <span className=" ">$</span>
+                        <span className="fs-3">{subTotDollars}</span>
+                        <sup>{subTotCents}</sup>
+                    </span>
+                </strong>                   
+
+
+                <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => navigate('/checkout')}
+                >
+                    Proceed to checkout
+                </button>
+                </div>
+          </div>
+                    <ul className="mt-3">
                         {cart.products.map(item => {
+                             const [dollars, cents] = formatPrice(item.price);
                             return (
                                 <li key={item.id} >
                                     <div className="card mb-3">
@@ -57,18 +91,25 @@ export default function CartOverview() {
                                             {/* Right: Description, Title, Price */}
                                             <div className="col-md-8">
                                                 <div className="card-body py-2 px-3 h-100 d-flex flex-column justify-content-between">
-                                                    {/* Description */}
-                                                    <p className="card-text small text-muted mb-1">{item.characteristics}</p>
-
-
                                                     {/* Title */}
                                                     <h5 
                                                         className="card-title mb-1"
                                                         onClick={()=>{navigate(`/${item.product_id}`)}}
-                                                    >{item.title}</h5>
+                                                    >{truncateText(item.title, 38)}
+                                                    </h5>
+
+                                                    {/* Description */}
+                                                    <p className="card-text small text-muted mb-1">{truncateText(item.characteristics, 68)}</p>
 
                                                     {/* Price */}
-                                                    <div className="text-primary small fw-semibold">${item.price} / ea</div>
+                                                    <div className="text-primary small fw-semibold">
+                                                        <span className="align-text-top">$</span>
+                                                        <span className="fs-4">{dollars}</span>
+                                                        <sup>{cents}</sup>
+                                                        {/* <span className="ms-1 text-muted small">/ ea</span> */}
+                                                    </div>
+
+
 
                                                     <div>
 
@@ -95,8 +136,6 @@ export default function CartOverview() {
                 </div>
               
             )
-                
-
             }
         </>
     )

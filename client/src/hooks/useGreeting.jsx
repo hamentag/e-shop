@@ -4,7 +4,7 @@ import useOverlay from './useOverlay';
 import useAuthUI from './useAuthUI';
 
 export default function useGreeting() {
-  const { auth } = useAuth();
+  const { auth, firstTimeUser } = useAuth();
   const { showActionToast } = useOverlay();
   const { launchLoginForm, launchSignUpForm } = useAuthUI();
   const prevAuthRef = useRef(null);
@@ -13,7 +13,8 @@ export default function useGreeting() {
     const prev = prevAuthRef.current;
 
     if (!prev?.id && auth?.id) {
-      showActionToast(`Welcome back, ${auth.firstname}`, (
+      const greeting = firstTimeUser ? 'Thanks for joining us' :  'Welcome back';
+      showActionToast(`${greeting}, ${auth.firstname}`, (
         <button className="btn btn-primary btn-sm">See cart</button>
       ));
     } else if (prev?.id && !auth?.id) {

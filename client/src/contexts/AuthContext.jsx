@@ -10,6 +10,8 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({});
   const [guest, setGuest] = useState({});
+
+  const [firstTimeUser, setFirstTimeUser] = useState(false)
   
   const [loggedOut, setLoggedOut] = useState(false);
 
@@ -110,8 +112,8 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{
-      auth, guest, login, logout, register,
-      setAuth, setGuest, loggedOut
+      auth, guest, login, logout, register, setAuth, setGuest,
+      firstTimeUser, setFirstTimeUser, loggedOut
     }}>
       {children}
     </AuthContext.Provider>

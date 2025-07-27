@@ -73,7 +73,10 @@ export default function LoginForm() {
                 <div className="form-check mb-3">
                     <input className="form-check-input" type="checkbox" id="termsCheck" required />
                     <label className="form-check-label" htmlFor="termsCheck">
-                    I agree to the terms and conditions
+                      I agree to the {' '}
+                      <a target="_blank" href="https://github.com/hamentag/e-shop" className="text-decoration-underline">
+                      terms and conditions
+                      </a>
                     </label>
                     <div className="invalid-feedback">You must agree before submitting.</div>
                 </div>
