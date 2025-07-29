@@ -11,6 +11,7 @@ import useOverlay from "../hooks/useOverlay";
 import CartOverview from '../components/CartOverview';
 import NavbarMenu from '../components/NavbarMenu';
 import NavAccount from '../components/NavAccount';
+import NavCart from '../components/NavCart';
 
 
 export default function Navbar() {
@@ -24,17 +25,11 @@ export default function Navbar() {
     const { launchSignUpForm, launchLoginForm } = useAuthUI()
 
 
-    //  useEffect (() => {
-    //     console.log("tst")
-
-    // }, [auth]);
-
-
 
 
     return (
         <nav
-            className="navbar fixed-top b shadow-sm p-0 bg-white rounded"
+            className="navbar fixed-top b shadow-sm p-0 pt-1 bg-white rounded"
             data-bs-theme="light"
         >
             <div className="container-fluid d-flex flex-nowrap align-items-center">
@@ -43,14 +38,14 @@ export default function Navbar() {
                 </div>    
 
                 <form
-                    className="d-flex flex-grow-1 mx-1"
+                    className="d-flex flex-grow-1 mx-1 p-0"
                     role="search"
                     onSubmit={(e) => e.preventDefault()}
                     >
                     <div className="input-group search-group">
-                        <Link to={'/products/all'} className="btn btn-outline-secondary btn-sm">All</Link>
+                        <Link to={'/products/all'} className="btn btn-outline-secondary btn-sm py-0">All</Link>
                         <input
-                            className="form-control py-1 no-outline"
+                            className="form-control py-0 no-outline"
                             type="search"
                             placeholder="Search"
                             aria-label="Search"
@@ -64,41 +59,13 @@ export default function Navbar() {
                             }}
                         />
                     </div>
-                </form>
-           
+                </form>           
                
-                <NavAccount />
-        
+                <NavAccount />        
 
-                {/* ///////////////////CART////////////////////////// */}              
-                < button className="btn flex-shrink-1 position-relative p-0 nav-btn"
-                    onClick={() => {
-                        showOffcanvas({
-                            title: 'Shopping Cart',
-                            content: <CartOverview />,
-                        })
-                    }}
-                >
-                    {/* cart-icon */}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="30"
-                        height="30"
-                        fill="currentColor"
-                        className="bi bi-cart2"
-                        viewBox="0 0 16 16"
-                    >
-                        <path
-                            d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"
-                        />
-                    </svg>
-                    <span className="position-absolute top-0 start-75 translate-middle badge rounded-pill bg-danger">
-                        {cart? cart.cart_count : ''}
-                        <span className="visually-hidden">unread messages</span>
-                    </span>
-                </button>
-
-
+                {/* //////CART///// */}
+                <NavCart />                         
+               
                 {/* Menu burger */}
                 <button
                     className="navbar-toggler flex-shrink-1 p-0"

@@ -2,6 +2,7 @@
 @import 'utils/variables';
 @import 'utils/mixins';
 @import 'utils/custom';
+@import 'utils/animations';
 
 
 // layout
@@ -15,5 +16,8 @@
 
 @import 'sections/navbar';
 @import 'sections/navbar-menu';
-
+@import 'sections/footer';
+@import 'sections/product-list';
+@import 'sections/cart-overview';
+@import 'sections/cart-details';
 

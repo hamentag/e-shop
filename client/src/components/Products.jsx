@@ -9,6 +9,10 @@ import useCart from '../hooks/useCart';
 import useProduct from '../hooks/useProduct';
 
 
+import { truncateText, formatPrice } from '../utils/formatters';
+import CartQtyCtrl from "./CartQtyCtrl";
+
+
 export default function Products(){
 
   const { setMsg } = useOverlay();
@@ -56,48 +60,60 @@ export default function Products(){
 
 
   return (
-      <ul className='products'>
-      {
-        productsToDisplay.map( product => {
-          const in_cart = cart && cart.products.find(item => item.product_id === product.id);
-          const showcaseImg = product.images.find(image => image.is_showcase)
-          return (
-            <li key={ product.id }>
-              <h4 onClick={() => {
-                        navigate(`/${product.id}`);
-                        }}>{ product.title }</h4>
-              
-              <img src={showcaseImg.url} alt="product image" 
-                    style={{width: '15rem' , height:'16rem'}}
-                    onClick={() => {
-                    navigate(`/${product.id}`);
-                    }}
-              />
+    <ul className="product-list row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-1 mt-1 py-1 px-0 px-md-1">
+      { productsToDisplay.map( product => {
+        // const in_cart = cart && cart.products.find(item => item.product_id === product.id);
+        const crtItem = cart?.products.find(item => item.product_id === product.id);
+        const showcaseImg = product.images.find(image => image.is_showcase)
+      
+      return (
+          <li  key={ product.id } className="col">
+        <div className="card h-100">
+            <img src={showcaseImg.url} alt="product image" className="bd-placeholder-img card-img-top product-img mx-auto"
+                // style={{width: '15rem' , height:'16rem'}}
+                                    
+                onClick={() => {
+                navigate(`/${product.id}`);
+                }}
+          />
+          {/*    truncateText(item.characteristics, 68)   */}
+          <div className="card-body py-0">
+            <h6 className="card-title">{product.title}</h6>
+            <small className="card-text">{ truncateText(product.characteristics, 96 - product.title.length)}</small>
+
               <div style={{fontSize:"20px", fontWeight:"bold"}}>
-              ${product.price}
+          ${product.price}
+          </div>
+          <div>{product.inventory > 0 ?
+            product.inventory <= 5 ?
+              <small style={{ color: "red" }}>Only {product.inventory} left</small>
+                : <small>In Stock</small>
+              : <small>Out of Stock</small>}
+          </div>
+
+          </div>
+          <div className="card-footer p-0" style={{border : 'none'}}>
+            {cart && crtItem ? (
+              <CartQtyCtrl item = {crtItem}/>
+            ) : (
+              <div className="qty-control d-flex justify-content-center align-items-center border rounded-pill py-2 px-0 px-md-1 px-lg-2 bg-light w-100"
+                  style={{ maxWidth: '10rem', margin: '0 auto', cursor: 'pointer'}} 
+                  onClick={()=> { addToCart(product.id,1) }}
+                  >
+                  <strong className="text-center">Add to cart</strong>
               </div>
-              <div>{product.inventory > 0 ?
-                product.inventory <= 5 ?
-                  <div style={{ color: "red" }}>Only {product.inventory} left</div>
-                    : <div>In Stock</div>
-                  : <div>Out of Stock</div>}
-              </div>
-              <button onClick={()=> { addToCart(product.id,1) }}>{in_cart? "In Cart - Add More" : "Add to cart"}</button>  
-              {
-                auth.is_admin && 
-                <button 
-                  className="admin-delete-btn"
-                  onClick={()=>{
-                    setMsg({ txt: `Are you sure you want to delete "${product.title}" from the product list?`, 
-                                more: <button onClick={() => {deleteProduct(product.id); setMsg(null); navigate('/') }}>Yes</button>
-                    });
-                    }} >Delete
-                </button>
-              }
-            </li>
-          );
-        })
+            )}                
+
+          </div>
+        </div>
+      </li>            
+      )
+
+      })
+
       }
-    </ul>        
+         
+        
+    </ul>     
   )
 }

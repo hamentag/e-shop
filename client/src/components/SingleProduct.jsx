@@ -26,7 +26,7 @@ export default function SingleProduct(){
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-       const [crtPrd, setCrtPrd] = useState(null);
+    const [crtPrd, setCrtPrd] = useState(null);
     
     useEffect(()=> {
         const fetchSingleProduct = async()=> {

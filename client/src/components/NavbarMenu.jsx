@@ -19,6 +19,7 @@ import AccordionItem from '../components/AccordionItem';
 
 
 
+
 export default function NavbarMenu() {
     const navigate = useNavigate()
     const { cart, updateCart, removeFromCart } = useCart();
@@ -26,11 +27,12 @@ export default function NavbarMenu() {
     const { products } = useProduct();
     const { auth, logout } = useAuth();
     const { launchSignUpForm, launchLoginForm } = useAuthUI();
-    const { topBrands } = useBrands();
-    const [mnSear, setMnSear] = useState('')
+    const { topBrands } = useBrands();    
 
     // const categories = selectCategories(products)
     const { categories } = useCategory();
+    
+    const [mnSear, setMnSear] = useState('')
 
 
     
@@ -54,7 +56,7 @@ export default function NavbarMenu() {
 
             
             {/* /// Account/// */}
-              <div className="accordion accordion-flush" id="accordionExample">
+            <div className="accordion accordion-flush" id="accordionExample">
 
                 <AccordionItem title="Categories" id="itemOne" parentId="accordionExample">
                     <ul className="px-1 py-0">
@@ -96,9 +98,23 @@ export default function NavbarMenu() {
                             </>
                         ) : (
                             <>
-                                <li><Link className='dropdown-item' to="/orders">Orders</Link></li>
-                                <li><Link className='dropdown-item' to="/account">Profile</Link></li>
-                                <li><button className='dropdown-item' onClick={logout}>Quit</button></li>
+                                <li>
+                                    <Link className='dropdown-item' to="/orders"
+                                          onClick={hideOffcanvas}
+                                     >Orders
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link className='dropdown-item' to="/account"
+                                          onClick={hideOffcanvas}
+                                     >Profile
+                                    </Link>
+                                </li>
+                                <li>
+                                    <button className='dropdown-item' onClick={()=>{hideOffcanvas();logout()}}
+                                     >Quit
+                                    </button>
+                                </li>
                             </>
                         )}
                         

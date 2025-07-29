@@ -4,11 +4,40 @@
    
     --bs-offcanvas-width: 100%;
 
+    .offcanvas-header {
+        color: $second-color;
+
+        .nav-item {
+            &:hover {
+                // color: $second-color;
+            }
+
+            .nav-link {
+                .fname-account {
+                    font-weight: 600;
+                }
+            }
+            .dropdown-item {
+                    font-weight: 500;
+                }
+
+        
+        }
+
+        .nav-cart{
+            transform: scale(0.75);
+        }
+
+        .nav-account {
+                     
+        }
+
+    }
+
 
 
 
     
-     
     @media (min-width: 360px) {
         --bs-offcanvas-width: 85%;
     } 

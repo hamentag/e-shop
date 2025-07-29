@@ -13,6 +13,10 @@ import Users from './components/Users';
 import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import Footer from './components/Footer';
+import PrivacyPolicy from './components/PrivacyPolicy';
+
+
+import Layout from './layouts/Layout';
 
 
 import useGreeting from './hooks/useGreeting'
@@ -34,7 +38,7 @@ function App() {
   const { isLoading } = useProduct();
     
   const [homeImages, setHomeImages] = useState([]);
-  const mainRef = useRef(null);
+  // const mainRef = useRef(null);
 
   
   ////
@@ -65,31 +69,31 @@ function App() {
 
 
   return (
-    <>
+    <> 
+    
+    <Navbar />
 
-      <div className='main' ref={mainRef}>
+          <Layout>
                   
-        <Navbar />
-
-        <div style={{ paddingTop: "25px", maxWidth: "100%", overflowX: "hidden" }}>           
+               
           <Routes>
             <Route path="/" element={<Home homeImages={homeImages} />} />
             <Route path="/products/all" element={<Products />} />
             <Route path="/products/brands/:brand" element={<Products />} />
             <Route path="/products/categories/:category" element={<Products />} />
             <Route path="/products/search/:searchKey" element={<Products />} /> 
-            <Route path="/:id" element={<SingleProduct />} />
+            {/* <Route path="/:id" element={<SingleProduct />} /> */}
             <Route path="/cart" element={<Cart />} />
             <Route path="/account" element={<Account />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/users" element={<Users />} />
             <Route path="/new_product" element={<AddNewProduct />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
           </Routes>
-        </div>
+    
+        </Layout>
 
-        <Footer />
-      </div>
     </>
   )
 }

@@ -21,7 +21,7 @@ export default function AccordionItem({ title, id, parentId, children, defaultOp
         id={id}
         className={`accordion-collapse collapse ${defaultOpen ? 'show' : ''}`}
         aria-labelledby={`heading-${id}`}
-        data-bs-parent={`#${parentId}`}
+        data-bs-parent={parentId===''? '' : `#${parentId}`}
       >
         <div className="accordion-body p-0">
           {children}

@@ -9,6 +9,7 @@ export const CategoryContext = createContext();
 
 export const CategoryProvider = ({ children }) => {
   const [categories, setCategories] = useState({});
+  const [checkedCategories, setCheckedCategories] = useState({});
 
      // Fetch categories 
       useEffect(() => {
@@ -28,7 +29,7 @@ export const CategoryProvider = ({ children }) => {
 
     return (
       <CategoryContext.Provider value={{
-       categories, setCategories
+       categories, setCategories, checkedCategories, setCheckedCategories
       }}>
         {children}
       </CategoryContext.Provider>

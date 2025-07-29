@@ -9,3 +9,21 @@
 }
 
 
+.act-btn {
+    background-color: $primary-color;
+    color: white;
+    font-weight: 600;
+    &:active {
+        background-color: $primary-color;
+    }
+    &:hover {
+        background-color: $tr-primary-color;
+    }
+}
+
+
+.qty-control {
+    // background-color: $primary-color !important;
+    border: 2px solid rgba(98, 98, 98, 0.282) !important; 
+}
+

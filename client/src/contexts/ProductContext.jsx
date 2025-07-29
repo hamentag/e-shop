@@ -16,6 +16,8 @@ export const ProductProvider = ({ children }) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const [fl, setFl] = useState();
+
   
   // Get all products
   const getProducts = async () => {
@@ -101,7 +103,9 @@ export const ProductProvider = ({ children }) => {
       createProduct,
       deleteProduct,
       category,
-      setCategory
+      setCategory,
+      fl,
+      setFl
     }}>
       {children}
     </ProductContext.Provider>

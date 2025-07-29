@@ -11,9 +11,10 @@ import React, {
 import { Modal, Button } from 'react-bootstrap';
 import { createPortal } from 'react-dom';
 
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 import NavAccount from '../components/NavAccount';
+import NavCart from '../components/NavCart';
 
 
 export const OverlayContext = createContext();
@@ -217,7 +218,7 @@ export const OverlayProvider = ({ children }) => {
           )}
 
           {actionToast.actionBtn && (
-            <div className="p-1">{actionToast.actionBtn}</div>
+            <div className="p-1 w-75 mx-auto">{actionToast.actionBtn}</div>
           )}
         </div>
       </div>
@@ -229,14 +230,18 @@ export const OverlayProvider = ({ children }) => {
         tabIndex="-1"
         id="globalOffcanvas"
         aria-labelledby="globalOffcanvasLabel"
+        // data-bs-scroll="true"?
+        // data-bs-backdrop="false"
         ref={offcanvasRef}
       >
         <div className="offcanvas-header">
-          <h5 className="offcanvas-title" id="globalOffcanvasLabel">
+          <h4 className="offcanvas-title" id="globalOffcanvasLabel">
             {offcanvasTitle}
-          </h5>
+          </h4>
 
           <NavAccount />
+          
+          <NavCart />
           
           <button
             type="button"
@@ -245,7 +250,7 @@ export const OverlayProvider = ({ children }) => {
             aria-label="Close"
           ></button>
         </div>
-        <div className="offcanvas-body">{offcanvasContent}</div>
+        <div className="offcanvas-body pt-0 overflow-auto flex-grow-1">{offcanvasContent}</div>
       </div>
 
     </OverlayContext.Provider>

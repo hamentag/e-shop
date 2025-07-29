@@ -1,0 +1,40 @@
+
+
+.product-list {
+   
+
+    .product-img {         
+        width: 80%;
+        height: 96px;
+    }
+
+   
+
+
+    
+    @media (min-width: 428px) {
+        .product-img {
+            width: 10rem;
+            height: 100px;
+        }
+    }
+
+
+    @media (min-width: 576px) {
+       
+    }
+    
+    
+    @media (min-width: 768px) {
+        .product-img {
+            width: 8rem;
+            height: 120px;            
+        }
+    }
+
+    @media (min-width: 992px) {
+       
+    }
+
+
+}
