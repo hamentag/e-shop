@@ -1,0 +1,41 @@
+
+// src/scss/sections/cart-details.scss
+
+
+.cart-details-lst {
+    width: 96%;
+
+    .subtotal {
+        .proceed-checkout {
+            background-color: $primary-color;
+            color: white;
+        }
+    }
+
+
+
+     
+
+     @media (min-width: 428px) {
+        width: 90%;
+    }
+
+
+    @media (min-width: 576px) {
+        width: 32rem;
+         .subtotal {
+            width: 20rem;
+            margin: 0 auto;
+            // .proceed-checkout {
+            //     width: 20rem;
+            // }
+        }      
+    }
+    
+    
+    @media (min-width: 992px) {
+         width: 45rem;
+    }
+
+}
+

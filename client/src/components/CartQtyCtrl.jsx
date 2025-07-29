@@ -13,12 +13,13 @@ export default function CartQtyCtrl({item}){
 
     const { cart, updateCart, removeFromCart } = useCart();
 
-
-
+  
     return (
        <>
         {item && (
-            <div className="qty-control d-flex align-items-center border rounded-pill px-2 py-1 bg-light">
+            <div className="qty-control d-flex justify-content-between align-items-center border rounded-pill py-0 px-0 px-md-1 px-lg-2 bg-light w-100"
+              style={{ maxWidth: '10rem', margin: '0 auto' }}
+             >
             {item.qty > 1 ? ( 
                 <button
                     className="btn btn-sm btn-link text-dark px-2 m-0"
@@ -28,7 +29,7 @@ export default function CartQtyCtrl({item}){
                     disabled={ item.inventory === 0 }
                     style={{ textDecoration: 'none' }}
                 >
-                <span><i className="bi bi-dash-circle"></i></span>
+                <span><i className="bi bi-dash-circle fs-5 fs-md-4 fs-lg-3"></i></span>
                 </button>
             ) : (
                 <button
@@ -39,7 +40,7 @@ export default function CartQtyCtrl({item}){
                     disabled={ item.inventory === 0 }
                     style={{ textDecoration: 'none' }}
                 >
-                <span><i className="bi bi-trash"></i></span>
+                <span><i className="bi bi-trash fs-5 fs-md-4 fs-lg-3"></i></span>
                 </button>
             )}
 
@@ -53,7 +54,7 @@ export default function CartQtyCtrl({item}){
                 disabled={ item.inventory === 0 }
                 style={{ textDecoration: 'none' }}
             >
-                <span><i className="bi bi-plus-circle"></i></span>
+                <span><i className="bi bi-plus-circle fs-5 fs-md-4 fs-lg-3"></i></span>
             </button>
         </div>       
         )}

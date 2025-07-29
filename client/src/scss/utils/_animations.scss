@@ -1,0 +1,17 @@
+// _animations.scss
+
+
+@keyframes slideFromLeftShort {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// .animate-slide-left-short {
+//   animation: slideFromLeftShort 0.4s ease-out;
+// }
