@@ -19,7 +19,6 @@ export default function useGreeting() {
         <Link to='/cart'>
           <button className="btn btn-sm act-btn">See cart</button>
         </Link>
-       
       ));
     } else if (prev?.id && !auth?.id) {
       showActionToast('You have been logged out.', (

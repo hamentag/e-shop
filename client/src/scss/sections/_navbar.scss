@@ -104,9 +104,11 @@
     }
 
 
-    .navbar-toggler-icon, .bi-cart2 {
+    .bi-list, .bi-cart2 {
         transform: scale(0.6);
     }
+
+   
 
 
     ////
@@ -146,9 +148,10 @@
     }
 
     @media (min-width: 768px) {
-        .navbar-toggler-icon, .bi-cart2, .bi-person {
+        .bi-list, .bi-cart2, .bi-person {
             transform: scale(0.75);
         }
+      
     }
 
     @media (min-width: 992px) {

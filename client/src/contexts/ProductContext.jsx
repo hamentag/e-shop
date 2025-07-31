@@ -83,7 +83,7 @@ export const ProductProvider = ({ children }) => {
       const deleted = await productAPI.deleteProduct(id, token);
 
       setProducts(prev => prev.filter(p => p.id !== id));
-      setRefreshCart?.(prev => !prev); // optional
+      // setRefreshCart?.(prev => !prev); // optional
       // setMsg({
       //   txt: `${deleted.title} deleted.`,
       //   more: <button onClick={() => setMsg(null)}>OK</button>

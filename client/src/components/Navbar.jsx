@@ -12,6 +12,7 @@ import CartOverview from '../components/CartOverview';
 import NavbarMenu from '../components/NavbarMenu';
 import NavAccount from '../components/NavAccount';
 import NavCart from '../components/NavCart';
+import MenuButton from '../components/MenuButton';
 
 
 export default function Navbar() {
@@ -64,10 +65,11 @@ export default function Navbar() {
                 <NavAccount />        
 
                 {/* //////CART///// */}
-                <NavCart />                         
+                <NavCart />
                
                 {/* Menu burger */}
-                <button
+                <MenuButton />
+                {/* <button
                     className="navbar-toggler flex-shrink-1 p-0"
                     type="button"
                     // data-bs-toggle="offcanvas"
@@ -83,7 +85,7 @@ export default function Navbar() {
                                     }}
                 >
                     <span className="navbar-toggler-icon"></span>
-                </button>
+                </button> */}
 
             </div>
         </nav>

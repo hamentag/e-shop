@@ -15,13 +15,14 @@ import { useLocation, Link } from 'react-router-dom';
 
 import NavAccount from '../components/NavAccount';
 import NavCart from '../components/NavCart';
+import MenuButton from '../components/MenuButton';
 
 
 export const OverlayContext = createContext();
 
 export const OverlayProvider = ({ children }) => {
   const [msg, setMsg] = useState(null);
-  const [popUpAuthn, setPopUpAuthn] = useState(null); // 'to-login', 'to-register'
+  const [popUpAuthn, setPopUpAuthn] = useState(null);
 
   // Modal
   const [modalVisible, setModalVisible] = useState(false);
@@ -64,24 +65,38 @@ export const OverlayProvider = ({ children }) => {
 
   const actionToastRef = useRef(null);
 
-  const showActionToast = useCallback((message, actionBtn = null) => {
-    setActionToast({ show: true, message, actionBtn });
+  const showActionToast = useCallback((message, actionBtn = null, persist = false) => {
+    setActionToast({ show: true, message, actionBtn, persist });
 
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      setActionToast((prev) => ({ ...prev, show: false }));
-    }, 5000);
+    // Auto-dismiss after 5 seconds unless presist set to true
+     if (!persist) {
+      setTimeout(() => {
+        setActionToast((prev) => ({ ...prev, show: false }));
+      }, 5000);
+     }
+    
   }, []);
+
+  const closeActionToast = useCallback(() => {
+    if (actionToastRef.current) {
+      const bsToast = window.bootstrap.Toast.getInstance(actionToastRef.current);
+      if (bsToast) {
+        bsToast.hide();
+      }
+    }
+    setActionToast((prev) => ({ ...prev, show: false }));
+  }, []);
+
 
   useEffect(() => {
     if (actionToast.show && actionToastRef.current) {
       const bsToast = new window.bootstrap.Toast(actionToastRef.current, {
-        autohide: true,
+        autohide: !actionToast.persist,
         delay: 5000,
       });
       bsToast.show();
     }
-  }, [actionToast.show]);
+  }, [actionToast.show, actionToast.persist]);
 
 
   
@@ -125,7 +140,8 @@ export const OverlayProvider = ({ children }) => {
         openModal,
         closeModal,
         showToast,
-        showActionToast, 
+        showActionToast,
+        closeActionToast, 
         showOffcanvas,
         hideOffcanvas,
       }}
@@ -193,7 +209,7 @@ export const OverlayProvider = ({ children }) => {
 
       {/* Action Toast */}
       <div
-        className="position-fixed top-0 start-50 translate-middle-x p-3"
+        className="position-fixed top-0 start-50 translate-middle-x p-2"
         style={{ zIndex: 1055 }}
       >
         <div
@@ -204,7 +220,7 @@ export const OverlayProvider = ({ children }) => {
           aria-atomic="true"
         >
           <div className="toast-header py-0">
-            <div className="me-auto">E-Shop</div>
+            <strong className="me-auto">E-Shop</strong>
             <button
               type="button"
               className="btn-close ms-auto"
@@ -214,11 +230,11 @@ export const OverlayProvider = ({ children }) => {
           </div>
 
           {actionToast.message && (
-            <div className="toast-body">{actionToast.message}</div>
+            <div className="toast-body"><strong>{actionToast.message}</strong></div>
           )}
 
           {actionToast.actionBtn && (
-            <div className="p-1 w-75 mx-auto">{actionToast.actionBtn}</div>
+            <div className="p-1">{actionToast.actionBtn}</div>
           )}
         </div>
       </div>
@@ -240,9 +256,10 @@ export const OverlayProvider = ({ children }) => {
           </h4>
 
           <NavAccount />
+
+          {offcanvasTitle === 'Menu' ? <NavCart /> : <MenuButton style={{color: 'red'}}/>}
           
-          <NavCart />
-          
+
           <button
             type="button"
             className="btn-close"

@@ -1,7 +1,7 @@
 // src/App.jsx
 
 import { useState, useEffect, useRef } from 'react'
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 
 import Home from './components/Home';
 import Products from './components/Products';
@@ -14,6 +14,7 @@ import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import ShippingAddrForm from './components/ShippingAddrForm'; 
 
 
 import Layout from './layouts/Layout';
@@ -29,6 +30,7 @@ import useOverlay from './hooks/useOverlay';
 import useAuth from './hooks/useAuth';
 import useCart from './hooks/useCart';
 import useProduct from './hooks/useProduct';
+import Confirmation from './components/Confirmation';
 
 
 //// App
@@ -73,6 +75,8 @@ function App() {
     
     <Navbar />
 
+
+
           <Layout>
                   
                
@@ -82,7 +86,7 @@ function App() {
             <Route path="/products/brands/:brand" element={<Products />} />
             <Route path="/products/categories/:category" element={<Products />} />
             <Route path="/products/search/:searchKey" element={<Products />} /> 
-            {/* <Route path="/:id" element={<SingleProduct />} /> */}
+            <Route path="/:id" element={<SingleProduct />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/account" element={<Account />} />
             <Route path="/checkout" element={<Checkout />} />
@@ -90,6 +94,8 @@ function App() {
             <Route path="/new_product" element={<AddNewProduct />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            {/* <Route path="/tst" element={<ShippingAddrForm />} /> */}
+            <Route path="/confirmation" element={<Confirmation />} />
           </Routes>
     
         </Layout>

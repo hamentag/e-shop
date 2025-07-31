@@ -88,7 +88,7 @@ export default function Products(){
             product.inventory <= 5 ?
               <small style={{ color: "red" }}>Only {product.inventory} left</small>
                 : <small>In Stock</small>
-              : <small>Out of Stock</small>}
+              : <small  style={{ color: "red" }}>Out of Stock</small>}
           </div>
 
           </div>
@@ -96,12 +96,13 @@ export default function Products(){
             {cart && crtItem ? (
               <CartQtyCtrl item = {crtItem}/>
             ) : (
-              <div className="qty-control d-flex justify-content-center align-items-center border rounded-pill py-2 px-0 px-md-1 px-lg-2 bg-light w-100"
+              <button className="qty-control d-flex justify-content-center align-items-center border rounded-pill py-2 px-0 px-md-1 px-lg-2 bg-light w-100"
                   style={{ maxWidth: '10rem', margin: '0 auto', cursor: 'pointer'}} 
                   onClick={()=> { addToCart(product.id,1) }}
+                   disabled={ product.inventory === 0 }
                   >
                   <strong className="text-center">Add to cart</strong>
-              </div>
+              </button>
             )}                
 
           </div>

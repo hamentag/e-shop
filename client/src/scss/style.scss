@@ -8,7 +8,7 @@
 // layout
 @import 'layout/header';
 @import 'layout/offcanvas';
-
+@import 'layout/star-rating';
 
 // components
 @import 'components/button';
@@ -20,4 +20,5 @@
 @import 'sections/product-list';
 @import 'sections/cart-overview';
 @import 'sections/cart-details';
+@import 'sections/checkout';
 

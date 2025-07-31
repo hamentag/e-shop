@@ -13,6 +13,8 @@ export default function CartQtyCtrl({item}){
 
     const { cart, updateCart, removeFromCart } = useCart();
 
+    const { showActionToast, closeActionToast } = useOverlay();
+   
   
     return (
        <>
@@ -49,7 +51,12 @@ export default function CartQtyCtrl({item}){
             <button
                 className="btn btn-sm btn-link text-dark px-2 m-0"
                 onClick={async () => {
-            updateCart(item.product_id, item.qty + 1)
+                    try {
+                        await updateCart(item.product_id, item.qty + 1);
+                    } catch (err) {
+                        await showActionToast(err.message,
+                        );
+                    }
                 }}
                 disabled={ item.inventory === 0 }
                 style={{ textDecoration: 'none' }}
