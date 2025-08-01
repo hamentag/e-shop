@@ -95,7 +95,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             {/* <Route path="/tst" element={<ShippingAddrForm />} /> */}
-            <Route path="/confirmation" element={<Confirmation />} />
+            <Route path="/confirmation/:orderId" element={<Confirmation />} />
           </Routes>
     
         </Layout>

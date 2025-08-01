@@ -1,0 +1,55 @@
+// checkout.scss
+
+
+.checkout {
+    width: 100%;
+    h3 {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+     .order-details {
+        
+     }
+
+ 
+
+
+
+
+     // min 
+    @media (min-width: 360px) {}
+
+    @media (min-width: 360px) {       
+         .order-details {       
+        }
+    }
+
+    @media (min-width: 428px) { 
+        width: 95%;
+         .order-details {        
+        }         
+    }
+
+    @media (min-width: 576px) {width: 30rem;
+         .order-details {
+         
+     }
+        
+    }
+
+    @media (min-width: 768px) { width: 36rem;
+         .order-details {
+        
+     }
+       
+    }
+
+    @media (min-width: 992px) { width: 40rem;
+         .order-details {
+         
+     }
+       
+    }
+
+}

@@ -3,7 +3,7 @@
 import { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI, userAPI } from '../api';
-import useOverlay from '../hooks/useOverlay';
+// import useOverlay from '../hooks/useOverlay';
 
 export const AuthContext = createContext();
 

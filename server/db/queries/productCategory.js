@@ -13,13 +13,7 @@ const linkProductToCategory = async (productId, categoryId) => {
 
 
 const getProductsByCategory = async (categoryId) => {
-    // const SQL = `
-    //     SELECT p.*
-    //     FROM products p
-    //     JOIN product_category pc ON p.id = pc.product_id
-    //     WHERE pc.category_id = $1;
-    // `;
-
+   
     const SQL = `
     SELECT
       p.*,
@@ -35,7 +29,6 @@ const getProductsByCategory = async (categoryId) => {
 
 
     const response = await client.query(SQL, [categoryId]);
-    console.log("response >>>> ,",  response.rows[0].images)
     return response.rows || null;
 }
 

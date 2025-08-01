@@ -24,11 +24,6 @@ export default function CartOverview() {
 
     const navigate = useNavigate();
 
-    console.log("cart ,, subtotal?? :", cart)
-
-    console.log("Products ,, subtotal?? :", products)
-
-
      
 
     if (!cart) {

@@ -72,7 +72,7 @@ const seedProducts = async () => {
         }
       }
 
-      console.log(`Seeded product: ${product.title}`);
+      // console.log(`Seeded product: ${product.title}`);
     }
 
     await client.query('COMMIT');

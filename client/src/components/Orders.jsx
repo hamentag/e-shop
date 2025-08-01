@@ -17,7 +17,7 @@ export default function Orders() {
 
     return (
         <>{
-            auth.id && <div>{
+            auth.id && <div className="py-3">{
                 orders.length !== 0? 
                 <ul className="orders-container"> {
                     orders.map(orderCollection => {

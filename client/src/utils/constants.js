@@ -1,4 +1,9 @@
 // constants.js
+
+// Stripe Publishable Key
+export const STRIPE_PUBLISHABLE_KEY = 'pk_test_51RqJFJJWvaLRRX9Qkhi8mQfY1cFFvzRdwWCT7DksnjaaiMdev2G1XpgNOj0Vu7hhYoxEr0XVuqzAcQ4pCRkxe3H500VZp8wjkW';
+
+// US states
 export const US_STATES = [
   { name: 'Alabama', code: 'AL' },
   { name: 'Alaska', code: 'AK' },

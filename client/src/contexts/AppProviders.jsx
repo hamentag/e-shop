@@ -7,23 +7,26 @@ import { OrderProvider } from './OrderContext.jsx';
 import { ProductProvider } from './ProductContext.jsx';
 import { BrandsProvider } from './BrandsContext.jsx';
 import { CategoryProvider } from './CategoryContext.jsx';
+import { PaymentProvider } from './PaymentContext.jsx';
 
 export const AppProviders = ({ children }) => {
     return (
         <AuthProvider>
-            <CartProvider>
+            <PaymentProvider>
                 <OrderProvider>
-                    <BrandsProvider>
-                        <ProductProvider>
-                            <CategoryProvider>
-                                <OverlayProvider>
-                                    {children}
-                                </OverlayProvider>
-                            </CategoryProvider>
-                        </ProductProvider>
-                    </BrandsProvider>
+                    <CartProvider>
+                        <BrandsProvider>
+                            <ProductProvider>
+                                <CategoryProvider>
+                                    <OverlayProvider>
+                                        {children}
+                                    </OverlayProvider>
+                                </CategoryProvider>
+                            </ProductProvider>
+                        </BrandsProvider>
+                    </CartProvider>
                 </OrderProvider>
-            </CartProvider>
+            </PaymentProvider>
         </AuthProvider>
     );
 };

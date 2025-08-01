@@ -32,6 +32,8 @@ const createTables = async()=> {
     DROP TABLE IF EXISTS product_category cascade;
     DROP TABLE IF EXISTS top_brands cascade;
     DROP TABLE IF EXISTS cart cascade;
+    DROP TABLE IF EXISTS order_collections cascade;
+    
     DROP TABLE IF EXISTS orders CASCADE;
     DROP TABLE IF EXISTS guests cascade;
     DROP TABLE IF EXISTS guest_cart cascade;
@@ -92,16 +94,32 @@ const createTables = async()=> {
       qty INTEGER,
       CONSTRAINT unique_user_id_and_product_id_un UNIQUE (user_id, product_id) 
     );
+
+    -- Orders (1 row per checkout/payment)
+CREATE TABLE order_collections (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id) NOT NULL,
+  payment_intent_id TEXT,
+  total_amount INTEGER,
+  status TEXT DEFAULT 'pending',
+  receipt_url TEXT,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
   
-    CREATE TABLE orders(
-      id UUID PRIMARY KEY,
-      user_id UUID REFERENCES users(id) NOT NULL,
-      product_id UUID REFERENCES products(id) ON DELETE CASCADE NOT NULL,
-      qty INTEGER,
-      order_collection_id UUID,
-      created_at TIMESTAMP DEFAULT now(),
-      updated_at TIMESTAMP DEFAULT now()        
-    );
+
+-- Order items (1 row per product)
+CREATE TABLE orders (
+  id UUID PRIMARY KEY,
+  order_collection_id UUID REFERENCES order_collections(id) ON DELETE CASCADE,
+  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+  qty INTEGER,
+  price INTEGER, -- copied from product at time of purchase
+  created_at TIMESTAMP DEFAULT now()
+);
+
+
+
     CREATE TABLE guests(
       id UUID PRIMARY KEY
     );
@@ -213,23 +231,52 @@ const createTriggers = async()=> {
   `;
   await client.query(SQL);
 
-  //  Clear cart when order is created
+  // //  Clear cart when order is created
+  // SQL = `
+  // CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
+  // RETURNS TRIGGER AS $$
+  // BEGIN
+  //     DELETE FROM cart WHERE user_id = NEW.user_id AND product_id = NEW.product_id;
+  //     RETURN NEW;
+  // END;
+  // $$ LANGUAGE plpgsql;
+
+  // -- Create trigger to clear cart when order is created
+  // CREATE TRIGGER clear_cart_trigger
+  // AFTER INSERT ON orders
+  // FOR EACH ROW
+  // EXECUTE FUNCTION clear_cart_when_place_order();
+  // `;
+  // await client.query(SQL);
+
+  // Clear cart when order is created (fixed)
   SQL = `
   CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
   RETURNS TRIGGER AS $$
+  DECLARE
+    u_id UUID;
   BEGIN
-      DELETE FROM cart WHERE user_id = NEW.user_id AND product_id = NEW.product_id;
-      RETURN NEW;
+    SELECT user_id INTO u_id 
+    FROM order_collections 
+    WHERE id = NEW.order_collection_id;
+
+    DELETE FROM cart 
+    WHERE user_id = u_id 
+      AND product_id = NEW.product_id;
+
+    RETURN NEW;
   END;
   $$ LANGUAGE plpgsql;
 
-  -- Create trigger to clear cart when order is created
+  DROP TRIGGER IF EXISTS clear_cart_trigger ON orders;
+
   CREATE TRIGGER clear_cart_trigger
   AFTER INSERT ON orders
   FOR EACH ROW
   EXECUTE FUNCTION clear_cart_when_place_order();
-  `;
-  await client.query(SQL);
+`;
+await client.query(SQL);
+
 
   // update_top_brands function
   SQL = `
@@ -313,18 +360,56 @@ const createStore = async({ user_id, product_id})=> {
 
 
 
-//  createOrder  
-const createOrder = async({ user_id})=> {
-  let SQL = `
-    INSERT INTO orders (id, user_id, product_id, qty, order_collection_id )
-    SELECT uuid_generate_v4(), $1, product_id, qty, $2
-    FROM cart
-        WHERE user_id = $1
+// //  createOrder  
+// const createOrder = async({ user_id})=> {
+//   let SQL = `
+//     INSERT INTO orders (id, user_id, product_id, qty, order_collection_id )
+//     SELECT uuid_generate_v4(), $1, product_id, qty, $2
+//     FROM cart
+//         WHERE user_id = $1
+//     RETURNING *;
+//   `;
+//   const response = await client.query(SQL, [ user_id, uuid.v4()]);
+//   return response.rows;
+// }
+
+const createOrder = async ({ user_id }) => {
+  const order_collection_id = uuid.v4();
+
+  // 1. Insert order collection
+  const insertOrderCollection = `
+    INSERT INTO order_collections (id, user_id)
+    VALUES ($1, $2)
     RETURNING *;
   `;
-  const response = await client.query(SQL, [ user_id, uuid.v4()]);
-  return response.rows;
-}
+  await client.query(insertOrderCollection, [order_collection_id, user_id]);
+
+  // 2. Insert order items from cart
+  const insertOrderItems = `
+    INSERT INTO orders (id, order_collection_id, product_id, qty, price)
+    SELECT 
+      uuid_generate_v4(),
+      $1,
+      c.product_id,
+      c.qty,
+      p.price
+    FROM cart c
+    JOIN products p ON c.product_id = p.id
+    WHERE c.user_id = $2
+    RETURNING *;
+  `;
+  const response = await client.query(insertOrderItems, [order_collection_id, user_id]);
+
+  return {
+    order_collection_id,
+    items: response.rows,
+  };
+};
+
+
+
+
+
 
 // Add new item to cart 
 const addToCart = async({ user_id, product_id, qty })=> {
@@ -437,7 +522,7 @@ const findUserWithToken = async(token) => {
   return response.rows[0];
 }
 
-// 
+//
 const fetchUsers = async()=> {
   const SQL = `
     SELECT * FROM users;
@@ -485,6 +570,19 @@ const fetchTopBrands = async()=> {
   return response.rows;
 };
 
+const parseCartRow = (row) => ({
+  ...row,
+  price: Number(row.price),
+  subtotal: Number(row.subtotal),
+  tax: Number(row.tax),
+  total: Number(row.total),
+  cost_per_product: Number(row.cost_per_product),
+  tax_rate: Number(row.tax_rate),
+  cart_count: Number(row.cart_count)
+});
+
+ 
+
 
 // fetchCart
 const fetchCart = async(user_id)=> {
@@ -519,75 +617,153 @@ const fetchCart = async(user_id)=> {
   ;
 `;
   const response = await client.query(SQL, [ user_id, TAX_RATE]);
-  return response.rows;
+  // return response.rows;
+  return response.rows.map(parseCartRow);
 };
+
+// // fetchOrderCollections
+// const fetchOrderCollections = async(user_id)=> {
+//   const SQL = `
+//     SELECT DISTINCT order_collection_id 
+//     FROM orders
+//     WHERE user_id = $1;
+//   `;
+//   const response = await client.query(SQL, [user_id]);
+//   return response.rows;
+// };
+
 
 // fetchOrderCollections
 const fetchOrderCollections = async(user_id)=> {
   const SQL = `
-    SELECT DISTINCT order_collection_id 
-    FROM orders
-    WHERE user_id = $1;
+   SELECT * FROM order_collections WHERE user_id = $1 ORDER BY created_at DESC;
   `;
   const response = await client.query(SQL, [user_id]);
   return response.rows;
 };
 
-// fetchOrders
-const fetchOrders = async(user_id, order_collection_id)=> {
-  const  SQL = `
-  WITH combined_order AS (
+
+
+// // fetchOrders
+// const fetchOrders = async(user_id, order_collection_id)=> {
+//   const  SQL = `
+//   WITH combined_order AS (
+//     SELECT 
+//       orders.*, 
+//       products.id AS p_id, products.title, products.price,
+//       images.title AS image_title, images.caption, images.is_showcase
+//     FROM orders
+//     JOIN products ON orders.product_id = products.id
+//     JOIN images ON orders.product_id = images.product_id
+//     WHERE user_id = $1 AND order_collection_id = $3 AND images.is_showcase = $4
+//     ORDER BY created_at DESC
+//   ),
+//   items_count_and_subtotal_calculation AS (
+//     SELECT 
+//       SUM(price * qty) AS subtotal, 
+//       SUM(qty) AS items_count
+//     FROM combined_order
+//   )
+//   SELECT user_id,
+//       order_collection_id,
+//       created_at,
+//       updated_at,
+//       subtotal,
+//       items_count,
+//       ROUND(subtotal * ($2::numeric / 100), 2) AS tax,
+//       ROUND(subtotal * (1 + ($2::numeric / 100)), 2)  AS total,
+//       $2 AS tax_rate,
+//       json_agg(json_build_object(
+//           'order_id', id,
+//           'product_id', product_id,
+//           'qty' , qty, 
+//           'title', title,
+//           'price', price,
+//           'cost_per_product', price * qty,
+//           'image_title', image_title,
+//           'caption', caption,
+//           'is_showcase', is_showcase)) AS items
+//   FROM combined_order, items_count_and_subtotal_calculation
+//   GROUP BY 
+//     user_id,
+//     order_collection_id,
+//     created_at,
+//     updated_at,
+//     subtotal,
+//     items_count,
+//     tax,
+//     total,
+//     tax_rate
+//   ;
+// `;
+// const response = await client.query(SQL, [ user_id, TAX_RATE, order_collection_id, true]);
+// return response.rows[0]
+// }
+
+const fetchOrders = async (user_id, order_collection_id) => {
+  const SQL = `
+    WITH combined_order AS (
+      SELECT 
+        o.id AS order_item_id,
+        o.product_id,
+        o.qty,
+        o.price,
+        p.title,
+        p.price AS current_price,
+        i.title AS image_title,
+        i.caption,
+        i.is_showcase,
+        oc.total_amount, 
+        oc.payment_intent_id, 
+        oc.status, 
+        oc.receipt_url,
+        oc.created_at,
+        oc.updated_at
+      FROM orders o
+      JOIN products p ON o.product_id = p.id
+      JOIN images i ON o.product_id = i.product_id
+      JOIN order_collections oc ON o.order_collection_id = oc.id
+      WHERE oc.user_id = $1 
+        AND oc.id = $3 
+        AND i.is_showcase = $4
+    ),
+    items_count_and_subtotal_calculation AS (
+      SELECT 
+        SUM(price * qty) AS subtotal, 
+        SUM(qty) AS items_count
+      FROM combined_order
+    )
     SELECT 
-      orders.*, 
-      products.id AS p_id, products.title, products.price,
-      images.title AS image_title, images.caption, images.is_showcase
-    FROM orders
-    JOIN products ON orders.product_id = products.id
-    JOIN images ON orders.product_id = images.product_id
-    WHERE user_id = $1 AND order_collection_id = $3 AND images.is_showcase = $4
-    ORDER BY created_at DESC
-  ),
-  items_count_and_subtotal_calculation AS (
-    SELECT 
-      SUM(price * qty) AS subtotal, 
-      SUM(qty) AS items_count
-    FROM combined_order
-  )
-  SELECT user_id,
-      order_collection_id,
+      $1 AS user_id,
+      $3 AS order_collection_id,
       created_at,
       updated_at,
+      total_amount, payment_intent_id, status, receipt_url,
       subtotal,
       items_count,
       ROUND(subtotal * ($2::numeric / 100), 2) AS tax,
-      ROUND(subtotal * (1 + ($2::numeric / 100)), 2)  AS total,
+      ROUND(subtotal * (1 + ($2::numeric / 100)), 2) AS total,
       $2 AS tax_rate,
       json_agg(json_build_object(
-          'order_id', id,
-          'product_id', product_id,
-          'qty' , qty, 
-          'title', title,
-          'price', price,
-          'cost_per_product', price * qty,
-          'image_title', image_title,
-          'caption', caption,
-          'is_showcase', is_showcase)) AS items
-  FROM combined_order, items_count_and_subtotal_calculation
-  GROUP BY 
-    user_id,
-    order_collection_id,
-    created_at,
-    updated_at,
-    subtotal,
-    items_count,
-    tax,
-    total,
-    tax_rate
-  ;
-`;
-const response = await client.query(SQL, [ user_id, TAX_RATE, order_collection_id, true]);
-return response.rows[0]
-}
+        'order_item_id', order_item_id,
+        'product_id', product_id,
+        'qty', qty,
+        'title', title,
+        'price', price,
+        'cost_per_product', price * qty,
+        'image_title', image_title,
+        'caption', caption,
+        'is_showcase', is_showcase
+      )) AS items
+    FROM combined_order, items_count_and_subtotal_calculation
+    GROUP BY 
+      created_at, updated_at, subtotal, items_count,total_amount, payment_intent_id, status, receipt_url;
+  `;
+  const response = await client.query(SQL, [user_id, TAX_RATE, order_collection_id, true]);
+  return response.rows[0];
+};
+
+
 
 // fetchSingleProduct
 const fetchSingleProduct = async(id)=> {
@@ -640,6 +816,7 @@ const fetchGuest = async(id) =>{
   return response.rows[0];
 };
 
+
 // fetchGuestCart ..
 const fetchGuestCart = async(guest_id) => {
   
@@ -674,33 +851,9 @@ const fetchGuestCart = async(guest_id) => {
   ;
 `;
   const response = await client.query(SQL, [ guest_id, TAX_RATE]);
-  return response.rows;
+  // return response.rows;
+  return response.rows.map(parseCartRow);
 }
-const fetchGuestCartj = async(guest_id)=> {
-  const SQL = `
-    WITH guest_cart_products AS (
-      SELECT *
-      FROM guest_cart
-      JOIN products ON guest_cart.product_id = products.id
-      WHERE guest_id = $1
-      ORDER BY product_id ASC
-    ),
-    cost_and_subtotal_calculation AS (
-        SELECT SUM(price * qty) AS subtotal, SUM(qty) AS cart_count
-        FROM guest_cart_products
-    )
-    SELECT *,
-          (ROUND(subtotal * ($2::numeric / 100), 2)) AS tax,
-          (ROUND(subtotal * (1 + ($2::numeric / 100)), 2)) AS total,
-          (price * qty) AS cost_per_product,
-          $2 AS tax_rate
-    FROM guest_cart_products, cost_and_subtotal_calculation
-  ;
-`;
-  const response = await client.query(SQL, [ guest_id, TAX_RATE]);
-  return response.rows;
-};
-
 
 
 // Add new item to guest cart 

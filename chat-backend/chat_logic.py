@@ -304,7 +304,7 @@ def generate_and_handle_response(chat_history, user_input, conversation_state):
 
 # ---- CLI loop ----
 if __name__ == "__main__":
-    print("Welcome to Customer Support! (Type 'exit' to quit)\n")
+    print("Welcome to Virtual Customer Support! (Type 'exit' to quit)\n")
     chat_history = [{"role": "system", "content": system_prompt}]
     conversation_state = {
         "intent": None,

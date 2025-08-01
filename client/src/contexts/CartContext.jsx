@@ -2,16 +2,19 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { cartAPI } from '../api';
-import useOverlay from '../hooks/useOverlay';
+// import useOverlay from '../hooks/useOverlay';
 import useAuth from '../hooks/useAuth';
+import useOrders from '../hooks/useOrders';
 
 
 export const CartContext = createContext();
 
 
 export const CartProvider = ({ children }) => {
-    // const { setMsg } = useOverlay();
+    // const { showActionToast } = useOverlay();
+    
     const { auth, guest, setGuest } = useAuth();
+    const { orders } = useOrders();
     const [cart, setCart] = useState(null);
     const [refreshCart, setRefreshCart] = useState(false);
 
@@ -68,7 +71,7 @@ export const CartProvider = ({ children }) => {
         };
 
         fetchCart();
-    }, [auth, guest, refreshCart]);
+    }, [auth, guest, orders,refreshCart]);
 
     // Update item quantity
     const updateCart = async (product_id, qty) => {
@@ -82,6 +85,8 @@ export const CartProvider = ({ children }) => {
             setRefreshCart(prev => !prev);
         } catch (err) {
             console.error(err.message);
+            throw new Error(err.message || 'Cannot update cart!');
+
             // setMsg?.({
             //     txt: err.message,
             //     more: <button onClick={() => setMsg(null)}>OK</button>,

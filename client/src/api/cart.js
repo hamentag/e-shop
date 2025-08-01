@@ -9,7 +9,6 @@ export const fetchUserCart = async (userId, token) => {
   });
   // return await response.json();
   const rslt = await response.json();
-  console.log("api fetch cart >>> ", rslt)
   return rslt
 };
 

@@ -32,11 +32,9 @@ export default function SingleProduct(){
         const fetchSingleProduct = async()=> {
           const response = await fetch(`${baseURL}/api/products/${id}`);
           const json = await response.json();
-          if(response.ok){ 
-            // console.log("json ,, ", json)
+          if(response.ok){
             setProduct(json);
             setDisplayedImage(json.images.find(image => image.is_showcase))
-
           }
           else{
             console.error(response.error); 

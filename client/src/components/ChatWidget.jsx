@@ -47,10 +47,7 @@ const ChatWidget = () => {
                 })
             });
 
-            console.log("tsttttt res!?: ", res)
-
             const data = await res.json();
-            console.log("tsttttt data!?: ", data)
             setMessages([...newMessages, { sender: "assistant", text: data.reply }]);
             setConversationState(data.updated_state);
         } catch (err) {
@@ -73,7 +70,7 @@ const ChatWidget = () => {
 
             {isOpen && (
                 <div className="chat-box">
-                    <div className="chat-header">Customer Support</div>
+                    <div className="chat-header">Virtual Customer Support</div>
                     <div className="chat-body" ref={chatBodyRef}>
                         {messages.map((msg, i) => (
                             <div key={i} className={`chat-msg ${msg.sender}`}>

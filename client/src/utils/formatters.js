@@ -7,7 +7,6 @@ export function truncateText(str, max) {
     return str.slice(0, max) + '...';
 }
 
-
 /**
  * Splits a number into [dollars, cents] with 2 fixed decimal places.
  * @param {number|string} price - The price value.

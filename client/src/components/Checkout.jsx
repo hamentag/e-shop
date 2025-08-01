@@ -1,156 +1,182 @@
 // src/components/Checkout.jsx
 
-import {useState} from 'react'
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { CardElement } from '@stripe/react-stripe-js';
+
+
+import ShippingAddrForm from './ShippingAddrForm';
+import Confirmation from './Confirmation';
+import OrderReview from './OrderReview';
+import SuggestedForYou from './SuggestedForYou';
+
+
 
 import useOverlay from '../hooks/useOverlay';
 import useAuth from '../hooks/useAuth';
 import useCart from '../hooks/useCart';
 import useOrders from '../hooks/useOrders';
+import usePayment from '../hooks/usePayment';
+import EmptyCart from './EmptyCart';
+
+import { US_STATES } from '../utils/constants';
 
 
-export default function Checkout(){
-
+export default function Checkout() {
     const { setPopUpAuthn } = useOverlay();
     const { auth } = useAuth();
-    const { cart } = useCart();    
-    const { createOrder } = useOrders();
-    
+    const { cart } = useCart();
+    const { createOrder, updateOrderPayment } = useOrders();
 
-    const [nameOnCard, setNameOnCard ] = useState('');
+    const [nameOnCard, setNameOnCard] = useState('');
     const [cardNumber, setCardNumber] = useState('');
     const [expirationDate, setExpirationDate] = useState('');
     const [cvc, setCvc] = useState('');
-
     const [confirmedOrder, setConfirmedOrder] = useState(false);
 
+    const [formValidated, setFormValidated] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: 'Demo_FN',
+        lastName: 'Demo_LN',
+        email: 'test@example.com',
+        address: '2505 John Bragg Hwy',
+        city: 'Murfreesboro',
+        state: US_STATES[0].name,
+        zip: '37127',
+        agree: false,
+    });
+
+    const { processPayment, paymentLoading, paymentError } = usePayment();
     const navigate = useNavigate();
 
-    const Confirmation = ()=> {
 
-        return(
-            <div className='order-confirmation'>
-                <h1>Thank you for your order, {auth.firstname}</h1>
-                <button onClick={()=>{navigate('/orders')}}>See Order History</button>
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+
+        if (form.checkValidity() === false) {
+            e.stopPropagation();
+            setFormValidated(true);
+            return;
+        }
+
+        setFormValidated(true);
+
+        const billingDetails = {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            address: {
+                line1: formData.address,
+                city: formData.city,
+                state: formData.state,
+                postal_code: formData.zip,
+            },
+        };
+
+        const paymentResult = await processPayment({
+            amount: Math.round(cart.total * 100), // Convert dollars to cents
+            billingDetails,
+        });
+
+        if (paymentResult.success) {
+            const order_collection_id = await createOrder();
+            console.log("check order_collection_id ", order_collection_id);
+
+            const fullOrder = await updateOrderPayment(order_collection_id, paymentResult.paymentIntent);
+            console.log("fullOrder..", fullOrder)
+            // setRecentOrder(fullOrder);
+            
+            navigate(`/confirmation/${order_collection_id}`);
+        }
+    };
+
+
+    if (!cart) return <section className="text-center my-5">Loading..</section>;
+
+    if (cart?.cart_count === 0) {
+        return (
+            <div className="text-center py-5">
+                <p>Your cart is empty.</p>
+                <button className="btn btn-secondary" onClick={() => navigate('/products/all')}>                    
+                    Browse Products
+                </button>
+
+                <EmptyCart />
+
             </div>
         )
-    } 
-
-    const submitToPlaceOrder = async(ev) => {
-        ev.preventDefault();
-        /**
-         * Logic to check payment information goes here
-         */
-        createOrder();
-        setConfirmedOrder(true);
     }
 
-    //
-    if (!cart) {
-        return <section className="loading">Loading..</section>
-    }
-        
-    return(
-        <>{
-            confirmedOrder?
-            <div>
-                <Confirmation  />
-               
-            </div>
-            :
-            <div>
-            {cart.cart_count !== 0 ?
-                <div>
-                    <div className='order-details'>
-                    <h3>Order Details</h3>
-                        <table className='order-items'>
-                            <tbody>
-                                <tr>
-                                    <th scope="row">Product </th>
-                                    <th scope="row">Status</th>
-                                    <th scope="row">Qty</th>
-                                    <th scope="row">Price</th>
-                                    <th scope="row" style={{ textAlign: 'end', paddingRight: '20px' }}>Subtotal</th>
-                                </tr>
-                                {
-                                    cart.products.map(item => {
-                                        return (
-                                            <tr key={item.id}>
-                                                <td>
-                                                    <div className='cart-item-info'>
-                                                        <img src={(item.images.find(image => image.is_showcase)).url} alt="product image" style={{ width: '65px', height: '55px' }} />
-                                                        <h4>{item.title}</h4>
 
-                                                    </div>
-                                                </td>
-                                                <td>Processing</td>
-                                                <td>{item.qty}</td>
-                                                <td>${item.price}</td>
-                                                <td style={{ textAlign: 'end', paddingRight: '20px' }}>${item.cost_per_product}</td>
-                                            </tr>
-                                        )
-                                    })
-                                }
-                                <tr>
-                                    <td colSpan={5} >
-                                        <hr />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colSpan={5}>
-                                        <table className='order-total'>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Order Subtotal </td>
-                                                    <td>${cart.subtotal}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Tax </td>
-                                                    <td>${cart.tax}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Order Total </td>
-                                                    <td style={{ color: 'red' }}>${cart.total}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+    return (
+        <div className='py-3 mx-1 mx-lg-auto' style={{ maxWidth: '55rem' }}>
+            <h4 className="mt-4">Order Review</h4>
+            <OrderReview />
+
+            <form
+                className={`row g-3 needs-validation ${formValidated ? 'was-validated' : ''}`}
+                noValidate
+                onSubmit={handleSubmit}
+            >
+                <ShippingAddrForm formData={formData} handleChange={handleChange} />
+
+                <h4 className="mt-5">Payment Information</h4>
+                <div className="col-12">
+                    <label className="form-label">Card Details</label>
+                    <div className="form-control">
+                        <CardElement
+                            options={{
+                                style: {
+                                    base: {
+                                        fontSize: '16px',
+                                        color: '#32325d',
+                                        fontFamily: 'Arial, sans-serif',
+                                    },
+                                },
+                            }}
+                        />
                     </div>
-                    {
-                        auth.id?
-                        <div className='payment-info'>
-                            <h3>Payment Information</h3>
-                            <form onSubmit={ submitToPlaceOrder } className='payment-form'>
-                                <input value={ nameOnCard} placeholder='NAME ON CARD' onChange={ ev=> setNameOnCard(ev.target.value)}/>
-                                <input value={ cardNumber} placeholder='CARD NUMBER' onChange={ ev=> setCardNumber(ev.target.value)}/>
-                                <input value={ expirationDate }  placeholder='MM/YY' onChange={ ev=> setExpirationDate(ev.target.value)}/>
-                                <input value={ cvc} placeholder='CVC' onChange={ ev=> setCvc(ev.target.value)}/>
-                                <button disabled={ !(nameOnCard && cardNumber && expirationDate && cvc) }>Place Order</button>
-                            </form> 
-                        </div>
-                        :
-                        <div style={{width:'fit-content', margin:'0 auto', padding:'1rem'}}>
-                            <div>Please log in or register to place your order.</div>
-                            <button className='login-btn' onClick={()=>{
-                                setPopUpAuthn("to-login")                     
-                            }
-                      }>Log In
-                  </button>  
-                        </div>
-                    }
+                    <small className="text-muted">
+                        Use test card: <code>4242 4242 4242 4242</code>, any future expiry, any CVC.
+                    </small>
                 </div>
-                :
-                <div className="empty-cart">
-                    <p>Your cart is empty.</p>
-                    <button onClick={()=>{navigate('/')}}>Shop Now</button>
-                </div>
-            }
 
+                <div className="col-12 mt-3">
+                    <div className="form-check">
+                        <input
+                            className="form-check-input"
+                            type="checkbox"
+                            name="agree"
+                            checked={formData.agree}
+                            onChange={handleChange}
+                            required
+                        />
+                        <label className="form-check-label">Agree to terms and conditions</label>
+                        <div className="invalid-feedback">You must agree before submitting</div>
+                    </div>
+                </div>
+
+                {paymentError && (
+                    <div className="col-12 mt-2">
+                        <div className="alert alert-danger">{paymentError}</div>
+                    </div>
+                )}
+
+                <div className="col-12">
+                    <button className="btn btn-primary" type="submit" disabled={paymentLoading}>
+                        {paymentLoading ? 'Processing...' : 'Submit Payment'}
+                    </button>
+                </div>
+            </form>
         </div>
-        }
-        </>
-    )
+
+    );
 }

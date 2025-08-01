@@ -1,12 +1,12 @@
 // import Groq from "groq-sdk";
 // import 'dotenv/config';
 
-// console.log("tst hrr: ", process.env.GROQ_API_KEY);
+// 
 // const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // export async function main() {
 //   const chatCompletion = await getGroqChatCompletion();
-//   console.log(chatCompletion.choices[0]?.message?.content || "");
+//  
 // }
 
 // export async function getGroqChatCompletion() {
@@ -258,7 +258,7 @@ async function generateAndHandleResponse(chatHistory, userInput, conversationSta
     updatedState = updateConversationState(updatedState, jsonData);
   }
 
-  console.log("tst st: ", updatedState);
+  console.log("updatedState: ", updatedState);
   return updatedState;
 }
 
