@@ -10,12 +10,11 @@ import React, {
 } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { createPortal } from 'react-dom';
-
 import { useLocation, Link } from 'react-router-dom';
 
-import NavAccount from '../components/NavAccount';
-import NavCart from '../components/NavCart';
-import MenuButton from '../components/MenuButton';
+// import NavAccount from '../components/NavAccount';
+// import NavCart from '../components/NavCart';
+// import MenuButton from '../components/MenuButton';
 
 
 export const OverlayContext = createContext();
@@ -98,16 +97,20 @@ export const OverlayProvider = ({ children }) => {
     }
   }, [actionToast.show, actionToast.persist]);
 
-
   
-  // Offcanvas
+  // Global Offcanvas
   const [offcanvasContent, setOffcanvasContent] = useState(null);
   const [offcanvasTitle, setOffcanvasTitle] = useState('');
+  // const [offcanvasHeaderBtnOne, setOffcanvasHeaderBtnOne] = useState(null);
+  // const [offcanvasHeaderBtnTwo, setOffcanvasHeaderBtnTwo] = useState(null);
+  const [offcanvasHeaderButtons, setOffcanvasHeaderButtons] = useState([]);
+
   const offcanvasRef = useRef(null);
 
-  const showOffcanvas = useCallback(({ title = '', content }) => {
+  const showOffcanvas = useCallback(({ title = '', headerButtons = [], content }) => {
     setOffcanvasTitle(title);
     setOffcanvasContent(content);
+    setOffcanvasHeaderButtons(headerButtons);
 
     setTimeout(() => {
       const el = offcanvasRef.current;
@@ -125,9 +128,6 @@ export const OverlayProvider = ({ children }) => {
       if (instance) instance.hide();
     }
   }, []);
-
-
-    
 
 
   return (
@@ -239,6 +239,7 @@ export const OverlayProvider = ({ children }) => {
         </div>
       </div>
 
+
       {/* Global Offcanvas */}
       <div
         className="offcanvas offcanvas-end offcanvas-fullscreen-sm-down"
@@ -255,10 +256,16 @@ export const OverlayProvider = ({ children }) => {
             {offcanvasTitle}
           </h4>
 
-          <NavAccount />
+          {/* <NavAccount /> */}
+          {/* {offcanvasHeaderBtnOne} */}
 
-          {offcanvasTitle === 'Menu' ? <NavCart /> : <MenuButton style={{color: 'red'}}/>}
-          
+          {/* {offcanvasTitle === 'Menu' ? <NavCart /> : <MenuButton style={{color: 'red'}}/>} */}
+
+          {offcanvasHeaderButtons?.map((btn, idx) =>
+            React.isValidElement(btn)
+              ? React.cloneElement(btn, { key: idx })
+              : null
+          )}
 
           <button
             type="button"

@@ -1,0 +1,34 @@
+// star-rating.scss
+
+.star-rating {
+  font-size: 1.75rem;
+  line-height: 1;
+  display: flex;
+  gap: 0;
+}
+
+.star {
+  width: 1rem;
+  height: 1rem;
+
+  .star-bg,
+  .star-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-family: inherit;
+    text-align: left;
+  }
+
+  .star-bg {
+    color: #dee2e6; 
+  }
+
+  .star-fill {
+    color: #ffc107;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}

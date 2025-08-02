@@ -4,8 +4,7 @@ import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom"
 
 import useAuth from "../hooks/useAuth";
 import useAuthUI from '../hooks/useAuthUI';
-import useCart from '../hooks/useCart';
-import useOverlay from "../hooks/useOverlay";
+import AuthDropdown from "./AuthDropdown";
 
 
 
@@ -28,24 +27,7 @@ export default function NavAccount() {
                 </span>
             </button>
 
-            <ul className="dropdown-menu">
-              {!auth.id ? (
-                <>
-                  <li><button className='dropdown-item' onClick={launchLoginForm}>Log In</button></li>
-                  <li><hr className="dropdown-divider" /></li>
-                  <li><button className='dropdown-item' onClick={launchSignUpForm}>Sign Up</button></li>
-                </>
-              ) : (
-                <>
-                  <li><Link className='dropdown-item' to="/orders">Orders</Link></li>
-                  <li><hr className="dropdown-divider" /></li>
-                  <li><Link className='dropdown-item' to="/account">Profile</Link></li>
-                  <li><hr className="dropdown-divider" /></li>
-                  <li><button className='dropdown-item' onClick={logout}>Quit</button></li>
-                </>
-              )}
-            </ul>
-
+            < AuthDropdown className="list-unstyled dropdown-menu"/>
 
         </div>
     )

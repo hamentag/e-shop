@@ -6,6 +6,8 @@ import CartOverview from './CartOverview';
 
 import useOverlay from '../hooks/useOverlay';
 import useCart from '../hooks/useCart';
+import NavAccount from './NavAccount';
+import MenuButton from './MenuButton';
 
 
 export default function () {
@@ -13,14 +15,16 @@ export default function () {
     const { showOffcanvas, hideOffcanvas } = useOverlay();
     
 
-
-
     return (
         < button className="btn flex-shrink-1 position-relative p-0 nav-btn nav-cart"
             onClick={() => {
                 showOffcanvas({
                     title: 'Your Cart',
                     content: <CartOverview />,
+                    headerButtons: [
+                        <NavAccount />,
+                        <MenuButton />
+                    ]
                 })
             }}
         >

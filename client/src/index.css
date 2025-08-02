@@ -338,9 +338,9 @@ form > * {
   padding: 5px 10px;
   margin-bottom: 15px;
 }
-.product-details-main button:nth-of-type(1){
+/* .product-details-main button:nth-of-type(1){
 background-color: rgba(141, 214, 141, 0.639);
-}
+} */
 
 
 th{

@@ -2,6 +2,7 @@
 
 const {client } = require('../../db');
 
+//
 const linkProductToCategory = async (productId, categoryId) => {
   const SQL = `
     INSERT INTO product_category (product_id, category_id)
@@ -11,9 +12,8 @@ const linkProductToCategory = async (productId, categoryId) => {
   await client.query(SQL, [productId, categoryId]);
 };
 
-
-const getProductsByCategory = async (categoryId) => {
-   
+//
+const getProductsByCategory = async (categoryId) => {   
     const SQL = `
     SELECT
       p.*,
@@ -26,12 +26,8 @@ const getProductsByCategory = async (categoryId) => {
     WHERE pc.category_id = $1
     GROUP BY p.id, p.title, p.brand, p.price, p.dimensions, p.characteristics, p.inventory;
   `;
-
-
     const response = await client.query(SQL, [categoryId]);
     return response.rows || null;
 }
-
-
 
 module.exports = { linkProductToCategory, getProductsByCategory }

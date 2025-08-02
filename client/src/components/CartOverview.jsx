@@ -6,11 +6,10 @@ import { useNavigate, Link } from "react-router-dom";
 import useOverlay from '../hooks/useOverlay';
 import useCart from '../hooks/useCart';
 
-import CartQtyCtrl from '../components/CartQtyCtrl';
-
+import CartQtyCtrl from './CartQtyCtrl';
+import EmptyView from "./EmptyView";
 
 import { truncateText, formatPrice } from '../utils/formatters';
-
 
 import useProduct from "../hooks/useProduct";
 
@@ -32,10 +31,7 @@ export default function CartOverview() {
 
     if (cart.cart_count === 0) {
         return (
-              <div className="empty-cart">
-                    <p>Your cart is empty!!!</p>
-                    <button onClick={() => { navigate('/products/all') }}>Shop Now</button>
-                </div>
+            <EmptyView title="Your cart is empty" message="Why not add something you love?"/>  
         )
     }
 

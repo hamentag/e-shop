@@ -1,15 +1,22 @@
 //
-const { data } = require('./data.js');
-const { client, createProduct, addProductImage } = require('./db.js');
+const { getAllUserIds } = require('../db/queries/user.js');
+const { createReview } = require('../db/queries/review.js');
+
+const { client, createProduct, addProductImage } = require('../db.js');
+
+const { data } = require('../data.js');
+
+const { getRandomReview } = require('../utils/randomReview.js');
+
 const { v4: uuidv4 } = require('uuid');
 
-const { findCategoryByName, createCategory } = require('./db/queries/category.js')
-const { linkProductToCategory } = require('./db/queries/productCategory.js');
+const { findCategoryByName, createCategory } = require('../db/queries/category.js')
+const { linkProductToCategory } = require('../db/queries/productCategory.js');
 
 // Check if "--force" flag was passed in CLI
 const FORCE = process.argv.includes('--force');
 
-const seedProducts = async () => {
+const seedProducts = async () => {      
   try {
 
     // Prevent re-seeding unless forced
@@ -55,8 +62,7 @@ const seedProducts = async () => {
         price: product.price,
         dimensions: product.dimensions,
         characteristics: product.characteristics,
-        inventory: product.inventory,
-        rate: product.rate
+        inventory: product.inventory
       });
 
       // Link product to categories
@@ -71,6 +77,36 @@ const seedProducts = async () => {
           await addProductImage(image.title, image.caption, productId, i === 0);
         }
       }
+
+      ////// Rating
+      //
+      const userIdsResult = await getAllUserIds();
+      const userIds = userIdsResult.map(u => u.id);
+ 
+      // 🔁 Add random reviews 
+      const numReviews = Math.floor(Math.random() * 4) + 3;
+      const usedUserIds = new Set();
+
+      for (let i = 0; i < numReviews; i++) {
+        let userId;
+        
+        // Ensure no duplicate reviewers for this product
+        do {
+          userId = userIds[Math.floor(Math.random() * userIds.length)];
+        } while (usedUserIds.has(userId));
+        
+        usedUserIds.add(userId);
+
+        const { rating, comment } = getRandomReview();
+        await createReview({
+          id: uuidv4(),
+          product_id: productId,
+          user_id: userId,
+          rating,
+          comment,
+        });
+      }
+
 
       // console.log(`Seeded product: ${product.title}`);
     }

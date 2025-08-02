@@ -23,17 +23,17 @@ const jwt = require('jsonwebtoken');
 const JWT = process.env.JWT || 'shhh';
 
 
-const createTables = async()=> {
+const createTables = async () => {
   const SQL = `
      -- Drop existing tables:
     DROP TABLE IF EXISTS users cascade;
     DROP TABLE IF EXISTS products cascade;
     DROP TABLE IF EXISTS category cascade;
     DROP TABLE IF EXISTS product_category cascade;
+    DROP TABLE IF EXISTS review cascade;
     DROP TABLE IF EXISTS top_brands cascade;
     DROP TABLE IF EXISTS cart cascade;
-    DROP TABLE IF EXISTS order_collections cascade;
-    
+    DROP TABLE IF EXISTS order_collections cascade;    
     DROP TABLE IF EXISTS orders CASCADE;
     DROP TABLE IF EXISTS guests cascade;
     DROP TABLE IF EXISTS guest_cart cascade;
@@ -67,7 +67,8 @@ const createTables = async()=> {
       dimensions VARCHAR(45) NOT NULL,
       characteristics VARCHAR(255) NOT NULL,
       inventory INTEGER NOT NULL,
-      rate NUMERIC(2,1) NOT NULL CHECK (rate >= 0.0 AND rate <= 5.0)
+      review_count INTEGER DEFAULT 0,
+      average_rating REAL DEFAULT 0
     );
      CREATE TABLE category (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -78,14 +79,26 @@ const createTables = async()=> {
       category_id UUID REFERENCES category(id) ON DELETE CASCADE,
       PRIMARY KEY (product_id, category_id)
     );
+
+    CREATE TABLE review (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+      rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+      comment TEXT,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE (user_id, product_id)
+    );
+   
     CREATE TABLE top_brands (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
       brand VARCHAR(45) NOT NULL,
       average_rate NUMERIC(2, 1) CHECK (average_rate >= 0 AND average_rate <= 5),
       product_count INTEGER NOT NULL,
-      total_rate NUMERIC(7, 2) NOT NULL CHECK (total_rate >= 0),
       calculated_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
+
 
     CREATE TABLE cart(
       id UUID PRIMARY KEY,
@@ -155,7 +168,7 @@ CREATE TABLE orders (
 };
 
 // create Triggers
-const createTriggers = async()=> {
+const createTriggers = async () => {
   // Reduce inventory when order is created
   let SQL = `
     CREATE OR REPLACE FUNCTION reduce_inventory_when_place_order()
@@ -176,7 +189,7 @@ const createTriggers = async()=> {
   `;
   await client.query(SQL);
 
-  // -- Update cart ceiling quantity when order is created
+  // Update cart ceiling quantity when order is created
   SQL = `
     CREATE OR REPLACE FUNCTION update_cart_qty_ceiling()  
     RETURNS TRIGGER AS $$
@@ -275,55 +288,91 @@ const createTriggers = async()=> {
   FOR EACH ROW
   EXECUTE FUNCTION clear_cart_when_place_order();
 `;
-await client.query(SQL);
+  await client.query(SQL);
 
 
   // update_top_brands function
   SQL = `
-  CREATE OR REPLACE FUNCTION update_top_brands()
-  RETURNS void AS $$
-  BEGIN
-    DELETE FROM top_brands;
+    CREATE OR REPLACE FUNCTION update_top_brands()
+    RETURNS void AS $$
+    BEGIN
+      DELETE FROM top_brands;
 
-    INSERT INTO top_brands (brand, average_rate, product_count, total_rate, calculated_at)
-    SELECT
-      brand,
-      ROUND(AVG(rate), 1) AS average_rate,
-      COUNT(*) AS product_count,
-      SUM(rate) AS total_rate,
-      NOW()
-    FROM products
-    GROUP BY brand
-    ORDER BY average_rate DESC
-    LIMIT ${TOP_BRANDS_LIMIT};
-  END;
-  $$ LANGUAGE plpgsql;
+      INSERT INTO top_brands (brand, average_rate, product_count, calculated_at)
+      SELECT
+        p.brand,
+        ROUND(AVG(r.rating)::numeric, 1) AS average_rate,
+        COUNT(DISTINCT p.id) AS product_count,
+        NOW()
+      FROM products p
+      JOIN review r ON r.product_id = p.id
+      GROUP BY p.brand
+      ORDER BY average_rate DESC
+      LIMIT ${TOP_BRANDS_LIMIT};
+    END;
+    $$ LANGUAGE plpgsql;  
   `;
   await client.query(SQL);
 
 
-//   // -- Schedule update_top_brands function to run daily at 6 AM // Reqires permission!
-//   const cronSQL = `
-//   SELECT cron.schedule(
-//     'daily_top_brands',
-//     '0 6 * * *',
-//     $$SELECT update_top_brands();$$
-//   );
-// `;
-// await client.query(cronSQL);
+  //   // -- Schedule update_top_brands function to run daily at 6 AM // Reqires permission!
+  //   const cronSQL = `
+  //   SELECT cron.schedule(
+  //     'daily_top_brands',
+  //     '0 6 * * *',
+  //     $$SELECT update_top_brands();$$
+  //   );
+  // `;
+  // await client.query(cronSQL);
+  
 
+  // Auto-update product ratings
+  SQL = `
+  CREATE OR REPLACE FUNCTION update_product_review_stats()
+  RETURNS TRIGGER AS $$
+  BEGIN
+    UPDATE products
+    SET
+      review_count = (SELECT COUNT(*) FROM review WHERE product_id = NEW.product_id),
+      average_rating = (SELECT COALESCE(AVG(rating), 0) FROM review WHERE product_id = NEW.product_id)
+    WHERE id = NEW.product_id;
+
+    RETURN NULL;
+  END;
+  $$ LANGUAGE plpgsql;
+
+
+  -- Triggers on the review Table:
+  -- On INSERT
+  CREATE TRIGGER trg_review_insert
+  AFTER INSERT ON review
+  FOR EACH ROW
+  EXECUTE FUNCTION update_product_review_stats();
+
+  -- On UPDATE (in case someone edits their rating)
+  CREATE TRIGGER trg_review_update
+  AFTER UPDATE ON review
+  FOR EACH ROW
+  WHEN (OLD.rating IS DISTINCT FROM NEW.rating OR OLD.product_id IS DISTINCT FROM NEW.product_id)
+  EXECUTE FUNCTION update_product_review_stats();
+
+  -- On DELETE
+  CREATE TRIGGER trg_review_delete
+  AFTER DELETE ON review
+  FOR EACH ROW
+  EXECUTE FUNCTION update_product_review_stats();
+`;
+await client.query(SQL);
 };
 
 
-const initTopBrands = async() => {
-  let SQL = `SELECT update_top_brands();
-  `;
-  await client.query(SQL);
+const initTopBrands = async () => {
+  await client.query(`SELECT update_top_brands();`);
 }
 
- 
+
 // create new user
-const createUser = async({ firstname, lastname, email, phone, password, is_admin, is_engineer})=> {
+const createUser = async ({ firstname, lastname, email, phone, password, is_admin, is_engineer }) => {
   const SQL = `
     INSERT INTO users(id, firstname, lastname, email, phone, password, is_admin, is_engineer) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
   `;
@@ -332,16 +381,16 @@ const createUser = async({ firstname, lastname, email, phone, password, is_admin
 };
 
 // create new product
-const createProduct = async({id, title, brand, price, dimensions, characteristics, inventory, rate })=> {
+const createProduct = async ({ id, title, brand, price, dimensions, characteristics, inventory }) => {
   const SQL = `
-    INSERT INTO products(id, title, brand, price, dimensions, characteristics, inventory, rate) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+    INSERT INTO products(id, title, brand, price, dimensions, characteristics, inventory) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *
   `;
-  const response = await client.query(SQL, [id, title, brand, price, dimensions, characteristics, inventory, rate]);
+  const response = await client.query(SQL, [id, title, brand, price, dimensions, characteristics, inventory]);
   return response.rows[0];
 };
 
 // create new seller
-const createSeller = async({ user_id})=> {
+const createSeller = async ({ user_id }) => {
   const SQL = `
     INSERT INTO sellers(user_id) VALUES($1) RETURNING *
   `;
@@ -350,7 +399,7 @@ const createSeller = async({ user_id})=> {
 };
 
 // create store
-const createStore = async({ user_id, product_id})=> {
+const createStore = async ({ user_id, product_id }) => {
   const SQL = `
     INSERT INTO stores(user_id, product_id) VALUES($1, $2) RETURNING *
   `;
@@ -412,7 +461,7 @@ const createOrder = async ({ user_id }) => {
 
 
 // Add new item to cart 
-const addToCart = async({ user_id, product_id, qty })=> {
+const addToCart = async ({ user_id, product_id, qty }) => {
   const SQL = `
     INSERT INTO cart (id, user_id, product_id, qty)
     VALUES ($1, $2, $3, $4)
@@ -420,12 +469,12 @@ const addToCart = async({ user_id, product_id, qty })=> {
     RETURNING *;
   `;
   const response = await client.query(SQL, [uuid.v4(), user_id, product_id, qty]);
- 
+
   return response.rows[0];
 };
 
 // Update the quantity of a product items in the cart
-const updateCart = async({ user_id, product_id, qty })=> {
+const updateCart = async ({ user_id, product_id, qty }) => {
   const SQL = `
     UPDATE cart 
     SET qty = $3
@@ -437,7 +486,7 @@ const updateCart = async({ user_id, product_id, qty })=> {
 };
 
 // Delete product from the cart
-const deleteCartProduct = async({ user_id, id })=> {
+const deleteCartProduct = async ({ user_id, id }) => {
   const SQL = `
     DELETE FROM cart 
     WHERE user_id = $1 AND product_id = $2
@@ -447,7 +496,7 @@ const deleteCartProduct = async({ user_id, id })=> {
 };
 
 // deleteGuestCartProduct
-const deleteGuestCartProduct = async({ guest_id, id })=> {
+const deleteGuestCartProduct = async ({ guest_id, id }) => {
   const SQL = `
     DELETE FROM guest_cart 
     WHERE guest_id = $1 AND product_id = $2
@@ -480,30 +529,30 @@ const deleteProduct = async ({ id }) => {
 
 
 ////
-const authenticate = async({ email, password })=> {
+const authenticate = async ({ email, password }) => {
   const SQL = `
     SELECT id, password
     FROM users
     WHERE email = $1
   `;
-  const response = await client.query(SQL, [ email ]);
-  if(!response.rows.length || (await bcrypt.compare(password, response.rows[0].password))=== false){
+  const response = await client.query(SQL, [email]);
+  if (!response.rows.length || (await bcrypt.compare(password, response.rows[0].password)) === false) {
     const error = Error('not authorized');
     error.status = 401;
     throw error;
   }
-  const token = await jwt.sign({ id: response.rows[0].id}, JWT);
+  const token = await jwt.sign({ id: response.rows[0].id }, JWT);
   return { token }; //
 };
 
 
-const findUserWithToken = async(token) => {
+const findUserWithToken = async (token) => {
   let id;
   try {
     const payload = await jwt.verify(token, JWT);
     id = payload.id;
   }
-  catch(ex){
+  catch (ex) {
     const error = Error('not authorized');
     error.status = 401;
     throw error;
@@ -514,7 +563,7 @@ const findUserWithToken = async(token) => {
     WHERE id = $1
   `;
   const response = await client.query(SQL, [id]);
-  if(!response.rows.length){
+  if (!response.rows.length) {
     const error = Error('not authorized');
     error.status = 401;
     throw error;
@@ -523,7 +572,7 @@ const findUserWithToken = async(token) => {
 }
 
 //
-const fetchUsers = async()=> {
+const fetchUsers = async () => {
   const SQL = `
     SELECT * FROM users;
   `;
@@ -532,7 +581,7 @@ const fetchUsers = async()=> {
 };
 
 // fetch all products
-const fetchProducts = async()=> {
+const fetchProducts = async () => {
   const SQL = `
   SELECT
       p.*,
@@ -553,7 +602,7 @@ const fetchProducts = async()=> {
 };
 
 // fetch categories
-const fetchCategories = async() => {
+const fetchCategories = async () => {
   const SQL = `
   SELECT * FROM category;
   `;
@@ -562,7 +611,7 @@ const fetchCategories = async() => {
 };
 
 // fetchTopBrands
-const fetchTopBrands = async()=> {
+const fetchTopBrands = async () => {
   const SQL = `
     SELECT * FROM top_brands;
   `;
@@ -581,11 +630,11 @@ const parseCartRow = (row) => ({
   cart_count: Number(row.cart_count)
 });
 
- 
+
 
 
 // fetchCart
-const fetchCart = async(user_id)=> {
+const fetchCart = async (user_id) => {
   const SQL = `
     WITH cart_products AS (
       SELECT p.*, c.*,
@@ -616,7 +665,7 @@ const fetchCart = async(user_id)=> {
     FROM cart_products, cost_and_subtotal_calculation
   ;
 `;
-  const response = await client.query(SQL, [ user_id, TAX_RATE]);
+  const response = await client.query(SQL, [user_id, TAX_RATE]);
   // return response.rows;
   return response.rows.map(parseCartRow);
 };
@@ -634,7 +683,7 @@ const fetchCart = async(user_id)=> {
 
 
 // fetchOrderCollections
-const fetchOrderCollections = async(user_id)=> {
+const fetchOrderCollections = async (user_id) => {
   const SQL = `
    SELECT * FROM order_collections WHERE user_id = $1 ORDER BY created_at DESC;
   `;
@@ -765,8 +814,38 @@ const fetchOrders = async (user_id, order_collection_id) => {
 
 
 
-// fetchSingleProduct
-const fetchSingleProduct = async(id)=> {
+// // fetchSingleProduct
+// const fetchSingleProduct = async (id) => {
+//   const SQL = `
+//     WITH product_data AS (
+//       SELECT
+//           id,
+//           title,
+//           brand,
+//           price,
+//           dimensions,
+//           characteristics,
+//           inventory
+//       FROM products where id = $1
+//   )
+//   SELECT
+//       pd.*,
+//       json_agg(json_build_object('title', c.title, 'caption', c.caption, 'is_showcase', c.is_showcase)) AS images
+//   FROM product_data pd
+//   JOIN images c ON pd.id = c.product_id
+//   GROUP BY pd.id, 
+//   pd.title,
+//   pd.brand,
+//   pd.price,
+//   pd.dimensions,
+//   pd.characteristics,
+//   pd.inventory
+//   ;
+//   `;
+//   const response = await client.query(SQL, [id]);
+//   return response.rows[0];
+// };
+const fetchSingleProduct = async (id) => {
   const SQL = `
     WITH product_data AS (
       SELECT
@@ -776,29 +855,57 @@ const fetchSingleProduct = async(id)=> {
           price,
           dimensions,
           characteristics,
-          inventory
-      FROM products where id = $1
-  )
-  SELECT
+          inventory, 
+          review_count,
+          average_rating
+      FROM products
+      WHERE id = $1
+    )
+
+    SELECT
       pd.*,
-      json_agg(json_build_object('title', c.title, 'caption', c.caption, 'is_showcase', c.is_showcase)) AS images
-  FROM product_data pd
-  JOIN images c ON pd.id = c.product_id
-  GROUP BY pd.id, 
-  pd.title,
-  pd.brand,
-  pd.price,
-  pd.dimensions,
-  pd.characteristics,
-  pd.inventory
-  ;
+
+      -- Get all product images
+      json_agg(
+        json_build_object(
+          'title', c.title,
+          'caption', c.caption,
+          'is_showcase', c.is_showcase
+        )
+      ) AS images,
+
+      -- Fetch reviews with user info
+      (
+        SELECT json_agg(
+          json_build_object(
+            'id', r.id,
+            'rating', r.rating,
+            'comment', r.comment,
+            'created_at', r.created_at,
+            'user', json_build_object(
+              'firstname', u.firstname,
+              'lastname', u.lastname
+            )
+          )
+        )
+        FROM review r
+        JOIN users u ON u.id = r.user_id
+        WHERE r.product_id = pd.id
+      ) AS reviews
+
+    FROM product_data pd
+    JOIN images c ON pd.id = c.product_id
+    GROUP BY pd.id, pd.title, pd.brand, pd.price, pd.dimensions, pd.characteristics, pd.inventory, review_count, average_rating
   `;
+
   const response = await client.query(SQL, [id]);
   return response.rows[0];
 };
 
+
+
 // create new guest
-const createGuest = async()=> {
+const createGuest = async () => {
   const SQL = `
     INSERT INTO guests(id) VALUES($1) RETURNING *
   `;
@@ -808,7 +915,7 @@ const createGuest = async()=> {
 
 // fetchGuest
 
-const fetchGuest = async(id) =>{
+const fetchGuest = async (id) => {
   const SQL = `
     SELECT * FROM guests where id = $1
   `;
@@ -818,8 +925,8 @@ const fetchGuest = async(id) =>{
 
 
 // fetchGuestCart ..
-const fetchGuestCart = async(guest_id) => {
-  
+const fetchGuestCart = async (guest_id) => {
+
   const SQL = `
     WITH cart_products AS (
       SELECT p.*, c.*,
@@ -850,14 +957,14 @@ const fetchGuestCart = async(guest_id) => {
     FROM cart_products, cost_and_subtotal_calculation
   ;
 `;
-  const response = await client.query(SQL, [ guest_id, TAX_RATE]);
+  const response = await client.query(SQL, [guest_id, TAX_RATE]);
   // return response.rows;
   return response.rows.map(parseCartRow);
 }
 
 
 // Add new item to guest cart 
-const addToGuestCart = async({ guest_id, product_id, qty })=> {
+const addToGuestCart = async ({ guest_id, product_id, qty }) => {
   const SQL = `
     INSERT INTO guest_cart (id, guest_id, product_id, qty)
     VALUES ($1, $2, $3, $4)
@@ -865,12 +972,12 @@ const addToGuestCart = async({ guest_id, product_id, qty })=> {
     RETURNING *;
   `;
   const response = await client.query(SQL, [uuid.v4(), guest_id, product_id, qty]);
- 
+
   return response.rows[0];
 };
 
 // Update the quantity of a product items in the guest cart
-const updateGuestCart = async({ guest_id, product_id, qty })=> {
+const updateGuestCart = async ({ guest_id, product_id, qty }) => {
   const SQL = `
     UPDATE guest_cart
     SET qty = $3
@@ -883,7 +990,7 @@ const updateGuestCart = async({ guest_id, product_id, qty })=> {
 
 
 // saveFileInfo 
-const saveFileInfo = async({fileName, caption})=> {
+const saveFileInfo = async ({ fileName, caption }) => {
   const SQL = `
   INSERT INTO files(id, filename, caption) VALUES($1, $2, $3) RETURNING *
   `;
@@ -892,7 +999,7 @@ const saveFileInfo = async({fileName, caption})=> {
 };
 
 // saveImageInfo
-const saveImageInfo = async({fileName, caption, is_showcase, product_id})=> {
+const saveImageInfo = async ({ fileName, caption, is_showcase, product_id }) => {
   const SQL = `
   INSERT INTO images(id, title, caption, is_showcase, product_id) VALUES($1, $2, $3, $4, $5) RETURNING *
   `;
@@ -902,7 +1009,7 @@ const saveImageInfo = async({fileName, caption, is_showcase, product_id})=> {
 
 
 // fetchFiles
-const fetchFiles = async()=> {
+const fetchFiles = async () => {
   const SQL = `
     SELECT * FROM files;
   `;
@@ -911,7 +1018,7 @@ const fetchFiles = async()=> {
 };
 
 // addProductImage
-const addProductImage = async(title, caption, product_id, is_showcase) => {
+const addProductImage = async (title, caption, product_id, is_showcase) => {
   const SQL = `
     INSERT into images(id, title, caption, product_id, is_showcase) VALUES($1, $2, $3, $4, $5) RETURNING *
   `;
@@ -925,11 +1032,11 @@ module.exports = {
   createTables,
   createTriggers,
   initTopBrands,
-  createUser, 
+  createUser,
   createProduct,
   createSeller,
   deleteProduct,
-  fetchUsers, 
+  fetchUsers,
   fetchProducts,
   fetchCategories,
   fetchTopBrands,
@@ -953,5 +1060,5 @@ module.exports = {
   saveImageInfo,
   fetchFiles,
   addProductImage
-  };
+};
 

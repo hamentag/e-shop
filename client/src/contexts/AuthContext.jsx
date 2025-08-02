@@ -3,7 +3,6 @@
 import { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI, userAPI } from '../api';
-// import useOverlay from '../hooks/useOverlay';
 
 export const AuthContext = createContext();
 
@@ -14,8 +13,6 @@ export const AuthProvider = ({ children }) => {
   const [firstTimeUser, setFirstTimeUser] = useState(false)
   
   const [loggedOut, setLoggedOut] = useState(false);
-
-  // const { setMsg, setPopUpAuthn } = useOverlay();
  
   const navigate = useNavigate();
 
@@ -64,7 +61,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const user = await authAPI.attemptLoginWithToken(token);
       setAuth(user);
-      // setPopUpAuthn(null);
     } catch (err) {
       console.error(err.message);
       localStorage.removeItem('token');

@@ -40,7 +40,8 @@ require('dotenv').config()
 
 //
 const { data } = require('./data.js');
-const { seedProducts } = require('./seedProducts.js')
+const { seedProducts } = require('./seed/seedProducts.js');
+const { seedUsers } = require('./seed/seedUsers.js');
 
 const { linkProductToCategory, getProductsByCategory } = require('./db/queries/productCategory.js');
 
@@ -775,33 +776,36 @@ const init = async () => {
 
   await createTriggers();
   console.log('triggers created');
+  
+  //Seed users
+  await seedUsers();
 
 
-  // Create init products
+  // Seed products
   await seedProducts();
-
+  
 
   // Initialize top_brands (run after populating the products table)
   await initTopBrands();
 
-  // Create init users
-  await Promise.all([
-    createUser({
-      firstname: 'Demo', lastname: 'DEMO',
-      email: 'demo@example.com', phone: '6151328764', password: 'eshop',
-      is_admin: false, is_engineer: false
-    }),
-    createUser({
-      firstname: 'Yasir', lastname: 'Amentag',
-      email: 'yasir@com', phone: '6291382734', password: 'yasir_pw',
-      is_admin: true, is_engineer: false
-    }),
-    createUser({
-      firstname: 'Wisam', lastname: 'Amentag',
-      email: 'c@m', phone: '6291682722', password: 'tst',
-      is_admin: true, is_engineer: true
-    }),
-  ]);
+  // // Create init users
+  // await Promise.all([
+  //   createUser({
+  //     firstname: 'Demo', lastname: 'Example',
+  //     email: 'demo@example.com', phone: '6151328764', password: 'eshop',
+  //     is_admin: false, is_engineer: false
+  //   }),
+  //   createUser({
+  //     firstname: 'Yasir', lastname: 'Amentag',
+  //     email: 'yasir@com', phone: '6291382734', password: 'yasir_pw',
+  //     is_admin: true, is_engineer: false
+  //   }),
+  //   createUser({
+  //     firstname: 'Wisam', lastname: 'Amentag',
+  //     email: 'c@m', phone: '6291682722', password: 'tst',
+  //     is_admin: true, is_engineer: true
+  //   }),
+  // ]);
 
 
   app.listen(port, () => {

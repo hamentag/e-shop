@@ -3,38 +3,21 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-import useCart from '../hooks/useCart';
 import useOverlay from '../hooks/useOverlay';
-import useProduct from '../hooks/useProduct';
-import useAuth from "../hooks/useAuth";
-import useAuthUI from "../hooks/useAuthUI";
 import useBrands from '../hooks/useBrands';
 import useCategory from "../hooks/useCategory";
 
-import CartQtyCtrl from '../components/CartQtyCtrl';
-import NavAccount from '../components/NavAccount';
 import AccordionItem from '../components/AccordionItem';
-
-// import { selectCategories } from '../utils/selectCategories';
-
-
+import AuthDropdown from "./AuthDropdown";
 
 
 export default function NavbarMenu() {
     const navigate = useNavigate()
-    const { cart, updateCart, removeFromCart } = useCart();
     const { hideOffcanvas } = useOverlay();
-    const { products } = useProduct();
-    const { auth, logout } = useAuth();
-    const { launchSignUpForm, launchLoginForm } = useAuthUI();
-    const { topBrands } = useBrands();    
-
-    // const categories = selectCategories(products)
+    const { topBrands } = useBrands();
     const { categories } = useCategory();
     
     const [mnSear, setMnSear] = useState('')
-
-
     
     return (
         <div className="offcanvas-body nav-menu">
@@ -90,37 +73,8 @@ export default function NavbarMenu() {
                 </AccordionItem>
 
                 <AccordionItem title="Account" id="itemTwo" parentId="accordionExample">
-                    <ul className="list-unstyled">
-                        {!auth.id ? (
-                            <>
-                                <li><button className='dropdown-item' onClick={launchLoginForm}>Log In</button></li>
-                                <li><button className='dropdown-item' onClick={launchSignUpForm}>Sign Up</button></li>
-                            </>
-                        ) : (
-                            <>
-                                <li>
-                                    <Link className='dropdown-item' to="/orders"
-                                          onClick={hideOffcanvas}
-                                     >Orders
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link className='dropdown-item' to="/account"
-                                          onClick={hideOffcanvas}
-                                     >Profile
-                                    </Link>
-                                </li>
-                                <li>
-                                    <button className='dropdown-item' onClick={()=>{hideOffcanvas();logout()}}
-                                     >Quit
-                                    </button>
-                                </li>
-                            </>
-                        )}
-                        
-                    </ul>
+                    <AuthDropdown className="list-unstyled"/>
                 </AccordionItem>
-
             </div>
 
             <hr className="nav-divider my-4" />

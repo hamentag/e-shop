@@ -66,3 +66,28 @@ export const EMPTY_IMAGES = [
   'web-search.svg',
 ];
 
+
+
+// login-illustrations (/src/public)
+export const REQUIRE_LOGIN = [
+  {
+    src: 'enter-password.svg',
+    title: 'Please log in to proceed with checkout',
+    message: 'Log in or create an account to complete your order.',
+  },
+  {
+    src: 'login-weas.svg',
+    title: 'You are almost there!',
+    message: 'Please take a moment to log in or sign up to continue with your order.',
+  },
+  {
+    src: 'fingerprint-login.svg',
+    title: 'Log in required to continue',
+    message: "You'll need to log in or sign up to finish your order.",
+  },
+  {
+    src: 'secure-password.svg',
+    title: 'Log in to place your order',
+    message: "No worries, your cart is saved, and checkout is just a step away.",
+  },
+];
