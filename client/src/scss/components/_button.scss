@@ -23,7 +23,15 @@
 
 
 .qty-control {
-    // background-color: $primary-color !important;
-    border: 2px solid rgba(98, 98, 98, 0.282) !important; 
+    background-color: rgb(200, 155, 249);
+    border: none;
+    max-width: 8rem;
+    margin: 0 auto; 
+    cursor: pointer;
+    text-align: center;
+
+    i {
+         text-shadow: 0 0 1px rgb(101, 101, 101);        
+    }
 }
 

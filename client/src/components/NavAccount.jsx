@@ -1,21 +1,12 @@
 // src/components/NavAccount.jsx
-import { useEffect } from "react";
-import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 
 import useAuth from "../hooks/useAuth";
 import useAuthUI from '../hooks/useAuthUI';
 import AuthDropdown from "./AuthDropdown";
 
 
-
-export default function NavAccount() {
-    const navigate = useNavigate();
-
-    const { auth, logout } = useAuth();
-
-    const { launchSignUpForm, launchLoginForm } = useAuthUI()
-
-   
+export default function NavAccount() {   
+    const { auth } = useAuth();
 
     return (
         <div className="nav-item dropdown btn flex-shrink-1 p-0 nav-btn nav-account">
@@ -32,3 +23,4 @@ export default function NavAccount() {
         </div>
     )
 }
+

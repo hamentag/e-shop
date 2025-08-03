@@ -1,5 +1,5 @@
 
-// src/components/Confirmation.jsx
+// src/components/Oreder.jsx
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,7 +10,7 @@ import usePayment from '../hooks/usePayment';
 
 import { isRecent } from '../utils/timeUtils';
 
-export default function Confirmation() {
+export default function Order() {
   const { auth } = useAuth();
   const { fetchOrder } = useOrders();
   const { retrievePayment } = usePayment();
@@ -59,10 +59,11 @@ export default function Confirmation() {
   // while currOrder is not fetched
   if (!currOrder) {
     return (
-      <div className="text-center my-5">
-        <div className="spinner-border text-primary" role="status" />
-        <p className="mt-3">Loading order details...</p>
-      </div>
+        <div className="d-flex justify-content-center my-5">
+            <div className="spinner-grow" role="status">
+                <span className="visually-hidden">Loading order details...</span>
+            </div>
+        </div>
     );
   }
 

@@ -7,7 +7,6 @@
     .container-fluid {
         padding: 0;
 
-
         form {
             width: 5rem;
 
@@ -41,9 +40,11 @@
 
         .navbar-brand {
             color: $second-color;
-            // color: green;
             font-size: 1.25rem;
             padding-left: 0.5rem;
+             min-width: 0;
+            margin-right: 0;
+            font-weight: bold;
         }
 
         .nav-item {
@@ -88,13 +89,7 @@
 
     }
 
-    .navbar-brand {
-        min-width: 0;
-        margin-right: 0;
-        font-weight: bold;
-    }
-
-
+  
     .navbar-toggler {
         min-width: 0;
         outline: none;
@@ -109,7 +104,6 @@
     }
 
    
-
 
     ////
     // min 

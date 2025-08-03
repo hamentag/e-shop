@@ -9,16 +9,20 @@
 @import 'layout/header';
 @import 'layout/offcanvas';
 @import 'layout/star-rating';
+@import 'layout/product-carousel';
 
 // components
 @import 'components/button';
 
-
+// sections
 @import 'sections/navbar';
 @import 'sections/navbar-menu';
 @import 'sections/footer';
-@import 'sections/product-list';
 @import 'sections/cart-overview';
 @import 'sections/cart-details';
 @import 'sections/checkout';
+@import 'sections/product-card';
+@import 'sections/home';
+@import 'sections/chat';
+@import 'sections/nav-account';
 

@@ -74,58 +74,10 @@ a {
   border: 1px solid navy;
 }
 
-.home-image{
-  height: 70vh; 
-  width: 100%;
-  background-size: cover;  
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
-  color: white;
-}
-
-.home-image h1{
-  position: absolute;
-  top: 10%;
-  left: 5%;
-  font-size: 2.5rem;
-  background-color: #6968688c;
-  border-radius: 5px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  z-index: 9;
-}
 
 
-.image-shifters {
- transform: translate(0, -50%);
- height: 75%;
- position: absolute; 
- top: 50%; 
- width: 100%;
- display: flex; 
- justify-content: space-between;
-}
 
-.image-shifters div{
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 4rem;
-  cursor: pointer; 
-  margin-right: 1rem; 
-  cursor: pointer;
-  margin-left: 1rem;
-  border-radius: 3px;
-}
 
-.image-shifters div:hover{
-  /* border: 1.5px solid #e5e5e5ce; */
-  background-color: #e5e5e5dc;
-  color: rgb(128, 6, 128);
-  z-index: 11;
-}
 
 .cart{
   margin-left: auto;
@@ -804,7 +756,7 @@ input:checked + .slider:before {
 
 
 /* // */
-
+/* 
 .chat-container {
   position: fixed;
   bottom: 20px;
@@ -881,9 +833,12 @@ input:checked + .slider:before {
   color: white;
   border: none;
   cursor: pointer;
-}
+} */
 
 /* // */
+
+
+
 
 /*///////////// Confirm password styling // */
 

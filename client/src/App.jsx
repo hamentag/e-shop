@@ -14,8 +14,8 @@ import AddNewProduct from './components/AddNewProduct';
 import Orders from './components/Orders';
 import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
-import ShippingAddrForm from './components/ShippingAddrForm'; 
-
+import ShippingAddrForm from './components/ShippingAddrForm';
+import Order from './components/Oreder';
 
 import Layout from './layouts/Layout';
 
@@ -30,7 +30,6 @@ import useOverlay from './hooks/useOverlay';
 import useAuth from './hooks/useAuth';
 import useCart from './hooks/useCart';
 import useProduct from './hooks/useProduct';
-import Confirmation from './components/Confirmation';
 
 
 //// App
@@ -95,7 +94,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             {/* <Route path="/tst" element={<ShippingAddrForm />} /> */}
-            <Route path="/confirmation/:orderId" element={<Confirmation />} />
+            <Route path="/order/:orderId" element={<Order />} />
           </Routes>
     
         </Layout>

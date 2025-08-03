@@ -4,14 +4,11 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CardElement } from '@stripe/react-stripe-js';
 
-
 import ShippingAddrForm from './ShippingAddrForm';
-import Confirmation from './Confirmation';
+import Confirmation from './Oreder';
 import OrderReview from './OrderReview';
 import SuggestedForYou from './SuggestedForYou';
 import RequireLogin from './RequireLogin';
-
-
 
 import useOverlay from '../hooks/useOverlay';
 import useAuth from '../hooks/useAuth';
@@ -93,7 +90,7 @@ export default function Checkout() {
             // Update DB order record with Stripe payment info
             await updateOrderPayment(order_collection_id, paymentResult.paymentIntent);         
             
-            navigate(`/confirmation/${order_collection_id}`);
+            navigate(`/order/${order_collection_id}`);
         }
     };
 

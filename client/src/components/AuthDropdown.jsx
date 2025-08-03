@@ -20,7 +20,7 @@ export default function AuthDropdown({className}) {
         <ul className={`list-unstyled ${className}`}>
             {!auth.id ? (
                 <>
-                    <li><button className='dropdown-item' onClick={launchLoginForm}>Log In</button></li>
+                    <li><button className='dropdown-item mt-0' onClick={launchLoginForm}>Log In</button></li>
                     <li><button className='dropdown-item' onClick={launchSignUpForm}>Sign Up</button></li>
                 </>
             ) : (

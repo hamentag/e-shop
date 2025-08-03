@@ -1,17 +1,27 @@
+// product-card.scss
 
-
-.product-list {
-   
+.product-card {   
 
     .product-img {         
-        width: 80%;
+        width: 90%;
         height: 96px;
     }
 
-   
+    h5 {
+        cursor: pointer;
+        &:hover {
+            color: rgb(233, 123, 20);
+        }
+    }
+
+    .product-price {
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+ 
 
 
-    
     @media (min-width: 428px) {
         .product-img {
             width: 10rem;
@@ -27,12 +37,13 @@
     
     @media (min-width: 768px) {
         .product-img {
-            width: 8rem;
-            height: 120px;            
+            width: 12rem;
+            height: 120px;
         }
     }
 
     @media (min-width: 992px) {
+        
        
     }
 

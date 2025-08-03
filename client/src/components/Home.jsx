@@ -47,10 +47,6 @@ export default function Home({ homeImages }){
                     <div onClick={() => { previousImage() }}><FontAwesomeIcon icon={faChevronLeft} /></div>
                     <div onClick={() => { nextImage() }}><FontAwesomeIcon icon={faChevronRight} /></div>
                 </div>
-                <div>
-                    <ChatWidget /> 
-                </div>
-
             </div>
         </div> 
     )
