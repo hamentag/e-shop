@@ -1,0 +1,55 @@
+// chat.scss
+
+.chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+
+  .act-btn {
+    width: 60px;
+    height: 60px;
+    z-index: 10000;
+    margin-right: 2rem;
+    position: relative;
+  }
+
+  .card-header {
+    background-color: $primary-color;
+  }
+
+  .user {
+    background-color: rgb(205, 205, 205);
+    color: rgb(33, 33, 33);
+    font-weight: 420;
+  }
+
+  .assistant {
+     background-color: rgb(2, 120, 189);
+     color: white;
+     font-weight: 450;
+  }
+
+  .send-btn {
+    background-color: green;
+    color: white;
+    font-weight: 600;
+  }
+}
+
+.chat-box {
+  width: 420px;
+  height: 512px;
+  display: flex;
+  flex-direction: column;
+//   border-radius: 5px;
+    border:none;
+     z-index: 9999;
+}
+
+.chat-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 300px;
+   z-index: 1050;
+}

@@ -83,7 +83,7 @@ const createTables = async () => {
     CREATE TABLE review (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
       product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-      user_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
       comment TEXT,
       created_at TIMESTAMP DEFAULT NOW(),
@@ -324,7 +324,7 @@ const createTriggers = async () => {
   //   );
   // `;
   // await client.query(cronSQL);
-  
+
 
   // Auto-update product ratings
   SQL = `
@@ -362,7 +362,7 @@ const createTriggers = async () => {
   FOR EACH ROW
   EXECUTE FUNCTION update_product_review_stats();
 `;
-await client.query(SQL);
+  await client.query(SQL);
 };
 
 
@@ -408,20 +408,7 @@ const createStore = async ({ user_id, product_id }) => {
 };
 
 
-
-// //  createOrder  
-// const createOrder = async({ user_id})=> {
-//   let SQL = `
-//     INSERT INTO orders (id, user_id, product_id, qty, order_collection_id )
-//     SELECT uuid_generate_v4(), $1, product_id, qty, $2
-//     FROM cart
-//         WHERE user_id = $1
-//     RETURNING *;
-//   `;
-//   const response = await client.query(SQL, [ user_id, uuid.v4()]);
-//   return response.rows;
-// }
-
+//  create Order
 const createOrder = async ({ user_id }) => {
   const order_collection_id = uuid.v4();
 

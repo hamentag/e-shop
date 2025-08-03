@@ -10,7 +10,12 @@ const reviews = [
   { rating: 3, comment: "It's okay, nothing special." },
   
   { rating: 2, comment: "Not great, could be better." },
-  { rating: 1, comment: "Would not recommend. Poor quality." }
+  { rating: 1, comment: "Would not recommend. Poor quality." },
+
+  { rating: 2 },
+  { rating: 4 },
+  { rating: 3 },
+  { rating: 5 }
 ];
 
 function getRandomReview() {

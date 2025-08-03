@@ -12,7 +12,7 @@ const EmptyView = ({ title, message, actionText, actionLink }) => {
 
   const [imgSrc] = useState(() => {
     const i = Math.floor(Math.random() * EMPTY_IMAGES.length);
-    return `/${EMPTY_IMAGES[i]}`;
+    return `/empty-illustrations/${EMPTY_IMAGES[i]}` || '/empty-illustrations/no-data.svg';
   });
 
   return (

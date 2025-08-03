@@ -62,7 +62,7 @@ export const US_STATES = [
 export const EMPTY_IMAGES = [
   'empty-cart.svg',
   'empty.svg',
-  'void.svg',
+  'no-data.svg',
   'web-search.svg',
 ];
 

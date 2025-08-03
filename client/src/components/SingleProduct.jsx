@@ -47,19 +47,7 @@ export default function SingleProduct() {
         fetchSingleProduct();
     }, [id, cart]);
 
-    //   useEffect(() => { 
 
-    //         if(cart && product){                             
-    //             for (let i = 0; i < cart.products.length; i++) {                   
-    //                 if (cart.products[i].product_id === product.id) {
-    //                     setCrtPrd(cart.products[i])
-    //                     break;
-    //                 }
-    //                 setCrtPrd(null)
-    //             }            
-    //         }
-
-    //   }, [cart, product])
     useEffect(() => {
         if (cart && product) {
             const match = cart.products.find(p => p.product_id === product.id);
@@ -105,9 +93,7 @@ export default function SingleProduct() {
                         {/* Right side: Info + Action */}
                         <div className="col-md-6">
                             <ul className="list-group list-group-flush mb-3">
-                                <li className="list-group-item">
-                                    <strong>Category:</strong> {product.category}
-                                </li>
+                                
                                 <li className="list-group-item">
                                     <strong>Brand:</strong> {product.brand}
                                 </li>
@@ -155,8 +141,11 @@ export default function SingleProduct() {
                     <div className="mt-5">
                         <h5>Customer Reviews</h5>
                         {product.reviews?.length > 0 ? (
-                            product.reviews.map((review) => (
+                            product.reviews
+                                .filter(review => review.comment && review.comment.trim() !== '')
+                                .map((review) => (
                                 <div key={review.id} className="border-bottom pb-3 mb-3">
+                                    <span><i class="bi bi-person-circle fs-2 px-2" style={{color: 'gray'}}></i></span>
                                     <strong>
                                         {review.user.firstname} {review.user.lastname}
                                     </strong>

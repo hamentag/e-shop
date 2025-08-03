@@ -9,9 +9,10 @@ services:
       - ./server/.env
     image: eshop-express
     container_name: eshop-express-container
-    network_mode: host
-    # ports:
-    #   - "3001:3000"
+    # network_mode: host
+    network_mode: bridge
+    ports:
+      - "3001:3000"
 
   chat-backend:
     build:
@@ -23,6 +24,10 @@ services:
     container_name: eshop-chat-container
     ports:
       - "5001:5000"
+    # network_mode: bridge
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   frontend:
     build:

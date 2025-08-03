@@ -9,7 +9,7 @@ WORKDIR /app
 COPY server/package*.json ./
 RUN npm install
 
-# Copy backend source code only
+# Copy backend source code
 COPY server/ .
 
 # Set environment to production
@@ -19,4 +19,4 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 # Start the backend server
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "start"]

@@ -21,8 +21,10 @@ const seedProducts = async () => {
 
     // Prevent re-seeding unless forced
     const result = await client.query('SELECT COUNT(*)::int AS count FROM products');
-    if (result.rows[0].count > 0 && !FORCE) {
-      console.log('Skipping seed: products already exist. Use "--force" to override.');
+    const existingProductCount = result.rows[0].count;
+    
+    if (existingProductCount > 0 && !FORCE) {
+      console.log(`Skipping seed: Products already exist (${existingProductCount}). Use "--force" to override.`);
       process.exit(0);
     }
 
@@ -84,28 +86,30 @@ const seedProducts = async () => {
       const userIds = userIdsResult.map(u => u.id);
  
       // 🔁 Add random reviews 
-      const numReviews = Math.floor(Math.random() * 4) + 3;
+      const numReviews = Math.floor(Math.random() * 8) + 3;
       const usedUserIds = new Set();
 
       for (let i = 0; i < numReviews; i++) {
-        let userId;
-        
-        // Ensure no duplicate reviewers for this product
-        do {
-          userId = userIds[Math.floor(Math.random() * userIds.length)];
-        } while (usedUserIds.has(userId));
-        
-        usedUserIds.add(userId);
+  let userId;
+  
+  // Ensure no duplicate reviewers for this product
+  do {
+    userId = userIds[Math.floor(Math.random() * userIds.length)];
+  } while (usedUserIds.has(userId));
+  
+  usedUserIds.add(userId);
 
-        const { rating, comment } = getRandomReview();
-        await createReview({
-          id: uuidv4(),
-          product_id: productId,
-          user_id: userId,
-          rating,
-          comment,
-        });
-      }
+  const { rating, comment } = getRandomReview();
+  
+  // Pass null if comment is not present
+  await createReview({
+    id: uuidv4(),
+    product_id: productId,
+    user_id: userId,
+    rating,
+    comment: comment || null, // Ensure comment is null if not provided
+  });
+}
 
 
       // console.log(`Seeded product: ${product.title}`);
