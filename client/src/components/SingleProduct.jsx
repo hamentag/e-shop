@@ -11,15 +11,16 @@ import useCart from '../hooks/useCart';
 import useProduct from '../hooks/useProduct';
 
 import CartQtyCtrl from '../components/CartQtyCtrl';
+import StarRating from "./StarRating";
 
 
-export default function SingleProduct(){
+export default function SingleProduct() {
 
     const { setMsg } = useOverlay();
     const { auth } = useAuth();
     const { cart, addToCart } = useCart();
     const { deleteProduct } = useProduct();
-    
+
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [displayedImage, setDisplayedImage] = useState(null);
@@ -27,141 +28,155 @@ export default function SingleProduct(){
     const navigate = useNavigate();
 
     const [crtPrd, setCrtPrd] = useState(null);
-    
-    useEffect(()=> {
-        const fetchSingleProduct = async()=> {
-          const response = await fetch(`${baseURL}/api/products/${id}`);
-          const json = await response.json();
-          if(response.ok){
-            setProduct(json);
-            setDisplayedImage(json.images.find(image => image.is_showcase))
-          }
-          else{
-            console.error(response.error); 
-            setError(response.error)         
-          }
+
+    console.log("full sngl product >>> ", product)
+
+    useEffect(() => {
+        const fetchSingleProduct = async () => {
+            const response = await fetch(`${baseURL}/api/products/${id}`);
+            const json = await response.json();
+            if (response.ok) {
+                setProduct(json);
+                setDisplayedImage(json.images.find(image => image.is_showcase))
+            }
+            else {
+                console.error(response.error);
+                setError(response.error)
+            }
         };
         fetchSingleProduct();
-      }, [id, cart]);
+    }, [id, cart]);
 
-      useEffect(() => {
+    //   useEffect(() => { 
 
-            if(cart && product){
-                             
-                for (let i = 0; i < cart.products.length; i++) {
-                   
-                    if (cart.products[i].product_id === product.id) {
-                        setCrtPrd(cart.products[i])
-                        break;
-                    }
-                    setCrtPrd(null)
-            } 
+    //         if(cart && product){                             
+    //             for (let i = 0; i < cart.products.length; i++) {                   
+    //                 if (cart.products[i].product_id === product.id) {
+    //                     setCrtPrd(cart.products[i])
+    //                     break;
+    //                 }
+    //                 setCrtPrd(null)
+    //             }            
+    //         }
+
+    //   }, [cart, product])
+    useEffect(() => {
+        if (cart && product) {
+            const match = cart.products.find(p => p.product_id === product.id);
+            setCrtPrd(match || null); // If found, set it. If not, null.
         }
-       
-      }, [cart, product])
+    }, [cart, product]);
 
 
 
-      return(
-        <>{ !error &&
-            <div className="product-details"> 
-                {product &&
-                    <>
-                        <h3>{product.title}</h3>
-                       
-                        {crtPrd?  
-                        <CartQtyCtrl item = { crtPrd }/>
-                        :
-                        <div>Not in cart
-                            <button className="btn btn-primary" onClick={()=> { addToCart(product.id,1) }}
-                            >Add to Cart</button>
+    return (
+        <>
+            {!error && product && (
+                <div className="container py-4">
+                    <h3 className="mb-2">{product.title}</h3>
+                    <StarRating rating={product.average_rating} count={product.review_count} />
+
+                    <div className="row mt-4">
+                        {/* Left side: Images */}
+                        <div className="col-md-6 mb-4">
+                            <div className="mb-3 text-center">
+                                <img
+                                    src={displayedImage?.url}
+                                    alt="Main"
+                                    className="img-fluid rounded"
+                                    style={{ maxHeight: '320px', objectFit: 'contain' }}
+                                />
+                            </div>
+                            <div className="d-flex justify-content-center gap-2 flex-wrap">
+                                {product.images.map((image) => (
+                                    <img
+                                        key={image.title}
+                                        src={image.url}
+                                        alt="thumbnail"
+                                        className="img-thumbnail"
+                                        style={{ width: '60px', height: '60px', cursor: 'pointer', objectFit: 'cover' }}
+                                        onMouseOver={() => setDisplayedImage(image)}
+                                        onClick={() => setDisplayedImage(image)}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                        }
-                       
-                           
-                        <div className="product-details-main">
-                            <div>
-                                <div className="single-product-images">
-                                    <ul>
-                                        {
-                                            product.images.map(image => {
-                                                return(
-                                                    <li key={image.title} 
-                                                        onMouseOver={()=>setDisplayedImage(image)}
-                                                        onClick={()=>setDisplayedImage(image)}
-                                                        >
-                                                        <img src={image.url} alt="product image" style={{width: '46px' , height:'44px'}}/>
-                                                    </li>
-                                                )
-                                            })
-                                        }
-                                    </ul>
-                                    <img src={displayedImage.url} alt="product image" style={{width: '320px' , height:'310px'}}/>
+
+                        {/* Right side: Info + Action */}
+                        <div className="col-md-6">
+                            <ul className="list-group list-group-flush mb-3">
+                                <li className="list-group-item">
+                                    <strong>Category:</strong> {product.category}
+                                </li>
+                                <li className="list-group-item">
+                                    <strong>Brand:</strong> {product.brand}
+                                </li>
+                                <li className="list-group-item">
+                                    <strong>Price:</strong> ${product.price}
+                                </li>
+                                <li className="list-group-item">
+                                    <strong>Dimensions:</strong> {product.dimensions}
+                                </li>
+                                <li className="list-group-item">
+                                    <strong>Characteristics:</strong> {product.characteristics}
+                                </li>
+                                {auth.is_admin && (
+                                    <li className="list-group-item">
+                                        <strong>Inventory:</strong> {product.inventory}
+                                    </li>
+                                )}
+                            </ul>
+
+                            {/* Inventory status */}
+                            {product.inventory === 0 && (
+                                <div className="alert alert-warning p-2 text-center">Out of Stock</div>
+                            )}
+
+                            {/* Add to cart or QtyCtrl */}
+                            <div className="w-50 mx-auto">
+                                {crtPrd ? (
+                                    <CartQtyCtrl item={crtPrd} />
+                                ) : (
+                                    <button
+                                        className="btn act-btn w-100"
+                                      
+                                        onClick={() => addToCart(product.id, 1)}
+                                        disabled={product.inventory === 0}
+                                    >
+                                        Add to Cart
+                                    </button>
+                                )}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {/* Reviews */}
+                    <div className="mt-5">
+                        <h5>Customer Reviews</h5>
+                        {product.reviews?.length > 0 ? (
+                            product.reviews.map((review) => (
+                                <div key={review.id} className="border-bottom pb-3 mb-3">
+                                    <strong>
+                                        {review.user.firstname} {review.user.lastname}
+                                    </strong>
+                                    <div className="my-1">
+                                        <StarRating rating={review.rating} />
+                                    </div>
+                                    <p className="text-muted small mb-1">
+                                        {new Date(review.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p>{review.comment}</p>
                                 </div>
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Title</th>
-                                            <td>{product.title}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Category</th>
-                                            <td>{product.category}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Brand</th>
-                                            <td>{product.brand}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Price</th>
-                                            <td>${product.price}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Dimensions</th>
-                                            <td>{product.dimensions}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">characteristics</th>
-                                            <td>{product.characteristics}</td>
-                                        </tr>
-                                        {
-                                            auth.is_admin && 
-                                            <tr>
-                                            <th scope="row">Inventory</th>
-                                            <td>{product.inventory}</td>
-                                        </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                                
-                            </div>
-                            <div>
-                            {
-                                product.inventory === 0 && <div style={{color: 'brown'}}>Out of Stock</div>
-                            }
-                            {
-                                auth.id && <button 
-                                    onClick={()=> { addToCart(product.id,1)  }}
-                                    disabled={ product.inventory === 0 }
-                                >Add to cart</button>  
-                            }
-                            {
-                            auth.is_admin && 
-                                <button onClick={()=>{
-                                    setMsg({ txt: `Are you sure you want to delete "${product.title}" from the product list?`, 
-                                                more: <button onClick={() => { deleteProduct(product.id); navigate('/'); setMsg(null) }}>Yes</button>
-                                    });
-                                    }} className="delete-btn">Delete
-                                </button>
-                            }
-                            </div>
-                        </div>
-                        
-                    </>
-                }
-            </div>
-        }            
+                            ))
+                        ) : (
+                            <p className="text-muted">No reviews yet for this product.</p>
+                        )}
+                    </div>
+                </div>
+            )}
         </>
-      )
+
+    )
 }
 

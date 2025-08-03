@@ -25,37 +25,37 @@ export default function OrderReview() {
                     {/* Title, Qty x Price */}
                     <div className="flex-grow-1 px-3">
                         <h6 className="mb-1">{item.title}</h6>
-                        <div className="text-muted small">
-                            Qty: {item.qty} x ${item.price}
+                        <div className="text-muted">
+                            {item.qty} x ${Number(item.price).toFixed(2)}
                         </div>
                     </div>
 
                     {/* Subtotal */}
                     <div className="text-end fw-bold">
-                        ${item.cost_per_product}
+                        ${Number(item.cost_per_product).toFixed(2)}
                     </div>
                 </div>
             ))}
 
 
             {/* Totals Section */}
-            <div className="d-flex justify-content-end order-total">
-                <table className="table table-sm w-auto">
+            <div className="d-flex justify-content-end order-total me-0 mb-3">              
+                    <table className="table table-sm ml-auto w-50">
                     <tbody>
                         <tr>
-                            <td>Order Subtotal</td>
-                            <td><strong>${cart.subtotal}</strong></td>
+                            <td>Subtotal</td>
+                            <td className="text-end"><strong>${cart.subtotal}</strong></td>
                         </tr>
                         <tr>
                             <td>Tax</td>
-                            <td><strong>${cart.tax}</strong></td>
+                            <td className="text-end"><strong>${cart.tax}</strong></td>
                         </tr>
                         <tr>
-                            <td><strong>Order Total</strong></td>
-                            <td className="text-danger"><strong>${cart.total}</strong></td>
+                            <td><strong>Total</strong></td>
+                            <td className="text-danger text-end"><strong>${cart.total}</strong></td>
                         </tr>
                     </tbody>
-                </table>
+                </table> 
             </div>
 
         </div>

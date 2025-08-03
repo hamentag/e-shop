@@ -9,6 +9,7 @@ import ShippingAddrForm from './ShippingAddrForm';
 import Confirmation from './Confirmation';
 import OrderReview from './OrderReview';
 import SuggestedForYou from './SuggestedForYou';
+import RequireLogin from './RequireLogin';
 
 
 
@@ -17,7 +18,7 @@ import useAuth from '../hooks/useAuth';
 import useCart from '../hooks/useCart';
 import useOrders from '../hooks/useOrders';
 import usePayment from '../hooks/usePayment';
-import EmptyCart from './EmptyCart';
+import EmptyView from './EmptyView';
 
 import { US_STATES } from '../utils/constants';
 
@@ -88,11 +89,9 @@ export default function Checkout() {
 
         if (paymentResult.success) {
             const order_collection_id = await createOrder();
-            console.log("check order_collection_id ", order_collection_id);
 
-            const fullOrder = await updateOrderPayment(order_collection_id, paymentResult.paymentIntent);
-            console.log("fullOrder..", fullOrder)
-            // setRecentOrder(fullOrder);
+            // Update DB order record with Stripe payment info
+            await updateOrderPayment(order_collection_id, paymentResult.paymentIntent);         
             
             navigate(`/confirmation/${order_collection_id}`);
         }
@@ -103,29 +102,24 @@ export default function Checkout() {
 
     if (cart?.cart_count === 0) {
         return (
-            <div className="text-center py-5">
-                <p>Your cart is empty.</p>
-                <button className="btn btn-secondary" onClick={() => navigate('/products/all')}>                    
-                    Browse Products
-                </button>
-
-                <EmptyCart />
-
-            </div>
+            <EmptyView title="Your cart is empty" message="Why not add something you love?"/>
         )
     }
-
 
     return (
         <div className='py-3 mx-1 mx-lg-auto' style={{ maxWidth: '55rem' }}>
             <h4 className="mt-4">Order Review</h4>
             <OrderReview />
+            
+            {!auth?.id ? (
+                <RequireLogin />
 
-            <form
+            ) : (
+              <form
                 className={`row g-3 needs-validation ${formValidated ? 'was-validated' : ''}`}
                 noValidate
                 onSubmit={handleSubmit}
-            >
+             >
                 <ShippingAddrForm formData={formData} handleChange={handleChange} />
 
                 <h4 className="mt-5">Payment Information</h4>
@@ -175,7 +169,10 @@ export default function Checkout() {
                         {paymentLoading ? 'Processing...' : 'Submit Payment'}
                     </button>
                 </div>
-            </form>
+            </form>  
+            )}
+
+            
         </div>
 
     );

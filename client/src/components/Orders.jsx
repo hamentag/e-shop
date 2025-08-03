@@ -4,15 +4,30 @@ import { useNavigate } from 'react-router-dom';
 
 import useAuth from '../hooks/useAuth';
 import useOrders from '../hooks/useOrders';
+import useCart from '../hooks/useCart';
+
+import EmptyView from './EmptyView';
 
 
 
 export default function Orders() {
 
     const { auth } = useAuth();
-    const { orders } = useOrders(); 
+    const { orders } = useOrders();
+    const { cart } = useCart();
      
     const navigate = useNavigate();
+
+
+    if (orders.length === 0) {
+        return (
+            <EmptyView title="No orders yet"
+                       message="Your order history will appear here after you make a purchase."
+                       actionText={cart?.cart_count !== 0 ? 'See cart' : null}
+                       actionLink={cart?.cart_count !== 0 ? '/cart' : null}    
+             />
+        )                         
+    }
 
 
     return (
