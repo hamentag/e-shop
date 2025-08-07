@@ -16,8 +16,8 @@ export default function NavbarMenu() {
     const { hideOffcanvas } = useOverlay();
     const { topBrands } = useBrands();
     const { categories } = useCategory();
-    
-    const [mnSear, setMnSear] = useState('')
+
+    const [searchValue, setSearchValue] = useState('');
     
     return (
         <div className="offcanvas-body nav-menu">
@@ -80,14 +80,14 @@ export default function NavbarMenu() {
             <hr className="nav-divider my-4" />
 
             {/* /// Search form /// */}
-            <form className="d-flex mt-3" role="search" onSubmit={(e) => { e.preventDefault(); hideOffcanvas(); navigate(`/products/search/${mnSear}`); }}>
+            <form className="d-flex mt-3" role="search" onSubmit={(e) => { e.preventDefault(); hideOffcanvas(); navigate(`/products/search/${searchValue}`); }}>
                 <input
                     className="form-control me-2"
                     type="search"
                     placeholder="Search"
                     aria-label="Search"
-                    value={mnSear}
-                    onChange={(e) => setMnSear(e.target.value)}
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
                     
                 />
                 <button className="btn btn-outline-success" type="submit">

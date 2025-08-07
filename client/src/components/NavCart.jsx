@@ -16,7 +16,8 @@ export default function () {
     
 
     return (
-        < button className="btn flex-shrink-1 position-relative p-0 nav-btn nav-cart"
+        < button className="btn flex-shrink-1 d-flex align-items-center justify-content-center position-relative p-0 nav-btn nav-cart" style={{ minHeight: '40px'}}
+  
             onClick={() => {
                 showOffcanvas({
                     title: 'Your Cart',

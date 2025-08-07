@@ -39,7 +39,7 @@ export default function Cart() {
         <div className="cart-details-lst mx-auto">
             {/* Sticky subtotal + button */}
             <div className="sticky-top bg-white z-3 border-bottom pt-5 pb-2 px-3">
-                <div className="d-grid gap-2 subtotal">
+                <div className="d-grid gap-2 pt-3 subtotal">
                     <strong className="fs-5">
                         Subtotal ({cart.cart_count} items): {' '}
                         <span className="text-primary small fw-semibold">

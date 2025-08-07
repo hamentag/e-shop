@@ -21,7 +21,7 @@ export default function CartQtyCtrl({item}){
                     disabled={ item.inventory === 0 }
                     style={{ textDecoration: 'none' }}
                 >
-                <span><i className="bi bi-dash-circle fs-5 fs-md-4 fs-lg-3" style={{ textShadow: '0 0 1px black' }}></i></span>
+                <span><i className="bi bi-dash fs-5 fs-md-4 fs-lg-3" style={{ textShadow: '0 0 1px black' }}></i></span>
                 </button>
             ) : (
                 <button
@@ -51,7 +51,7 @@ export default function CartQtyCtrl({item}){
                 disabled={ item.inventory === 0 }
                 style={{ textDecoration: 'none' }}
             >
-                <span><i className="bi bi-plus-circle fs-5 fs-md-4 fs-lg-3 fw-bold"></i></span>
+                <span><i className="bi bi-plus fs-5 fs-md-4 fs-lg-3 fw-bold"></i></span>
             </button>
         </div>       
         )}

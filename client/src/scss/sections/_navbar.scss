@@ -86,7 +86,13 @@
             line-height: 1;
             z-index: 1;
         }
+    }
 
+
+    .search-nav {
+        .bi-search {
+            color: $second-color;
+        }
     }
 
   
