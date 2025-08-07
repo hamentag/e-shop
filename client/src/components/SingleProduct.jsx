@@ -145,7 +145,7 @@ export default function SingleProduct() {
                                 .filter(review => review.comment && review.comment.trim() !== '')
                                 .map((review) => (
                                 <div key={review.id} className="border-bottom pb-3 mb-3">
-                                    <span><i class="bi bi-person-circle fs-2 px-2" style={{color: 'gray'}}></i></span>
+                                    <span><i className="bi bi-person-circle fs-2 px-2" style={{color: 'gray'}}></i></span>
                                     <strong>
                                         {review.user.firstname} {review.user.lastname}
                                     </strong>

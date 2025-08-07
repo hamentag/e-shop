@@ -50,7 +50,7 @@ export default function Products() {
 
     </ul>
 
-    <div dialogClassName="product-list">
+    <div>
       <ProductCarousel
             title="You might also like"
             renderItem={item => (

@@ -11,7 +11,7 @@ export default function MenuButton() {
 
     return (
         <button
-            className="navbar-toggler flex-shrink-1 p-0"
+            className="navbar-toggler flex-shrink-1 px-2"
             type="button"
             onClick={() => {
                 showOffcanvas({
@@ -24,7 +24,7 @@ export default function MenuButton() {
                 })
             }}
         >
-            <span><i className="bi bi-list fs-4"></i></span>
+            <span><i className="bi bi-list fs-3"></i></span>
         </button>
     )
 }

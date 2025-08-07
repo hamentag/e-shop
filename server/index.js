@@ -297,7 +297,7 @@ app.get('/api/users/:order_collection_id', isLoggedIn, async (req, res, next) =>
   }
 });
 
-
+// Get user cart 
 app.get('/api/users/:id/cart', isLoggedIn, async (req, res, next) => {
   try {
     const dbCart = await fetchCart(req.params.id);

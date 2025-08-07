@@ -8,10 +8,10 @@
         padding: 0;
 
         form {
-            width: 5rem;
-
+            
             input {
                 font-size: small;
+                font-weight: 300;
             }
 
             input.no-outline {
@@ -40,7 +40,7 @@
 
         .navbar-brand {
             color: $second-color;
-            font-size: 1.25rem;
+            font-size: 24px;
             padding-left: 0.5rem;
              min-width: 0;
             margin-right: 0;
@@ -54,7 +54,8 @@
 
             .nav-link {
                 .fname-account {
-                    font-weight: 600;
+                    font-size: 16px;
+                    font-weight: 500;
                 }
             }
             .dropdown-item {
@@ -74,8 +75,7 @@
 
         .cart-count {
             position: absolute;
-            top: 20%;
-            left: 50%;
+           
             transform: translate(-50%, -50%);
             font-size: 0.75rem;
             font-weight: bold;
@@ -91,19 +91,14 @@
 
   
     .navbar-toggler {
-        min-width: 0;
         outline: none;
         box-shadow: none;
-        transform: scale(0.75);
+        // transform: scale(1);
         border: none;
     }
 
 
-    .bi-list, .bi-cart2 {
-        transform: scale(0.6);
-    }
-
-   
+  
 
     ////
     // min 
@@ -111,9 +106,9 @@
 
     @media (min-width: 360px) {
         .container-fluid {
-            form {
-                max-width: 10rem;
-            }
+            // form {
+            //     max-width: 10rem;
+            // }
 
             .navbar-brand {
                 // font-size: medium;
@@ -142,16 +137,16 @@
     }
 
     @media (min-width: 768px) {
-        .bi-list, .bi-cart2, .bi-person {
-            transform: scale(0.75);
-        }
+        // .bi-list, .bi-cart2, .bi-person {
+        //     transform: scale(1);
+        // }
       
     }
 
     @media (min-width: 992px) {
-        .navbar-toggler {
-            transform: scale(1);
-        }
+        // .navbar-toggler {
+        //     transform: scale(1.4);
+        // }
 
         .container-fluid {
             form {
@@ -181,17 +176,16 @@
             .fname-account {
                 display: none;
             }
-
-
+            
         }
     }
 
 
     @media (max-width: 768px) {
        
-        .mavbar-toggler-icon {
-            transform: scale(0.5);
-        }
+        // .mavbar-toggler-icon {
+        //     transform: scale(0.5);
+        // }
     }
 
 

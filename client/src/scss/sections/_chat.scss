@@ -2,8 +2,8 @@
 
 .chat-container {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  // bottom: 20px;
+  // right: 20px;
   z-index: 9999;
 
   .act-btn {
@@ -38,8 +38,8 @@
 }
 
 .chat-box {
-  width: 420px;
-  height: 512px;
+  // width:95%;
+  height: 30rem;
   display: flex;
   flex-direction: column;
 //   border-radius: 5px;
@@ -50,6 +50,26 @@
 .chat-body {
   flex-grow: 1;
   overflow-y: auto;
-  max-height: 300px;
+  // max-height: 300px;
    z-index: 1050;
 }
+
+.form-control {
+  font-weight:bold;
+}
+
+
+  @media (min-width: 360px) {}
+
+    @media (min-width: 360px) {
+        
+    }
+
+    @media (min-width: 428px) {}
+
+    @media (min-width: 576px) {
+      .chat-box {
+        width: 420px;
+      }
+
+    }

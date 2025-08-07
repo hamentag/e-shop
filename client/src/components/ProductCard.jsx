@@ -22,7 +22,7 @@ export default function ProductCard({ product }) {
       <img
         src={showcaseImg?.url}
         alt="product image"
-        className="img-fluid h-100 object-fit-contain bd-placeholder-img card-img-top product-img mx-auto"
+        className="img-fluid object-fit-contain bd-placeholder-img card-img-top product-img mx-auto"
         onClick={() => navigate(`/${product.id}`)}
         role="button"      
       />
@@ -51,7 +51,7 @@ export default function ProductCard({ product }) {
         </div>
       </div>
 
-      <div className="card-footer py-0 px-2 border-0">
+      <div className="card-footer px-2 border-0">
         {crtItem ? (
           <CartQtyCtrl item={crtItem} />
         ) : (

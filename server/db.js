@@ -11,17 +11,16 @@ const client = new Client({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,// 5432 Default PostgreSQL port
+  port: process.env.DB_PORT,
 });
 
-const TOP_BRANDS_LIMIT = parseInt(process.env.TOP_BRANDS_LIMIT) || 4;
-const TAX_RATE = parseFloat(process.env.TAX_RATE) || 6.5;
 
 const uuid = require('uuid');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT = process.env.JWT || 'shhh';
 
+const  {topBrandsLimit, TAX_RATE } = require('./utils/constants');
 
 const createTables = async () => {
   const SQL = `
@@ -44,7 +43,6 @@ const createTables = async () => {
     
        -- Create required extensions:
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-    CREATE EXTENSION IF NOT EXISTS pg_cron;
 
       -- Create tables:
     CREATE TABLE users(
@@ -244,25 +242,7 @@ const createTriggers = async () => {
   `;
   await client.query(SQL);
 
-  // //  Clear cart when order is created
-  // SQL = `
-  // CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
-  // RETURNS TRIGGER AS $$
-  // BEGIN
-  //     DELETE FROM cart WHERE user_id = NEW.user_id AND product_id = NEW.product_id;
-  //     RETURN NEW;
-  // END;
-  // $$ LANGUAGE plpgsql;
-
-  // -- Create trigger to clear cart when order is created
-  // CREATE TRIGGER clear_cart_trigger
-  // AFTER INSERT ON orders
-  // FOR EACH ROW
-  // EXECUTE FUNCTION clear_cart_when_place_order();
-  // `;
-  // await client.query(SQL);
-
-  // Clear cart when order is created (fixed)
+  // Clear cart when order is created
   SQL = `
   CREATE OR REPLACE FUNCTION clear_cart_when_place_order()
   RETURNS TRIGGER AS $$
@@ -308,7 +288,7 @@ const createTriggers = async () => {
       JOIN review r ON r.product_id = p.id
       GROUP BY p.brand
       ORDER BY average_rate DESC
-      LIMIT ${TOP_BRANDS_LIMIT};
+      LIMIT ${topBrandsLimit};
     END;
     $$ LANGUAGE plpgsql;  
   `;
@@ -619,7 +599,6 @@ const parseCartRow = (row) => ({
 
 
 
-
 // fetchCart
 const fetchCart = async (user_id) => {
   const SQL = `
@@ -645,8 +624,8 @@ const fetchCart = async (user_id) => {
         FROM cart_products
     )
     SELECT *,
-          (ROUND(subtotal * ($2::numeric / 100), 2)) AS tax,
-          (ROUND(subtotal * (1 + ($2::numeric / 100)), 2)) AS total,
+          ROUND(subtotal * $2::numeric, 2) AS tax,
+          ROUND(subtotal * (1 + $2::numeric), 2) AS total,
           (price * qty) AS cost_per_product,
           $2 AS tax_rate
     FROM cart_products, cost_and_subtotal_calculation
@@ -656,17 +635,6 @@ const fetchCart = async (user_id) => {
   // return response.rows;
   return response.rows.map(parseCartRow);
 };
-
-// // fetchOrderCollections
-// const fetchOrderCollections = async(user_id)=> {
-//   const SQL = `
-//     SELECT DISTINCT order_collection_id 
-//     FROM orders
-//     WHERE user_id = $1;
-//   `;
-//   const response = await client.query(SQL, [user_id]);
-//   return response.rows;
-// };
 
 
 // fetchOrderCollections
@@ -680,62 +648,7 @@ const fetchOrderCollections = async (user_id) => {
 
 
 
-// // fetchOrders
-// const fetchOrders = async(user_id, order_collection_id)=> {
-//   const  SQL = `
-//   WITH combined_order AS (
-//     SELECT 
-//       orders.*, 
-//       products.id AS p_id, products.title, products.price,
-//       images.title AS image_title, images.caption, images.is_showcase
-//     FROM orders
-//     JOIN products ON orders.product_id = products.id
-//     JOIN images ON orders.product_id = images.product_id
-//     WHERE user_id = $1 AND order_collection_id = $3 AND images.is_showcase = $4
-//     ORDER BY created_at DESC
-//   ),
-//   items_count_and_subtotal_calculation AS (
-//     SELECT 
-//       SUM(price * qty) AS subtotal, 
-//       SUM(qty) AS items_count
-//     FROM combined_order
-//   )
-//   SELECT user_id,
-//       order_collection_id,
-//       created_at,
-//       updated_at,
-//       subtotal,
-//       items_count,
-//       ROUND(subtotal * ($2::numeric / 100), 2) AS tax,
-//       ROUND(subtotal * (1 + ($2::numeric / 100)), 2)  AS total,
-//       $2 AS tax_rate,
-//       json_agg(json_build_object(
-//           'order_id', id,
-//           'product_id', product_id,
-//           'qty' , qty, 
-//           'title', title,
-//           'price', price,
-//           'cost_per_product', price * qty,
-//           'image_title', image_title,
-//           'caption', caption,
-//           'is_showcase', is_showcase)) AS items
-//   FROM combined_order, items_count_and_subtotal_calculation
-//   GROUP BY 
-//     user_id,
-//     order_collection_id,
-//     created_at,
-//     updated_at,
-//     subtotal,
-//     items_count,
-//     tax,
-//     total,
-//     tax_rate
-//   ;
-// `;
-// const response = await client.query(SQL, [ user_id, TAX_RATE, order_collection_id, true]);
-// return response.rows[0]
-// }
-
+// fetch Orders
 const fetchOrders = async (user_id, order_collection_id) => {
   const SQL = `
     WITH combined_order AS (
@@ -776,9 +689,9 @@ const fetchOrders = async (user_id, order_collection_id) => {
       updated_at,
       total_amount, payment_intent_id, status, receipt_url,
       subtotal,
-      items_count,
-      ROUND(subtotal * ($2::numeric / 100), 2) AS tax,
-      ROUND(subtotal * (1 + ($2::numeric / 100)), 2) AS total,
+      items_count,     
+      ROUND(subtotal * $2::numeric, 2) AS tax,
+      ROUND(subtotal * (1 + $2::numeric), 2) AS total,
       $2 AS tax_rate,
       json_agg(json_build_object(
         'order_item_id', order_item_id,
@@ -800,38 +713,7 @@ const fetchOrders = async (user_id, order_collection_id) => {
 };
 
 
-
-// // fetchSingleProduct
-// const fetchSingleProduct = async (id) => {
-//   const SQL = `
-//     WITH product_data AS (
-//       SELECT
-//           id,
-//           title,
-//           brand,
-//           price,
-//           dimensions,
-//           characteristics,
-//           inventory
-//       FROM products where id = $1
-//   )
-//   SELECT
-//       pd.*,
-//       json_agg(json_build_object('title', c.title, 'caption', c.caption, 'is_showcase', c.is_showcase)) AS images
-//   FROM product_data pd
-//   JOIN images c ON pd.id = c.product_id
-//   GROUP BY pd.id, 
-//   pd.title,
-//   pd.brand,
-//   pd.price,
-//   pd.dimensions,
-//   pd.characteristics,
-//   pd.inventory
-//   ;
-//   `;
-//   const response = await client.query(SQL, [id]);
-//   return response.rows[0];
-// };
+// Fetch single product
 const fetchSingleProduct = async (id) => {
   const SQL = `
     WITH product_data AS (
@@ -937,8 +819,8 @@ const fetchGuestCart = async (guest_id) => {
         FROM cart_products
     )
     SELECT *,
-          (ROUND(subtotal * ($2::numeric / 100), 2)) AS tax,
-          (ROUND(subtotal * (1 + ($2::numeric / 100)), 2)) AS total,
+          ROUND(subtotal * $2::numeric, 2) AS tax,
+          ROUND(subtotal * (1 + $2::numeric), 2) AS total,
           (price * qty) AS cost_per_product,
           $2 AS tax_rate
     FROM cart_products, cost_and_subtotal_calculation

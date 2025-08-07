@@ -10,7 +10,10 @@ const Layout = ({ children }) => {
       <main className="flex-grow-1 container-fluid pt-5 pb-3">
         {children}
       </main>
-      <SuggestedForYou />
+      <div className="pb-5">
+         <SuggestedForYou/>
+      </div>
+     
       <ChatWidget />
       <Footer />
     </div>

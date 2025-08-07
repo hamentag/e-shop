@@ -12,7 +12,7 @@ export default function NavAccount() {
         <div className="nav-item dropdown btn flex-shrink-1 p-0 nav-btn nav-account">
             <button className="nav-link dropdown-toggle flex-shrink-1"
                 role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                <span><i className="bi bi-person fs-4"></i></span>
+                <span><i className="bi bi-person fs-2"></i></span>
                 <span className="fname-account">
                     {auth.id ? `${auth.firstname}` : 'Account'}
                 </span>

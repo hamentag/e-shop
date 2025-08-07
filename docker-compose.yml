@@ -1,33 +1,57 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:17
+    container_name: eshop-postgres
+    env_file:
+      - ./server/.env
+    environment:
+      POSTGRES_USER: hamuser
+      POSTGRES_PASSWORD: hamuser
+      POSTGRES_DB: eshop_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - eshop-net
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "hamuser", "-d", "eshop_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   backend:
     build:
       context: .
       dockerfile: Dockerfile.express
-    env_file:
-      - ./server/.env
     image: eshop-express
     container_name: eshop-express-container
-    # network_mode: host
-    network_mode: bridge
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production 
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "3001:3000"
+    networks:
+      - eshop-net
 
   chat-backend:
     build:
       context: .
       dockerfile: Dockerfile.flask
-    env_file:
-      - ./chat-backend/.env
     image: eshop-chat
     container_name: eshop-chat-container
+    env_file:
+      - ./chat-backend/.env
     ports:
       - "5001:5000"
-    # network_mode: bridge
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
+    networks:
+      - eshop-net
 
   frontend:
     build:
@@ -35,9 +59,17 @@ services:
       dockerfile: Dockerfile.react
     image: eshop-react
     container_name: eshop-react-container
-    ports:
-      - "8082:80"
     depends_on:
       - backend
       - chat-backend
+    ports:
+      - "8082:80"
+    networks:
+      - eshop-net
 
+volumes:
+  pgdata:
+
+networks:
+  eshop-net:
+    driver: bridge
